@@ -1,12 +1,12 @@
 {%- if section.blocks.size > 0 -%}
   {%- liquid
     assign bar_markup = ''
-    assign is_top = true
+    assign has_progress_holder = false
     assign bg_color = section.settings.bg_color
     assign bg_image = section.settings.bg_image
     assign layout = section.settings.layout
     assign text_size = section.settings.text_size | times: 0.01
-    assign text_color = section.settings.color
+    assign color = section.settings.color
     assign padding = section.settings.padding | append: 'px'
     assign message_spacing = section.settings.message_spacing | append: 'px'
     assign animation_anchor = '#Marquee--' | append: section.id
@@ -59,11 +59,34 @@
         {%- when 'text' -%}
           {%- if block.settings.text != blank -%}
             {%- liquid
+              assign title = block.settings.text | replace: '|', '<span class="top-bar__divider"></span>'
               assign icon_image = block.settings.icon_image
               assign icon_name = block.settings.icon_name
               assign icon_width = block.settings.icon_width
               assign icon_color = block.settings.icon_color
+              assign text_color = block.settings.text_color
+              assign heading_highlight_type = block.settings.heading_highlight_type
+              assign highlight_color = block.settings.highlight_color
+              assign highlight_text_color = block.settings.highlight_text_color
             -%}
+            {%- capture block_style -%}
+              {%- if text_color != '' and text_color != 'rgba(0,0,0,0)' -%}
+                --text: {{ text_color }};
+              {%- endif -%}
+
+              {%- if heading_highlight_type != 'highlight' -%}
+                --highlight-color: var(--text);
+              {%- endif -%}
+
+              {%- if highlight_color != 'rgba(0,0,0,0)' and highlight_color != '' -%}
+                --highlight-color: {{ highlight_color }};
+              {%- endif -%}
+
+              {%- if highlight_text_color != 'rgba(0,0,0,0)' and highlight_text_color != '' -%}
+                --highlight-text-color: {{ highlight_text_color }};
+              {%- endif -%}
+            {%- endcapture -%}
+
             {%- capture styles -%}
               width: {{ icon_width }}px;
 
@@ -74,9 +97,139 @@
               {%- if icon_color != '' and icon_color != 'rgba(0,0,0,0)' and icon_image == blank -%}
                 --text: {{ icon_color }};
               {%- endif -%}
-            {%- endcapture -%}
+            {%- endcapture -%}{% comment %}
+  Enhanced text decorations options - Liqiud variables
 
-            {%- capture icon -%}
+  Dependencies:
+    - Title liquid object from settings: `assign title = section.settings.title`
+    - Highlight type from settings: `assign heading_highlight_type = section.settings.heading_highlight_type`
+    - Highlight color from settings: `assign highlight_color = section.settings.highlight_color or assign highlight_color = block.settings.highlight_color`
+    - SVG icons:
+      - icon-squiggle.svg (assets)
+      - icon-circle.liquid (snippet)
+{% endcomment %}
+
+{%- liquid
+  comment
+   Highlighted words count
+  endcomment
+  assign title_temp = title | split: '<em>'
+  assign em_arr = ''
+  if title_temp.size > 1
+    for text_part in title_temp offset: 1
+      assign em_text = text_part | split: '</em>' | first
+      assign em_arr = em_arr | append: '#separator#' | append: em_text
+    endfor
+  endif
+  assign em_arr = em_arr | split: '#separator#'
+  assign words_count_arr = ''
+  assign letters_count_arr = ''
+  if em_arr.size > 0
+    for words in em_arr offset: 1
+      assign word = words | split: ' '
+      assign words_count_arr = words_count_arr | append: word.size | append: ', '
+      assign letters_count_arr = letters_count_arr | append: words.size | append: ', '
+    endfor
+  endif
+
+  assign words_count_arr = words_count_arr | replace_last: ', ', '' | split: ', '
+  assign letters_count_arr = letters_count_arr | replace_last: ', ', '' | split: ', '
+
+  comment
+   Main highlight types logic
+  endcomment
+  assign icon_url = ''
+  assign icon_color = 'var(--text)'
+
+  if highlight_color != 'rgba(0,0,0,0)' and highlight_color != ''
+    assign icon_color = highlight_color
+  endif
+
+  capture text_highlight_icon
+    assign has_text_highlight = false
+
+    if title contains '<em>'
+      case heading_highlight_type
+        when 'squiggle'
+          assign icon_url = 'icon-squiggle.svg' | asset_url
+          echo '<span class="text-highlight__icon"></span>'
+        when 'circle'
+          echo '<span class="text-highlight__icon">'
+          render 'icon-circle', color: icon_color
+          echo '</span>'
+        when 'stroke' or 'circle' or 'squiggle' or 'highlight' or 'highlight-color' or 'underline'
+          assign has_text_highlight = true
+      endcase
+    endif
+  endcapture
+
+  capture icon_bg
+    if icon_url != ''
+      echo 'url( "' | append: icon_url | append: '" )'
+    else
+      echo 'none'
+    endif
+  endcapture
+  capture icon_styles
+    assign icon_bg = icon_bg | replace: '"', "'"
+    echo 'style="--icon-url: ' | append: icon_bg | append: ';' | append: '--icon-color: ' | append: icon_color | append: ';"'
+  endcapture
+
+  assign text_highlight_wrapper_class = 'text-highlight-wrapper' | append: ' text-highlight-wrapper--' | append: heading_highlight_type
+  capture text_highlight_start
+    echo '<span class="text-highlight" ' | append: icon_styles | append: '>'
+  endcapture
+  capture text_highlight_end
+    echo text_highlight_icon
+    echo '</span>'
+  endcapture
+
+  if title != blank and title contains '<em>'
+    case heading_highlight_type
+      when 'squiggle' or 'circle' or 'stroke' or 'highlight' or 'highlight-color' or 'underline'
+        assign title = title | replace: '<em>', text_highlight_start | replace: '</em>', text_highlight_end
+
+      when 'circle'
+        comment
+          Update icon's holder class based on the italicised words count
+        endcomment
+        assign title = title | split: 'class="text-highlight"'
+        assign title_mod = ''
+        for title_part in title offset: 1
+          assign current_part = title_part
+
+          if title_part contains 'text-highlight__icon'
+            capture highlight_icon_classes
+              echo 'text-highlight__icon'
+              assign current_count = words_count_arr[forloop.index0] | times: 1
+              assign letters_count = letters_count_arr[forloop.index0] | times: 1
+              if current_count == 1
+                echo ' text-highlight__icon--single-word'
+              endif
+              if letters_count < 6
+                echo ' text-highlight__icon--short'
+                echo ' text-highlight__icon--l' | append: letters_count
+              endif
+              if letters_count > 15
+                echo ' text-highlight__icon--long'
+              endif
+            endcapture
+
+            assign current_part = title_part | replace: 'text-highlight__icon', highlight_icon_classes
+          endif
+
+          unless forloop.last
+            assign title_mod = title_mod | append: current_part | append: 'class="text-highlight"'
+          else
+            assign title_mod = title_mod | append: current_part
+          endunless
+        endfor
+        assign title_first_part = title | first | append: 'class="text-highlight"'
+        assign title_mod = title_mod | prepend: title_first_part
+        assign title = title_mod
+    endcase
+  endif
+-%}{%- capture icon -%}
               {%- if icon_image != blank -%}
                 {%- render 'image-fill', img_object: icon_image, classes: 'top-bar__icon', styles: styles -%}
               {%- elsif icon_name != 'none' -%}
@@ -86,12 +239,16 @@
               {%- endif -%}
             {%- endcapture -%}
             {%- if layout == 'slider' -%}
-              <div {{ block_attributes }}>
+              <div {{ block_attributes }}{% if block_style != blank %} style="{{ block_style }}"{% endif %}>
                 <div data-ticker-frame class="top-bar__message">
                   <div data-ticker-scale class="top-bar__scale">
-                    <div data-ticker-text class="top-bar__text">
+                    <div data-ticker-text class="top-bar__text{% if has_text_highlight %} {{ text_highlight_wrapper_class }}{% endif %}">
                       {{ icon }}
-                      {{ block.settings.text | replace: '|', '<span class="top-bar__divider"></span>' }}
+                      {% render 'title-with-highlights',
+                        title: title,
+                        heading_highlight_type: heading_highlight_type,
+                        highlight_color: highlight_color,
+                        has_text_highlight: has_text_highlight %}
                     </div>
                   </div>
                 </div>
@@ -99,9 +256,30 @@
             {%- endif -%}
 
             {%- if layout == 'marquee' -%}
-              <div {{ block_attributes }}>
+              {%- if has_text_highlight -%}
+                {%- assign classes = classes | append: ' ' | append: text_highlight_wrapper_class -%}
+              {%- endif -%}
+
+              {%- capture block_attributes -%}
+                data-slide="{{ block.id }}"
+                data-slide-index="{{ forloop.index0 }}"
+                data-block-id="{{ block.id }}"
+                {%- if target_device_enable -%}
+                  data-target-device="true"
+                {%- endif -%}
+                {%- if classes != '' -%}
+                  class="{{ classes }}"
+                {%- endif -%}
+                {{ block.shopify_attributes }}
+              {%- endcapture -%}
+
+              <div {{ block_attributes }}{% if block_style != blank %} style="{{ block_style }}"{% endif %}>
                 {{ icon }}
-                {{ block.settings.text | replace: '|', '<span class="top-bar__divider"></span>' }}
+                {% render 'title-with-highlights',
+                  title: title,
+                  heading_highlight_type: heading_highlight_type,
+                  highlight_color: highlight_color,
+                  has_text_highlight: has_text_highlight %}
               </div>
             {%- endif -%}
           {%- endif -%}
@@ -177,13 +355,13 @@
       <span class="cart__message__success">{{ qualified_shipping_message }}</span>
     {%- endif -%}
 
-    {%- unless is_top -%}
+    {%- if has_progress_holder -%}
       <span class="cart__message__progress__holder">
         <progress class="cart__message__progress" data-cart-message-progress value="{{ percent }}" max="100" style="--progress-width: {{ percent }}%;"></progress>
         {%- comment -%}Second progress bar shows only on Firefox{%- endcomment -%}
         <progress class="cart__message__progress" data-cart-message-progress max="100" style="--progress-width: {{ percent }}%;"></progress>
       </span>
-    {%- endunless -%}
+    {%- endif -%}
   </p>
 {%- endif -%}</div>
                   </div>
@@ -257,17 +435,18 @@
       <span class="cart__message__success">{{ qualified_shipping_message }}</span>
     {%- endif -%}
 
-    {%- unless is_top -%}
+    {%- if has_progress_holder -%}
       <span class="cart__message__progress__holder">
         <progress class="cart__message__progress" data-cart-message-progress value="{{ percent }}" max="100" style="--progress-width: {{ percent }}%;"></progress>
         {%- comment -%}Second progress bar shows only on Firefox{%- endcomment -%}
         <progress class="cart__message__progress" data-cart-message-progress max="100" style="--progress-width: {{ percent }}%;"></progress>
       </span>
-    {%- endunless -%}
+    {%- endif -%}
   </p>
 {%- endif -%}</div>
             {%- endif -%}
           {%- endif -%}
+
         {%- when 'custom' -%}
           {%- if block.settings.text != blank -%}
             {%- if layout == 'slider' -%}
@@ -286,6 +465,56 @@
           {%- if layout == 'marquee' -%}
             <div {{ block_attributes }}>
               <span>{{ block.settings.text }}</span>
+            </div>
+          {%- endif -%}
+
+        {%- when 'image' -%}
+          {%- liquid
+            assign image = block.settings.image
+            assign image_link = block.settings.link
+            assign image_width = block.settings.image_width
+            assign image_width_retina = image_width | times: 2
+            assign image_widths = image_width | append: ', ' | append: image_width_retina
+            assign sizes = image_width | append: 'px'
+            assign animation_delay = animation_delay | plus: 150
+            assign placeholder_index = forloop.index | at_most: 4
+            assign placeholder_svg = 'product-apparel-' | append: placeholder_index
+
+            capture styles
+              echo 'width: ' | append: image_width | append: 'px; '
+              if image == blank
+                echo 'height: ' | append: image_width | append: 'px; '
+              endif
+            endcapture
+
+            capture image_render
+              if image_link
+                echo '<a href="' | append: image_link | append: '">'
+              endif
+
+              render 'image', image: image, width: image_width_retina, widths: image_widths, sizes: sizes, styles: styles, classes: 'top-bar__image', placeholder_svg: placeholder_svg
+
+              if image_link
+                echo '</a>'
+              endif
+            endcapture
+          -%}
+
+          {%- if layout == 'slider' -%}
+            <div {{ block_attributes }}>
+              <div data-ticker-frame class="top-bar__message">
+                <div data-ticker-scale class="top-bar__scale">
+                  <div data-ticker-text class="top-bar__text{% if image == blank %} top-bar__text--placeholder{% endif %}">
+                    {{ image_render }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {%- endif -%}
+
+          {%- if layout == 'marquee' -%}
+            <div {{ block_attributes }}>
+              {{ image_render }}
             </div>
           {%- endif -%}
       {%- endcase -%}
@@ -318,8 +547,8 @@
           --bg: {{ bg_color }};
         {%- endif -%}
 
-        {%- if text_color != 'rgba(0,0,0,0)' and text_color != '' -%}
-          --text: {{ text_color }};
+        {%- if color != 'rgba(0,0,0,0)' and color != '' -%}
+          --text: {{ color }};
         {%- endif -%}
       }
       #Marquee--{{ section.id }} .flickity-enabled .ticker--animated,
@@ -344,7 +573,7 @@
           <div class="top-bar__slide" data-top-bar-slide>
             <div data-ticker-frame data-marquee-speed="{{ section.settings.marquee_speed }}" class="top-bar__message">
               <div data-ticker-scale class="ticker--unloaded top-bar__scale">
-                <div data-ticker-text class="top-bar__text">
+                <div data-ticker-text class="top-bar__text {{ section.settings.direction }}">
                   {{ bar_markup }}
                 </div>
               </div>
@@ -399,13 +628,13 @@
       "type": "color",
       "id": "bg_color",
       "label": "Background",
-      "default": "#000000"
+      "default": "#ffffff"
     },
     {
       "type": "color",
       "id": "color",
       "label": "Text",
-      "default": "#ffffff"
+      "default": "#000000"
     },
     {
       "type": "header",
@@ -420,6 +649,16 @@
       "max": 300,
       "step": 25,
       "default": 100
+    },
+    {
+      "type": "select",
+      "id": "direction",
+      "label": "Text direction",
+      "default": "ticker-rtl",
+      "options": [
+        { "value": "ticker-ltr", "label": "Left to right" },
+        { "value": "ticker-rtl", "label": "Right to left" }
+      ]
     },
     {
       "type": "header",
@@ -443,7 +682,7 @@
       "type": "range",
       "id": "text_size",
       "label": "Size",
-      "default": 100,
+      "default": 150,
       "min": 50,
       "max": 400,
       "step": 10,
@@ -503,7 +742,44 @@
           "type": "richtext",
           "id": "text",
           "label": "Text",
-          "default": "<p>New collections just released - <a href=\"\/collections\" title=\"All collections\">Shop Now<\/a><\/p>"
+          "default": "<p>New collections just released - <a href=\"\/collections\" title=\"All collections\">Shop Now<\/a><\/p>",
+          "info": "Highlight one or two key words in your heading by italicizing them, then choose the highlight option below"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Color"
+        },
+        {
+          "type": "header",
+          "content": "Highlight"
+        },
+        {
+          "type": "select",
+          "id": "heading_highlight_type",
+          "label": "Type",
+          "default": "circle",
+          "options": [
+            { "value": "italics", "label": "Italics (no decoration)" },
+            { "value": "highlight", "label": "Highlight" },
+            { "value": "highlight-color", "label": "Text color" },
+            { "value": "underline", "label": "Underline" },
+            { "value": "squiggle", "label": "Squiggle" },
+            { "value": "circle", "label": "Circle" },
+            { "value": "stroke", "label": "Stroke (outlined text)" }
+          ]
+        },
+        {
+          "type": "color",
+          "id": "highlight_color",
+          "label": "Highlight color",
+          "default": "#D43747"
+        },
+        {
+          "type": "color",
+          "id": "highlight_text_color",
+          "label": "Text color",
+          "default": "#000"
         },
         {
           "type": "header",
@@ -682,6 +958,32 @@
           ]
         }
       ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "range",
+          "id": "image_width",
+          "label": "Width",
+          "unit": "px",
+          "min": 20,
+          "max": 180,
+          "step": 10,
+          "default": 100
+        }
+      ]
     }
   ],
 "presets": [
@@ -690,22 +992,22 @@
       "category": "Custom",
       "blocks": [
         {
-          "type": "message",
-          "settings": {
-            "message": "Spend ||amount|| more for free shipping."
-          }
-        },
-        {
           "type": "text",
           "settings": {
             "text": "<p>New collections just released - <a href=\"/collections\" title=\"All collections\">Shop now</a></p>"
           }
         },
         {
+          "type": "image"
+        },
+        {
           "type": "text",
           "settings": {
             "text": "<p>Use code <strong>TENOFF</strong> for 10% off first purchase</p>"
           }
+        },
+        {
+          "type": "image"
         }
       ]
     }

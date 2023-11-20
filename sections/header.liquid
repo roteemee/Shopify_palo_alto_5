@@ -99,6 +99,14 @@
       .is-first-section-transparent .main-content > .supports-transparent-header:first-child .video-text-wrapper {
         padding-top: calc(var(--header-height) + var(--gutter));
       }
+
+      .is-first-section-transparent .main-content > .supports-transparent-header:first-child .countdown__text-container {
+        padding-top: calc(var(--header-height) + var(--gutter) / 2);
+      }
+      .is-first-section-transparent .main-content > .supports-transparent-header:first-child .countdown__content,
+      .is-first-section-transparent .main-content > .supports-transparent-header:first-child .countdown__aside {
+        padding-top: 0;
+      }
     }
   {% endif %}
 {%- endstyle -%}
@@ -209,7 +217,7 @@
   {%- endcase -%}
 {%- endcapture -%}
 
-<nav id="NavStandard" class="nav nav--default nav--weight-{{ settings.nav_font_weight }}{% if settings.nav_caps %} caps{% endif %}" data-nav {{ style }}>
+<nav id="NavStandard" class="nav nav--default nav--weight-{{ settings.nav_font_weight }}{% if settings.nav_caps_letter_spacing %} caps-letter-spacing-nav{% else %} letter-spacing-nav{% endif %}" data-nav {{ style }}>
   <div class="menu__item menu__item--compress" data-nav-items-compress>
     {%- if settings.show_header_search -%}
       {%- render 'search-popdown', unique: 'desktop-compress', in_header: true, summary_classes: 'navlink navlink--icon' -%}
@@ -228,7 +236,7 @@
 
   <div class="menu__items" data-takes-space>
     {%- for link in linklists[section.settings.main-menu].links -%}
-      {%- render 'nav-item', link: link, section: section, index: forloop.index, highlight_item: highlight_item -%}
+      {%- render 'nav-item', link: link, section: section, index: forloop.index -%}
     {%- endfor -%}
   </div>
 
@@ -449,7 +457,7 @@
       "type": "checkbox",
       "id": "header_gradient",
       "label": "Increase text transparency",
-      "default": false,
+      "default": true,
       "info": "Add gradient when header is transparent"
     }
   ],
@@ -502,6 +510,16 @@
           "type": "text",
           "id": "title",
           "label": "Heading"
+        },
+        {
+          "type": "range",
+          "id": "heading_size",
+          "label": "Heading size",
+          "default": 100,
+          "min": 50,
+          "max": 200,
+          "step": 5,
+          "unit": "%"
         },
         {
           "type": "text",

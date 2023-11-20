@@ -47,7 +47,7 @@
   </div>
 
   {%- comment -%} Mobile Navigation {%- endcomment -%}
-  <ul class="mobile-nav mobile-nav--weight-{{ settings.nav_font_weight }}">
+  <ul class="mobile-nav mobile-nav--weight-{{ settings.nav_font_weight }}{% unless settings.nav_caps_letter_spacing %} letter-spacing-nav{% endunless %}">
     {%- for link in linklists[section.settings.main-menu].links -%}
       {%- assign link_title = link.title | strip_html | escape -%}
       {%- assign link_title_lowercase = link.title | downcase | strip_html | escape -%}

@@ -6,7 +6,12 @@
       "color_variant": "variante de couleur",
       "more_colors": "+ {{ number }} autres"
     },
+    "siblings": {
+      "label": "Couleur",
+      "swatches": "Couleur"
+    },
     "size_chart": {
+      "button": "Guide des tailles",
       "size": "Taille"
     },
     "accessibility": {
@@ -38,7 +43,8 @@
       "product_image_lightbox": "Ouvrir la visionneuse d'images",
       "star_reviews_info": "{{ rating_value }} sur {{ rating_max }} étoiles",
       "close_form_message": "Fermer le message de remerciement",
-      "scroll_to_top": "Faire défiler vers le haut"
+      "scroll_to_top": "Faire défiler vers le haut",
+      "quick_tip": "Conseil rapide"
     },
     "meta": {
       "tags": "Étiqueter \"{{ tags }}\"",
@@ -73,7 +79,7 @@
     "search": {
       "title": "Rechercher des produits sur notre site",
       "search": "Recherche",
-      "no_results": "Votre recherche de \"{{ terms }}\" n'a donné aucun résultat.",
+      "no_results": "Aucun résultat pour \"{{ terms }}\"",
       "results_for": "Résultats pour \"{{ terms }}\"",
       "results_with_count": {
         "one": "{{ count }} résultat",
@@ -97,11 +103,9 @@
       "quick_tip": "Appuyez sur Entrée",
       "browse_categories": "Parcourir les catégories",
       "popular_searches": "Termes de recherche suggérés",
-      "badge": {
-        "blog": "Blog",
-        "page": "Page"
-      },
       "products": "Des produits",
+      "articles": "Blogues",
+      "pages": "Pages",
       "suggestions": "Suggestions",
       "pages_and_blogs": "Pages et articles de blog",
       "search_actions": "Actions de recherche"
@@ -405,6 +409,7 @@
       "single_collection_description": "Une fois que vous avez choisi une collection, sa description s'affichera ici automatiquement.",
       "single_collection_products_description": "Une fois que vous aurez choisi une collection, les descriptions de ses produits s'afficheront automatiquement ici.",
       "no_content": "Cette section ne contient actuellement aucun contenu. Ajoutez-en en utilisant la barre latérale.",
+      "no_page_content": "Cette page n'inclut actuellement aucun contenu.",
       "slideshow": {
         "heading": "Bienvenue à Palo Alto",
         "subheading": "Ce sous-titre vous aide à fournir plus de détails sur le titre ci-dessus.",
@@ -521,7 +526,9 @@
       "save": "Sauver",
       "unit_price_label": "Prix ​​unitaire",
       "popup_missing": "Sélectionnez la page dans les paramètres de bloc.",
-      "popup_text_missing": "Aucun texte ajouté dans la page sélectionnée"
+      "popup_text_missing": "Aucun texte ajouté dans la page sélectionnée",
+      "show_more": "Afficher plus",
+      "show_less": "Montrer moins"
     }
   },
   "gift_cards": {
@@ -538,6 +545,29 @@
       "gift_card": "carte-cadeau"
     }
   },
+  "recipient": {
+    "form": {
+      "checkbox": "Je veux envoyer ce produit comme cadeau",
+      "email_label": "E-mail du destinataire",
+      "email": "E-mail du destinataire",
+      "name_label": "Nom du destinataire (facultatif)",
+      "name": "Nom du destinataire (facultatif)",
+      "message_label": "Message (facultatif)",
+      "message": "Message (facultatif)",
+      "max_characters": "{{ max_chars }} caractères au maximum",
+      "error_heading": "Veuillez ajuster les éléments suivants:",
+      "send_on": "AAAA-MM-JJ",
+      "send_on_label": "Envoyer le (facultatif)"
+    }
+  },
+  "countdown": {
+    "heading": "Achetez avant la fin.",
+    "ends": "Prend fin",
+    "days": "Jours",
+    "hours": "Heures",
+    "minutes": "Minutes",
+    "seconds": "Secondes"
+  },
   "date_formats": {
     "month_day_year": "%B %d, %Y"
   },
@@ -546,8 +576,9 @@
       "title":"Voir {{ shop_name }} sur {{ social }}",
       "rss":"RSS"
     },
-    "currency": "Devise",
+    "country": "Pays",
     "language": "Langue",
+    "update": "Mise à jour",
     "powered_by": "Alimenté par"
   },
   "store_availability": {
@@ -566,5 +597,8 @@
     "previous": "Précédent",
     "next": "Suivant",
     "scroll_down": "Défiler vers le bas"
+  },
+  "video": {
+    "play_bg_video": "Lire la vidéo d'arrière-plan"
   }
 }

@@ -7,6 +7,7 @@
   assign title = section.settings.title
   assign heading_highlight_type = section.settings.heading_highlight_type
   assign highlight_color = section.settings.highlight_color
+  assign highlight_text_color = section.settings.highlight_text_color
   assign heading_size = section.settings.heading_size | times: 0.01
   assign text = section.settings.text
   assign text_color = section.settings.text_color
@@ -37,6 +38,34 @@
 {% endcomment %}
 
 {%- liquid
+  comment
+   Highlighted words count
+  endcomment
+  assign title_temp = title | split: '<em>'
+  assign em_arr = ''
+  if title_temp.size > 1
+    for text_part in title_temp offset: 1
+      assign em_text = text_part | split: '</em>' | first
+      assign em_arr = em_arr | append: '#separator#' | append: em_text
+    endfor
+  endif
+  assign em_arr = em_arr | split: '#separator#'
+  assign words_count_arr = ''
+  assign letters_count_arr = ''
+  if em_arr.size > 0
+    for words in em_arr offset: 1
+      assign word = words | split: ' '
+      assign words_count_arr = words_count_arr | append: word.size | append: ', '
+      assign letters_count_arr = letters_count_arr | append: words.size | append: ', '
+    endfor
+  endif
+
+  assign words_count_arr = words_count_arr | replace_last: ', ', '' | split: ', '
+  assign letters_count_arr = letters_count_arr | replace_last: ', ', '' | split: ', '
+
+  comment
+   Main highlight types logic
+  endcomment
   assign icon_url = ''
   assign icon_color = 'var(--text)'
 
@@ -56,7 +85,7 @@
           echo '<span class="text-highlight__icon">'
           render 'icon-circle', color: icon_color
           echo '</span>'
-        when 'stroke' or 'circle' or 'squiggle'
+        when 'stroke' or 'circle' or 'squiggle' or 'highlight' or 'highlight-color' or 'underline'
           assign has_text_highlight = true
       endcase
     endif
@@ -85,17 +114,63 @@
 
   if title != blank and title contains '<em>'
     case heading_highlight_type
-      when 'squiggle' or 'circle' or 'stroke'
+      when 'squiggle' or 'circle' or 'stroke' or 'highlight' or 'highlight-color' or 'underline'
         assign title = title | replace: '<em>', text_highlight_start | replace: '</em>', text_highlight_end
+
+      when 'circle'
+        comment
+          Update icon's holder class based on the italicised words count
+        endcomment
+        assign title = title | split: 'class="text-highlight"'
+        assign title_mod = ''
+        for title_part in title offset: 1
+          assign current_part = title_part
+
+          if title_part contains 'text-highlight__icon'
+            capture highlight_icon_classes
+              echo 'text-highlight__icon'
+              assign current_count = words_count_arr[forloop.index0] | times: 1
+              assign letters_count = letters_count_arr[forloop.index0] | times: 1
+              if current_count == 1
+                echo ' text-highlight__icon--single-word'
+              endif
+              if letters_count < 6
+                echo ' text-highlight__icon--short'
+                echo ' text-highlight__icon--l' | append: letters_count
+              endif
+              if letters_count > 15
+                echo ' text-highlight__icon--long'
+              endif
+            endcapture
+
+            assign current_part = title_part | replace: 'text-highlight__icon', highlight_icon_classes
+          endif
+
+          unless forloop.last
+            assign title_mod = title_mod | append: current_part | append: 'class="text-highlight"'
+          else
+            assign title_mod = title_mod | append: current_part
+          endunless
+        endfor
+        assign title_first_part = title | first | append: 'class="text-highlight"'
+        assign title_mod = title_mod | prepend: title_first_part
+        assign title = title_mod
     endcase
   endif
 -%}{%- style -%}
   #FeaturedVideo--{{ section.id }} { --overlay-opacity: {{ overlay_opacity }}; }
   #FeaturedVideo--{{ section.id }} .main-heading {
-    --highlight-color: var(--text);
+
+    {%- if heading_highlight_type != 'highlight' -%}
+      --highlight-color: var(--text);
+    {%- endif -%}
 
     {%- if highlight_color != 'rgba(0,0,0,0)' and highlight_color != '' -%}
       --highlight-color: {{ highlight_color }};
+    {%- endif -%}
+
+    {%- if highlight_text_color != 'rgba(0,0,0,0)' and highlight_text_color != '' -%}
+      --highlight-text-color: {{ highlight_text_color }};
     {%- endif -%}
   }
   #FeaturedVideo--{{ section.id }} .main-heading { --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ heading_size }}); }
@@ -258,27 +333,22 @@
       "info": "Highlight one or two key words in your heading by italicizing them, then choose the highlight option below"
     },
     {
+      "type": "header",
+      "content": "Highlight"
+    },
+    {
       "type": "select",
       "id": "heading_highlight_type",
-      "label": "Highlight type",
+      "label": "Type",
       "default": "italics",
       "options": [
-        {
-          "value": "italics",
-          "label": "Italics (no decoration)"
-        },
-        {
-          "value": "squiggle",
-          "label": "Squiggle"
-        },
-        {
-          "value": "circle",
-          "label": "Circle"
-        },
-        {
-          "value": "stroke",
-          "label": "Stroke (outlined text)"
-        }
+        { "value": "italics", "label": "Italics (no decoration)" },
+        { "value": "highlight", "label": "Highlight" },
+        { "value": "highlight-color", "label": "Text color" },
+        { "value": "underline", "label": "Underline" },
+        { "value": "squiggle", "label": "Squiggle" },
+        { "value": "circle", "label": "Circle" },
+        { "value": "stroke", "label": "Stroke (outlined text)" }
       ]
     },
     {
@@ -286,6 +356,12 @@
       "id": "highlight_color",
       "label": "Highlight color",
       "default": "#D43747"
+    },
+    {
+      "type": "color",
+      "id": "highlight_text_color",
+      "label": "Text color",
+      "default": "#000"
     },
     {
       "type": "textarea",

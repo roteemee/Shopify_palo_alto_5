@@ -65,7 +65,13 @@
   {%- endif -%}
 
   {% comment %} Title and description {% endcomment %}
-  <title>{{ page_title }}{% if current_tags %}{% assign meta_tags = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags }}{% endif %}{% if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif %}{% unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless %}</title>
+  
+
+  <!-- Air Reviews Script -->
+ {% include 'air-reviews-setting' %}
+  <!-- /Air Reviews Script -->
+
+<title>{{ page_title }}{% if current_tags %}{% assign meta_tags = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags }}{% endif %}{% if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif %}{% unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless %}</title>
 
   {%- if page_description -%}
     <meta name="description" content="{{ page_description | escape }}">
@@ -87,19 +93,6 @@
 
   {%- comment -%} CSS {%- endcomment -%}
   {{- 'theme.css' | asset_url | stylesheet_tag -}}
-
-  {%- comment -%}{{- 'theme.dev.css' | asset_url | stylesheet_tag -}}{%- endcomment -%}
-
-  {%- comment -%}
-    Uncomment the row above that contains 'theme.dev.css' if you need to do edit the styles
-    Comment out {{- 'theme.css' | asset_url | stylesheet_tag -}} row to avoid styles being overridden
-    Go to /assets/theme.dev.css and do the changes there
-
-    DO NOT EDIT /assets/theme.css file
-
-    More info:
-    https://presidiocreative.com/link/palo-alto/docs/css
-  {%- endcomment -%}
 
   <script type="text/javascript">
     if (window.MSInputMethodContext && document.documentMode) {
@@ -137,6 +130,7 @@
         cart_add_url: {{ routes.cart_add_url | json }},
         cart_change_url: {{ routes.cart_change_url | json }},
         shop_url: {{ shop.url | json }},
+        searchUrl: '{{ routes.search_url }}',
         predictiveSearchUrl: '{{ routes.predictive_search_url }}',
         product_recommendations_url: {{ routes.product_recommendations_url | json }}
       },
@@ -211,11 +205,11 @@
       },
       moneyFormat: {{ shop.money_format | json }},
       moneyWithCurrencyFormat: {{ shop.money_with_currency_format | json }},
-      subtotal: {{ cart.items_subtotal_price | json }},
+      subtotal: {{ cart.total_price | json }},
       info: {
         name: 'Palo Alto'
       },
-      version: '5.0.0'
+      version: '5.3.0'
     };
     window.lazySizesConfig = window.lazySizesConfig || {};
     window.lazySizesConfig.preloadAfterLoad = true;
@@ -224,6 +218,12 @@
     window.isHeaderTransparent = false;
     window.stickyHeaderHeight = 60;
     window.lastWindowWidth = window.innerWidth || document.documentElement.clientWidth;
+
+    if (window.performance) {
+      window.performance.mark('init');
+    } else {
+      window.fastNetworkAndCPU = false;
+    }
   </script>
   <script src="{{ 'lazysizes.min.js' | asset_url }}" async="async"></script>
 
@@ -278,5 +278,6 @@ template-{{ template | replace: '.', ' ' | truncatewords: 1, '' | handle }}
       {% render 'icon-select' %}
     </button>
   {%- endif -%}
+{% include 'booster-recommendation' %}
 </body>
 </html>

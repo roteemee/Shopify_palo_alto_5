@@ -5,8 +5,9 @@
 
   if image != blank
     assign image_alt = image.alt | strip_html | escape
-    assign image_widths = '30, 40, 60, 80, 100, 120, 140, 160, 180, 200 240 280 320 360'
-    assign retina_size = image_width | times: 2
+    assign image_width_retina = image_width | times: 2
+    assign image_widths = image_width | append: ', ' | append: image_width_retina
+    assign sizes = image_width | append: 'px'
   endif
 -%}
 
@@ -32,10 +33,10 @@
     <div class="loader loader--image">
       <div class="loader__image__holder">
         {%- if image != blank -%}
-          {{ image | image_url: width: retina_size
+          {{ image | image_url: width: image_width_retina
             | image_tag:
             widths: image_widths,
-            sizes: 'auto',
+            sizes: sizes,
             loading: 'eager',
             fetchpriority: 'high',
             preload: 'true',
@@ -43,10 +44,10 @@
             class: 'loader__image'
           }}
           <noscript>
-            {{ image | image_url: width: retina_size
+            {{ image | image_url: width: image_width_retina
               | image_tag:
               widths: image_widths,
-              sizes: 'auto',
+              sizes: sizes,
               loading: 'eager',
               alt: image_alt,
               class: 'loader__image'

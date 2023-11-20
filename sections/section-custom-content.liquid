@@ -5,13 +5,7 @@
   assign bg_color = section.settings.bg_color
   assign section_height = section.settings.height
   assign add_gutter = section.settings.add_gutter
-  assign transparent_header = false
-  assign non_image_block_types = 'text, newsletter, testimonial, product, collection' | split: ','
   assign show_text_shadow = settings.show_text_shadow
-
-  unless non_image_block_types contains section.blocks[0].type and non_image_block_types contains section.blocks[1].type
-    assign transparent_header = true
-  endunless
 -%}
 
 {%- style -%}
@@ -50,7 +44,7 @@
             assign button_2_color = block.settings.button_2_color
             assign button_2_size = block.settings.button_2_size
             assign text_color = block.settings.text_color
-            assign bg_color = block.settings.bg_color | default: ''
+            assign block_bg_color = block.settings.bg_color | default: ''
             assign title = block.settings.title
             assign text = block.settings.text
             assign heading_size = block.settings.heading_size | times: 0.01
@@ -59,8 +53,10 @@
             assign text_position = block.settings.text_position
             assign overlay_opacity = block.settings.overlay_opacity | times: 0.01
             capture style
-              if bg_color != 'rgba(0,0,0,0)' and bg_color != ''
-                echo 'style="background-color: ' | append: bg_color | append: ';"'
+              if block_bg_color != 'rgba(0,0,0,0)' and block_bg_color != ''
+                echo 'style="background-color: ' | append: block_bg_color | append: ';"'
+              else
+                assign block_bg_color = bg_color
               endif
             endcapture
           -%}
@@ -99,7 +95,7 @@
 </div>
 
 <div class="featured-image__content">
-  <div class="featured-image__content-inner{% if show_text_shadow and wrapper == 'full' %} backdrop--radial{% endif %}">
+  <div class="featured-image__content-inner{% if show_text_shadow %} backdrop--radial{% endif %}">
     {%- if title != blank -%}
       <h1 class="featured-image__heading main-heading"
         {% if animations_enabled %}
@@ -133,11 +129,13 @@
       </div>
     {%- endif -%}
   </div>
+</div>
 
-  {%- if button_text == blank and button_link != '#!' -%}
-    <a class="featured-image__link" href="{{ button_link }}"></a>
-  {%- endif -%}
-</div></div>
+{%- if button_text == blank and button_link != '#!' -%}
+  <a class="featured-image__link" href="{{ button_link }}">
+    <span class="visually-hidden">{{ title | strip_html | strip }}</span>
+  </a>
+{%- endif -%}</div>
 
                   {%- when 'text' -%}
                     {%- liquid
@@ -165,7 +163,8 @@
                       button_2_style: button_2_style,
                       button_2_color: button_2_color,
                       button_2_size: button_2_size,
-                      animation_anchor: animation_anchor
+                      animation_anchor: animation_anchor,
+                      block_bg_color: block_bg_color
                     -%}
 
                   {%- when 'newsletter' -%}
@@ -524,7 +523,8 @@
           {
             "type": "text",
             "id": "button_text",
-            "label": "Text"
+            "label": "Text",
+            "info": "Leave blank to link entire image"
           },
           {
             "type": "url",

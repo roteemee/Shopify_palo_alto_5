@@ -27,7 +27,7 @@
       assign paginator = 9
     else
       assign article_width = 'blog__post--four-col'
-      assign paginator = 15
+      assign paginator = 12
   endcase
 
   if columns > 1
@@ -138,7 +138,7 @@
 
   {%- paginate blog.articles by paginator -%}
     <div class="{{ wrapper }}">
-      <div class="blog__post {{ article_width }}"{% if enable_infinity_scroll %} id="AjaxinateLoop"{% endif %}>
+      <div class="blog__post {{ article_width }}"{% if enable_infinity_scroll %} id="AjaxinateLoop" data-ajaxinate-id="{{ section.id }}"{% endif %}>
         {%- comment -%}
           Loop through each article.
         {%- endcomment -%}
@@ -168,7 +168,7 @@
           {%- assign animation_delay = animation_delay | plus: 150 -%}
         {% endif %}>
         {%- if enable_infinity_scroll -%}
-          <div class="pagination pagination--infinite" id="AjaxinatePagination">
+          <div class="pagination pagination--infinite" id="AjaxinatePagination" data-ajaxinate-id="{{ section.id }}">
             {%- if paginate.next -%}
               <div class="pagination__loading">
                 <a href="{{ paginate.next.url }}"></a>

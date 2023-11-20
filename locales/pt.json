@@ -6,7 +6,12 @@
       "color_variant": "variante de cor",
       "more_colors": "+ mais {{ number }}"
     },
+    "siblings": {
+      "label": "Cor",
+      "swatches": "Cor"
+    },
     "size_chart": {
+      "button": "Guia de tamanho",
       "size": "Tamanho"
     },
     "accessibility": {
@@ -38,7 +43,8 @@
       "product_image_lightbox": "Abrir lightbox de imagem",
       "star_reviews_info": "{{rating_value}} de {{rating_max}} estrelas",
       "close_form_message": "Fechar mensagem de agradecimento",
-      "scroll_to_top": "Voltar ao início"
+      "scroll_to_top": "Voltar ao início",
+      "quick_tip": "Dica rápida"
     },
     "meta": {
       "tags": "Marcado com Tag \"{{ tags }}\"",
@@ -73,7 +79,7 @@
     "search": {
       "title": "Pesquise produtos em nosso site",
       "search": "Procurar",
-      "no_results": "Sua pesquisa por \"{{ terms }}\" não gerou nenhum resultado.",
+      "no_results": "Nenhum resultado para \"{{ terms }}\"",
       "results_for": "Resultados para \"{{ terms }}\"",
       "results_with_count": {
         "one": "{{ count }} resultado",
@@ -97,11 +103,9 @@
       "quick_tip": "Pressione Enter",
       "browse_categories": "Navegar por categorias",
       "popular_searches": "Termos de pesquisa sugeridos",
-      "badge": {
-        "blog": "Blog",
-        "page": "Página"
-      },
       "products": "Produtos",
+      "articles": "Blogues",
+      "pages": "Páginas",
       "suggestions": "Sugestões",
       "pages_and_blogs": "Páginas e postagens de blog",
       "search_actions": "Pesquisar ações"
@@ -405,6 +409,7 @@
       "single_collection_description": "Quando escolher uma coleção, a sua descrição será preenchida aqui automaticamente.",
       "single_collection_products_description": "Uma vez escolhida uma colecção, as suas descrições de produto serão aqui preenchidas automaticamente.",
       "no_content": "Esta seção atualmente não tem conteúdo. Adicione conteúdo a esta seção usando a barra lateral.",
+      "no_page_content": "Esta página atualmente não inclui nenhum conteúdo.",
       "slideshow": {
         "heading": "Bem-vindo a Palo Alto",
         "subheading": "Este subtítulo ajuda a fornecer mais detalhes ao título acima.",
@@ -521,7 +526,9 @@
       "save": "Salve",
       "unit_price_label": "Preço unitário",
       "popup_missing": "Selecione a página nas configurações do bloco.",
-      "popup_text_missing": "Nenhum texto adicionado na página selecionada"
+      "popup_text_missing": "Nenhum texto adicionado na página selecionada",
+      "show_more": "Mostrar mais",
+      "show_less": "Mostrar menos"
     }
   },
   "gift_cards": {
@@ -538,6 +545,29 @@
       "gift_card": "Cartão Presente"
     }
   },
+  "recipient": {
+    "form": {
+      "checkbox": "Quero enviar isto como um presente",
+      "email_label": "E-mail do destinatário",
+      "email": "E-mail do destinatário",
+      "name_label": "Nome do destinatário (opcional)",
+      "name": "Nome do destinatário (opcional)",
+      "message_label": "Mensagem (opcional)",
+      "message": "Mensagem (opcional)",
+      "max_characters": "Máximo de {{ max_chars }} caracteres",
+      "error_heading": "Ajuste o seguinte:",
+      "send_on": "AAAA-MM-DD",
+      "send_on_label": "Enviar em (opcional)"
+    }
+  },
+  "countdown": {
+    "heading": "Compre antes que acabe.",
+    "ends": "Termina",
+    "days": "Dias",
+    "hours": "Horas",
+    "minutes": "Minutos",
+    "seconds": "Segundos"
+  },
   "date_formats": {
     "month_day_year": "%d %m, %A"
   },
@@ -546,8 +576,9 @@
       "title":"Ver {{ shop_name }} no {{ social }}",
       "rss":"RSS"
     },
-    "currency": "Moeda",
+    "country": "País",
     "language": "Idioma",
+    "update": "Atualizar",
     "powered_by": "Distribuído por"
   },
   "store_availability": {
@@ -566,5 +597,8 @@
     "previous": "Anterior",
     "next": "Próximo",
     "scroll_down": "Rolar para baixo"
+  },
+  "video": {
+    "play_bg_video": "Reproduzir vídeo de fundo"
   }
 }

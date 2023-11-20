@@ -1,6 +1,8 @@
 <!-- /sections/section-tab-collections -->
 {%- liquid
   assign section_width = section.settings.width
+  assign image_aspect_ratio = section.settings.image_aspect_ratio
+  assign tab_heading_size = section.settings.tab_heading_size | times: 0.01
   assign columns = settings.products_per_row_on_desktop | plus: 0
   assign columns_small = columns | at_most: 2
   assign text_alignment = section.settings.text_alignment
@@ -17,6 +19,7 @@
 
 {%- style -%}
   #TabCollections--{{ section.id }} {
+    --product-media-padding-top: {{ image_aspect_ratio | times: 100 | append: '%' }};
     --PT: {{ section.settings.padding_top }}px;
     --PB: {{ section.settings.padding_bottom }}px;
   }
@@ -32,11 +35,13 @@
       --grid: repeat({{ columns_small }}, minmax(0, 1fr));
     }
   }
+
+  #TabCollections--{{ section.id }} .tabs__link { --adjust-body: calc(var(--FONT-ADJUST-BODY) * {{ tab_heading_size }}); }
 {%- endstyle -%}
 
 <section
   id="TabCollections--{{ section.id }}"
-  class="section-padding tab-collections{% if bg_color_secondary %} bg-secondary{% endif %}"
+  class="section-padding tab-collections{% if bg_color_secondary %} bg-secondary{% endif %}{%- render 'button-fallback-classes', primary_color: collection_button_color, bg_color_secondary: bg_color_secondary -%}"
   data-section-id="{{ section.id }}"
   data-section-type="tab-collections"
   data-columns="{{ columns }}">
@@ -239,7 +244,7 @@
                           {%- assign product_index = forloop.index -%}
                         {%- endif -%}
                         {%- assign items_animation_delay = product_index -%}
-                        {%- render 'product-grid-item', product: product, carousel: true, animation_anchor: animation_anchor, animation_delay: items_animation_delay -%}
+                        {%- render 'product-grid-item', product: product, carousel: true, animation_anchor: animation_anchor, animation_delay: items_animation_delay, image_aspect_ratio_setting: image_aspect_ratio -%}
                       {%- endfor -%}
                     {%- else -%}
                       <div class="collection--no-results">
@@ -263,15 +268,17 @@
             {%- if show_buttons -%}
               {{ collection_buttons }}
 
-              <a href="{{ tab_collection_url }}" class="{{ collection_button_classes }}" data-tab-ref="{{ forloop.index0 }}">
-                {{ collection_button_text }}
-              </a>
+              {%- if collection_button_text != blank -%}
+                <a href="{{ tab_collection_url }}" class="{{ collection_button_classes }}" data-tab-ref="{{ forloop.index0 }}">
+                  {{ collection_button_text }}
+                </a>
+              {%- endif -%}
             {%- endif -%}
           {%- endcapture -%}
         {%- endfor -%}
 
         {%- if tabs_navigation != '' and section.blocks.size > 1 or show_buttons -%}
-          <div class="tabs__head tab-collections__head{% if show_buttons %} tab-collections__head--has-button{% endif %} {{ text_alignment }}"
+          <div class="tabs__head tab-collections__head{% if show_buttons and collection_buttons != blank %} tab-collections__head--has-button{% endif %} {{ text_alignment }}"
             {% if animations_enabled %}
               data-aos="fade-up"
               data-aos-anchor="{{ animation_anchor }}"
@@ -313,6 +320,16 @@
       "content": "Layout"
     },
     {
+      "type": "range",
+      "id": "image_aspect_ratio",
+      "label": "Image aspect ratio",
+      "min": 0.5,
+      "max": 1.5,
+      "step": 0.1,
+      "unit": ":1",
+      "default": 1.3
+    },
+    {
       "type": "select",
       "id": "text_alignment",
       "label": "Content alignment",
@@ -333,6 +350,16 @@
       "id": "text",
       "type": "text",
       "default": "Our favorite picks for the season"
+    },
+    {
+      "type": "range",
+      "id": "tab_heading_size",
+      "label": "Tab heading size",
+      "default": 120,
+      "min": 100,
+      "max": 200,
+      "step": 5,
+      "unit": "%"
     },
     {
       "type": "header",

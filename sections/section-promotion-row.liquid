@@ -48,6 +48,7 @@
               assign title = block.settings.heading
               assign heading_highlight_type = block.settings.heading_highlight_type
               assign highlight_color = block.settings.highlight_color
+              assign highlight_text_color = block.settings.highlight_text_color
               assign heading_size = block.settings.heading_size | times: 0.01
               assign description = block.settings.description
               assign description_size = block.settings.description_size | times: 0.01
@@ -80,7 +81,6 @@
                 --adjust-body: calc(var(--FONT-ADJUST-BODY) * {{ description_size }});
                 --overlay: {{ gradient_background }};
                 --overlay-opacity: {{ overlay_opacity }};
-                --highlight-color: var(--text);
 
                 {%- if empty_bg_color == false and image == blank -%}
                   --overlay: {{ bg_color }};
@@ -90,8 +90,16 @@
                   --text: {{ text_color }};
                 {%- endif -%}
 
+                {%- if heading_highlight_type != 'highlight' -%}
+                  --highlight-color: var(--text);
+                {%- endif -%}
+
                 {%- if highlight_color != 'rgba(0,0,0,0)' and highlight_color != '' -%}
                   --highlight-color: {{ highlight_color }};
+                {%- endif -%}
+
+                {%- if highlight_text_color != 'rgba(0,0,0,0)' and highlight_text_color != '' -%}
+                  --highlight-text-color: {{ highlight_text_color }};
                 {%- endif -%}
               }
 
@@ -110,6 +118,34 @@
 {% endcomment %}
 
 {%- liquid
+  comment
+   Highlighted words count
+  endcomment
+  assign title_temp = title | split: '<em>'
+  assign em_arr = ''
+  if title_temp.size > 1
+    for text_part in title_temp offset: 1
+      assign em_text = text_part | split: '</em>' | first
+      assign em_arr = em_arr | append: '#separator#' | append: em_text
+    endfor
+  endif
+  assign em_arr = em_arr | split: '#separator#'
+  assign words_count_arr = ''
+  assign letters_count_arr = ''
+  if em_arr.size > 0
+    for words in em_arr offset: 1
+      assign word = words | split: ' '
+      assign words_count_arr = words_count_arr | append: word.size | append: ', '
+      assign letters_count_arr = letters_count_arr | append: words.size | append: ', '
+    endfor
+  endif
+
+  assign words_count_arr = words_count_arr | replace_last: ', ', '' | split: ', '
+  assign letters_count_arr = letters_count_arr | replace_last: ', ', '' | split: ', '
+
+  comment
+   Main highlight types logic
+  endcomment
   assign icon_url = ''
   assign icon_color = 'var(--text)'
 
@@ -129,7 +165,7 @@
           echo '<span class="text-highlight__icon">'
           render 'icon-circle', color: icon_color
           echo '</span>'
-        when 'stroke' or 'circle' or 'squiggle'
+        when 'stroke' or 'circle' or 'squiggle' or 'highlight' or 'highlight-color' or 'underline'
           assign has_text_highlight = true
       endcase
     endif
@@ -158,8 +194,47 @@
 
   if title != blank and title contains '<em>'
     case heading_highlight_type
-      when 'squiggle' or 'circle' or 'stroke'
+      when 'squiggle' or 'circle' or 'stroke' or 'highlight' or 'highlight-color' or 'underline'
         assign title = title | replace: '<em>', text_highlight_start | replace: '</em>', text_highlight_end
+
+      when 'circle'
+        comment
+          Update icon's holder class based on the italicised words count
+        endcomment
+        assign title = title | split: 'class="text-highlight"'
+        assign title_mod = ''
+        for title_part in title offset: 1
+          assign current_part = title_part
+
+          if title_part contains 'text-highlight__icon'
+            capture highlight_icon_classes
+              echo 'text-highlight__icon'
+              assign current_count = words_count_arr[forloop.index0] | times: 1
+              assign letters_count = letters_count_arr[forloop.index0] | times: 1
+              if current_count == 1
+                echo ' text-highlight__icon--single-word'
+              endif
+              if letters_count < 6
+                echo ' text-highlight__icon--short'
+                echo ' text-highlight__icon--l' | append: letters_count
+              endif
+              if letters_count > 15
+                echo ' text-highlight__icon--long'
+              endif
+            endcapture
+
+            assign current_part = title_part | replace: 'text-highlight__icon', highlight_icon_classes
+          endif
+
+          unless forloop.last
+            assign title_mod = title_mod | append: current_part | append: 'class="text-highlight"'
+          else
+            assign title_mod = title_mod | append: current_part
+          endunless
+        endfor
+        assign title_first_part = title | first | append: 'class="text-highlight"'
+        assign title_mod = title_mod | prepend: title_first_part
+        assign title = title_mod
     endcase
   endif
 -%}<div id="SectionPromotionRow--{{ block_id }}"
@@ -198,17 +273,28 @@
 
                   {%- if title != blank -%}
                     {%- liquid
-                      assign hasPercentOff = false
-                      if title contains '% off' or title contains '% OFF' or title contains '% Off'
-                        assign hasPercentOff = true
+                      assign numbers_string = '0%,1%,2%,3%,4%,5%,6%,7%,8%,9%' | split: ','
+                      assign has_percent_off = false
+                      assign has_number_percent = false
+                      for num in numbers_string
+                        if title contains num
+                          assign has_number_percent = true
+                        endif
+                      endfor
+
+                      if has_number_percent
+                        assign title = title | replace: '%', '<sup>%</sup>'
+
+                        if title contains '<sup>%</sup> off' or title contains '<sup>%</sup> OFF' or title contains '<sup>%</sup> Off'
+                          assign has_percent_off = true
+                          assign title = title | replace: '<sup>%</sup> off', '<sup>%</sup> <small>off</small>'
+                          assign title = title | replace: '<sup>%</sup> OFF', '<sup>%</sup> <small>OFF</small>'
+                          assign title = title | replace: '<sup>%</sup> Off', '<sup>%</sup> <small>Off</small>'
+                        endif
                       endif
-                      assign title = title | replace: '%', '<sup>%</sup>'
-                      assign title = title | replace: '<sup>%</sup> off', '<sup>%</sup> <small>off</small>'
-                      assign title = title | replace: '<sup>%</sup> OFF', '<sup>%</sup> <small>OFF</small>'
-                      assign title = title | replace: '<sup>%</sup> Off', '<sup>%</sup> <small>Off</small>'
                     -%}
 
-                    <h3 class="promotion-row__item__heading{% if has_text_highlight %} {{ text_highlight_wrapper_class }}{% endif %}{% if hasPercentOff %} promotion-row__item__heading--haspercentoff{% endif %}"
+                    <h3 class="promotion-row__item__heading{% if has_text_highlight %} {{ text_highlight_wrapper_class }}{% endif %}{% if has_percent_off %} haspercentoff{% elsif has_number_percent %} hasnumberpercent{% endif %}"
                       {% if animations_enabled %}
                         data-aos="fade-up"
                         data-aos-anchor="{{ animation_anchor }}"
@@ -279,7 +365,7 @@
         "type": "select",
         "id": "layout",
         "label": "Modify selected block width",
-        "default": "none",
+        "default": "1",
         "options": [
           {"label": "First", "value": "1"},
           {"label": "Second", "value": "2"},
@@ -293,7 +379,7 @@
         "type": "select",
         "id": "height",
         "label": "Height",
-        "default": "250",
+        "default": "400",
         "options": [
           {"label": "450px", "value": "450"},
           {"label": "400px", "value": "400"},
@@ -396,27 +482,22 @@
             "default": "<p>50% OFF</p>"
           },
           {
+            "type": "header",
+            "content": "Highlight"
+          },
+          {
             "type": "select",
             "id": "heading_highlight_type",
-            "label": "Highlight type",
+            "label": "Type",
             "default": "italics",
             "options": [
-              {
-                "value": "italics",
-                "label": "Italics (no decoration)"
-              },
-              {
-                "value": "squiggle",
-                "label": "Squiggle"
-              },
-              {
-                "value": "circle",
-                "label": "Circle"
-              },
-              {
-                "value": "stroke",
-                "label": "Stroke (outlined text)"
-              }
+              { "value": "italics", "label": "Italics (no decoration)" },
+              { "value": "highlight", "label": "Highlight" },
+              { "value": "highlight-color", "label": "Text color" },
+              { "value": "underline", "label": "Underline" },
+              { "value": "squiggle", "label": "Squiggle" },
+              { "value": "circle", "label": "Circle" },
+              { "value": "stroke", "label": "Stroke (outlined text)" }
             ]
           },
           {
@@ -424,6 +505,12 @@
             "id": "highlight_color",
             "label": "Highlight color",
             "default": "#D43747"
+          },
+          {
+            "type": "color",
+            "id": "highlight_text_color",
+            "label": "Text color",
+            "default": "#000"
           },
           {
             "type": "range",
@@ -473,7 +560,8 @@
           {
             "type": "text",
             "id": "button_text",
-            "label": "Button text"
+            "label": "Button text",
+            "info": "Leave blank to link entire block"
           },
           {
             "type": "url",
@@ -558,34 +646,27 @@
             "type": "column",
             "settings": {
               "subheading": "<p>IN-STORE AND ONLINE</p>",
-              "subheading_size": 90,
+              "subheading_size": 75,
               "heading": "<p>20% OFF</p>",
               "heading_size": 295,
+              "highlight_color": "#ffffff",
               "description": "Share details about the promotion",
-              "disclaimer": "*Use this text for a disclaimer."
+              "disclaimer": "*Use this text for a disclaimer.",
+              "text_color": "#ffffff"
             }
           },
           {
             "type": "column",
             "settings": {
-              "subheading": "<p>WEEKEND SALE</p>",
-              "subheading_size": 80,
-              "heading": "<p>BOGO</p>",
-              "heading_size": 260,
-              "description": "Share details about the promotion",
-              "description_size": 85,
-              "disclaimer": "*Use this text for a disclaimer."
-            }
-          },
-          {
-            "type": "column",
-            "settings": {
-              "heading": "<p><em>FREE</em> GIFT</p>",
-              "heading_highlight_type": "circle",
-              "highlight_color": "#D43747",
+              "subheading": "<p>For a limited time</p>",
+              "subheading_size": 75,
+              "heading": "<p><em>FREE PRODUCT</em></p>",
               "heading_size": 205,
-              "description": "WITH EVERY PURCHASE",
-              "bg_color": "#000000",
+              "heading_highlight_type": "underline",
+              "highlight_color": "#ffffff",
+              "description": "With every purchase over $99",
+              "description_size": 80,
+              "overlay_opacity": 50,
               "text_color": "#ffffff"
             }
           }

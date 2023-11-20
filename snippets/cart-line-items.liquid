@@ -258,7 +258,7 @@
 
   {%- when 'upsell-items' -%}
     {%- if upsell_products != '' -%}
-      <div data-pair-products>
+      <div data-pair-products {% render 'upsells-fallback-styles', section: section %}>
         {% render 'upsell-products' with upsell_products as upsell_products %}
       </div>
     {%- endif -%}

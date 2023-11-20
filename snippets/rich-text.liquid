@@ -113,7 +113,7 @@
   {%- endif -%}
 {%- endcapture -%}
 
-<div class="rich-text text-{{ text_position }}">
+<div class="rich-text text-{{ text_position }}{%- render 'button-fallback-classes', primary_color: button_color, secondary_color: button_2_color, section_bg_color: block_bg_color -%}">
   <div class="{{ section_width }}">
     <div class="rich-text__container">
       {{- content -}}

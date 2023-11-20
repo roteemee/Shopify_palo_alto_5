@@ -26,7 +26,7 @@
 {%- endstyle -%}
 
 <section id="ProductsList--{{ section.id }}"
-  class="section-padding products-list-section{% if bg_color_secondary %} bg-secondary{% endif %}"
+  class="section-padding products-list-section{% if bg_color_secondary %} bg-secondary{% endif %}{%- render 'button-fallback-classes', primary_color: button_color, bg_color_secondary: bg_color_secondary -%}"
   data-section-id="{{ section.id }}"
   data-section-type="products-list">
 
