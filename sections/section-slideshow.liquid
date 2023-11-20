@@ -109,7 +109,11 @@
         #Slideshow--{{ section.id }} .item--{{ block.id }} {
           --overlay-opacity: {{ overlay_opacity }};
         }
-        {%- if slide_height == 'original-height' -%}
+        {%- if slide_height == 'original-height' and enable_mobile_height -%}
+          @media screen and (min-width: 768px) {
+            .item--{{ unique }} .slide__image__container--desktop { padding-top: {{ 100 | divided_by: image_aspect_ratio | append: '%' }} }
+          }
+        {%- elsif slide_height == 'original-height' -%}
           .item--{{ unique }} .slide__image__container--desktop { padding-top: {{ 100 | divided_by: image_aspect_ratio | append: '%' }} }
           .item--{{ unique }} .slide__image__container--mobile { padding-top: {{ 100 | divided_by: image_mobile_aspect_ratio | append: '%' }} }
         {%- endif -%}

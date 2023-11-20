@@ -329,6 +329,26 @@
 	if columns == 2
     assign columns_tablet = 2
   endif
+
+  comment
+    Upsells
+  endcomment
+  assign upsells_bg_color = settings.upsells_bg_color
+  assign upsells_text_color = settings.upsells_text_color
+
+  assign color_upsells_bg = color_body_bg_secondary
+  if upsells_bg_color != 'rgba(0,0,0,0)' and upsells_bg_color != blank
+    assign color_upsells_bg = upsells_bg_color
+  endif
+
+  assign color_upsells_text = color_body_text
+  assign color_upsells_text_lighten = color_body_text | color_lighten: 20
+  assign color_upsells_disabled_grey_darken = color_body_text | color_modify: 'alpha', 0.45
+  if upsells_text_color != 'rgba(0,0,0,0)' and upsells_text_color != blank
+    assign color_upsells_text = upsells_text_color
+    assign color_upsells_text_lighten = upsells_text_color | color_lighten: 20
+    assign color_upsells_disabled_grey_darken = upsells_text_color | color_modify: 'alpha', 0.45
+  endif
 -%}
 
 {%- style -%}
@@ -474,6 +494,7 @@
   --COLOR-BG-SECONDARY-LIGHTEN-DARKEN-CONTRAST: {{ color_body_bg_secondary_lighten_darken_contrast }};
 
   --COLOR-BG-ACCENT: {{ color_bg_accent }};
+  --COLOR-BG-ACCENT-LIGHTEN: {{ color_bg_accent | color_lighten: 15 }};
 
   --COLOR-INPUT-BG: {{ color_body_bg }};
 
@@ -581,6 +602,7 @@
     --FONT-WEIGHT-SUBHEADING: var(--FONT-WEIGHT-SUBHEADING-BOLD);
   {% endif %}
 
+  --LETTER-SPACING-NAV: {{ settings.nav_letter_spacing | divided_by: 1000.0 | append: 'em' }};
   --LETTER-SPACING-SUBHEADING: {{ settings.subheading_letter_spacing | divided_by: 1000.0 | append: 'em' }};
   --LETTER-SPACING-BUTTON: {{ settings.button_letter_spacing | divided_by: 1000.0 | append: 'em' }};
 
@@ -610,6 +632,14 @@
   {%- comment -%} Site width {%- endcomment -%}
   --SITE-WIDTH: 1440px;
   --SITE-WIDTH-NARROW: 840px;
+
+  {%- comment -%} Upsells {%- endcomment -%}
+  --COLOR-UPSELLS-BG: {{ color_upsells_bg }};
+  --COLOR-UPSELLS-TEXT: {{ color_upsells_text }};
+  --COLOR-UPSELLS-TEXT-LIGHTEN: {{ color_upsells_text_lighten }};
+  --COLOR-UPSELLS-DISABLED-GREY-DARKEN: {{ color_upsells_disabled_grey_darken }};
+  --UPSELLS-HEIGHT: {{ settings.upsells_height | append: 'px' }};
+  --UPSELLS-IMAGE-WIDTH: {{ settings.upsells_image_width | append: '%' }};
 
   {%- comment -%} flickity btn icon & style {%- endcomment -%}
   {%- assign arrow_style = settings.arrow_style -%}
@@ -663,7 +693,7 @@
   --overlay-opacity: 1;
 
   {%- comment -%} Color swatches {%- endcomment -%}
-  --swatch-width: 40px;
+  --swatch-width: 38px;
   --swatch-height: 20px;
   --swatch-size: 32px;
   --swatch-size-mobile: 30px;

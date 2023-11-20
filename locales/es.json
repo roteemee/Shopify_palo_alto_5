@@ -6,7 +6,12 @@
       "color_variant": "variante de color",
       "more_colors": "+ {{ number }} más"
     },
+    "siblings": {
+      "label": "Color",
+      "swatches": "Color"
+    },
     "size_chart": {
+      "button": "Guia de tallas",
       "size": "Talla"
     },
     "accessibility": {
@@ -38,7 +43,8 @@
       "product_image_lightbox": "Caja de luz de imagen abierta",
       "star_reviews_info": "{{ rating_value }} de {{ rating_max }} estrellas",
       "close_form_message": "Cerrar mensaje de agradecimiento",
-      "scroll_to_top": "Volver al inicio"
+      "scroll_to_top": "Volver al inicio",
+      "quick_tip": "Consejo rapido"
     },
     "meta": {
       "page": "Página {{ page }}",
@@ -73,7 +79,7 @@
     "search": {
       "title": "Buscar productos en nuestro sitio",
       "search": "Buscar",
-      "no_results": "Tu búsqueda de \"{{ terms }}\" no arrojó ningún resultado.",
+      "no_results": "Sin resultados para \"{{ terms }}\"",
       "results_for": "Resultados para \"{{ terms }}\"",
       "results_with_count": {
         "one": "{{ count }} resultado",
@@ -97,11 +103,9 @@
       "quick_tip": "Presiona enter",
       "browse_categories": "Examinar las categorías",
       "popular_searches": "Términos de búsqueda sugeridos",
-      "badge": {
-        "blog": "Blog",
-        "page": "Página"
-      },
       "products": "Productos",
+      "articles": "Blogs",
+      "pages": "Paginas",
       "suggestions": "Sugerencias",
       "pages_and_blogs": "Páginas y publicaciones de blog",
       "search_actions": "Acciones de búsqueda"
@@ -405,6 +409,7 @@
       "single_collection_products_description": "Una vez que elija una colección, las descripciones de sus productos se completarán aquí automáticamente.",
       "no_collections_html": "No tienes ninguna colección para mostrar aquí. <a href=\"\/admin\/custom_collections\">Add some collections<\/a> to go along with the default Frontpage.",
       "no_content": "Esta sección no tiene actualmente ningún contenido. Agregue contenido a esta sección usando la barra lateral.",
+      "no_page_content": "Esta página actualmente no incluye ningún contenido.",
       "slideshow": {
         "heading": "Bienvenido a Palo Alto",
         "subheading": "Este subtítulo le ayuda a proporcionar más detalles al título anterior.",
@@ -521,7 +526,9 @@
       "save": "Ahorrar",
       "unit_price_label": "Precio por unidad",
       "popup_missing": "Seleccione la página de la configuración del bloque.",
-      "popup_text_missing": "No se agregó texto en la página seleccionada"
+      "popup_text_missing": "No se agregó texto en la página seleccionada",
+      "show_more": "Ver más",
+      "show_less": "Ver menos"
     }
   },
   "gift_cards": {
@@ -538,14 +545,38 @@
       "title": "¡Aquí está tu tarjeta de regalo con un monto de {{ value }}!"
     }
   },
+  "recipient": {
+    "form": {
+      "checkbox": "Quiero enviar esto como un regalo.",
+      "email_label": "Correo electrónico de la persona destinataria",
+      "email": "Correo electrónico de la persona destinataria",
+      "name_label": "Nombre de la persona destinataria (opcional)",
+      "name": "Nombre de la persona destinataria (opcional)",
+      "message_label": "Mensaje (opcional)",
+      "message": "Mensaje (opcional)",
+      "max_characters": "{{ max_chars }} caracteres máx.",
+      "error_heading": "Por favor, ajusta lo siguiente:",
+      "send_on": "AAAA-MM-DD",
+      "send_on_label": "Enviar el (opcional)"
+    }
+  },
   "footer": {
     "socials" : {
       "title":"Ver {{ shop_name }} en {{ social }}",
       "rss":"RSS"
     },
+    "country": "País",
     "language": "Idioma",
-    "currency": "Moneda",
+    "update": "Actualizar",
     "powered_by": "Esta tienda es proporcionada por"
+  },
+  "countdown": {
+    "heading": "Compre antes de que termine.",
+    "ends": "Termina",
+    "days": "Días",
+    "hours": "Horas",
+    "minutes": "Minutos",
+    "seconds": "Segundos"
   },
   "date_formats": {
     "month_day_year": "%B %d, %Y"
@@ -566,5 +597,8 @@
     "previous": "Anterior",
     "next": "Siguiente",
     "scroll_down": "Desplaza hacia abajo"
+  },
+  "video": {
+    "play_bg_video": "Reproducir video de fondo"
   }
 }

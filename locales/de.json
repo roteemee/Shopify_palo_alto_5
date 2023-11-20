@@ -6,7 +6,12 @@
       "color_variant": "farbvariante",
       "more_colors": "+ {{ number }} weitere"
     },
+    "siblings": {
+      "label": "Farbe",
+      "swatches": "Farben"
+    },
     "size_chart": {
+      "button": "Größentabelle",
       "size": "Größe"
     },
     "accessibility": {
@@ -38,7 +43,8 @@
       "product_image_lightbox": "Bild-Lightbox öffnen",
       "star_reviews_info": "{{ rating_value }} von {{ rating_max }} Sternen",
       "close_form_message": "Dankesnachricht schließen",
-      "scroll_to_top": "Scrolle nach oben"
+      "scroll_to_top": "Scrolle nach oben",
+      "quick_tip": "Kurzer Tipp"
     },
     "meta": {
       "tags": "Markiert \"{{ tags }}\"",
@@ -73,7 +79,7 @@
     "search": {
       "title": "Suchen Sie auf unserer Website nach Produkten",
       "search": "Suchen",
-      "no_results": "Ihre Suche nach \"{{ terms }}\" ergab keine Ergebnisse.",
+      "no_results": "Keine Ergebnisse für \"{{ terms }}\"",
       "results_for": "Ergebnisse für \"{{ terms }}\"",
       "results_with_count": {
         "one": "{{ count }} Ergebnis",
@@ -97,11 +103,9 @@
       "quick_tip": "Drücken Sie Enter",
       "browse_categories": "Durchsuche Kategorien",
       "popular_searches": "Vorgeschlagene Suchbegriffe",
-      "badge": {
-        "blog": "Blog",
-        "page": "Buchseite"
-      },
       "products": "Produkte",
+      "articles": "Blogs",
+      "pages": "Seiten",
       "suggestions": "Vorschläge",
       "pages_and_blogs": "Seiten und Blogbeiträge",
       "search_actions": "Suchaktionen"
@@ -405,6 +409,7 @@
       "single_collection_description": "Sobald Sie ein Kollektion ausgewählt haben, wird seine Beschreibung hier automatisch eingetragen.",
       "single_collection_products_description": "Sobald Sie eine Kollektion ausgewählt haben, werden die Produktbeschreibungen hier automatisch eingefügt.",
       "no_content": "Dieser Abschnitt enthält derzeit keine Inhalte. Fügen Sie diesem Abschnitt mithilfe der Seitenleiste Inhalte hinzu.",
+      "no_page_content": "Diese Seite enthält derzeit keinen Inhalt.",
       "slideshow": {
         "heading": "Willkommen in Palo Alto",
         "subheading": "Diese Unterüberschrift hilft Ihnen, den Titel oben genauer zu beschreiben.",
@@ -521,7 +526,9 @@
       "save": "Sparen",
       "unit_price_label": "Stückpreis",
       "popup_missing": "Seite aus den Blockeinstellungen auswählen.",
-      "popup_text_missing": "Auf der ausgewählten Seite wurde kein Text hinzugefügt"
+      "popup_text_missing": "Auf der ausgewählten Seite wurde kein Text hinzugefügt",
+      "show_more": "Mehr anzeigen",
+      "show_less": "Weniger anzeigen"
     }
   },
   "gift_cards": {
@@ -538,16 +545,40 @@
       "gift_card": "Geschenkkarte"
     }
   },
+  "recipient": {
+    "form": {
+      "checkbox": "Ich möchte dies als Geschenk senden",
+      "email_label": "Empfänger E-Mail",
+      "email": "Empfänger E-Mail",
+      "name_label": "Name des Empfängers (optional)",
+      "name": "Name des Empfängers (optional)",
+      "message_label": "Nachricht (optional)",
+      "message": "Nachricht (optional)",
+      "max_characters": "Maximal {{ max_chars }} Zeichen",
+      "error_heading": "Bitte passe Folgendes an:",
+      "send_on": "JJJJ-MM-TT",
+      "send_on_label": "Senden am (optional)"
+    }
+  },
+  "countdown": {
+    "heading": "Shoppen, bevor es zu Ende ist.",
+    "ends": "Endet",
+    "days": "Tage",
+    "hours": "Std",
+    "minutes": "Protokoll",
+    "seconds": "Sekunden"
+  },
   "date_formats": {
-  "month_day_year": "%B %d, %Y"
+    "month_day_year": "%B %d, %Y"
   },
   "footer": {
     "socials" : {
       "title":"Ansehen {{ shop_name }} auf {{ social }}",
       "rss":"RSS"
     },
-    "currency": "Währung",
+    "country": "Land",
     "language": "Sprache",
+    "update": "Aktualisieren",
     "powered_by": "Unterstützt von"
   },
   "store_availability": {
@@ -566,5 +597,8 @@
     "previous": "Vorheriges",
     "next": "Nächstes",
     "scroll_down": "Runterscrollen"
+  },
+  "video": {
+    "play_bg_video": "Hintergrundvideo abspielen"
   }
 }

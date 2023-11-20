@@ -2,9 +2,12 @@
 {%- liquid
   assign collection = collections[section.settings.collection] | default: false
   assign products = collection.products
-  assign heading =  section.settings.title
+  assign title = section.settings.title
   assign heading_size = section.settings.heading_size | times: 0.01
   assign heading_size_mobile = heading_size
+  assign heading_highlight_type = section.settings.heading_highlight_type
+  assign highlight_color = section.settings.highlight_color
+  assign highlight_text_color = section.settings.highlight_text_color
   assign text = section.settings.text
   assign text_size = section.settings.text_size | times: 0.01
   assign text_alignment = section.settings.text_alignment
@@ -12,7 +15,7 @@
   assign button_style = section.settings.button_style
   assign button_color = section.settings.button_color
   assign button_size = section.settings.button_size
-  assign columns = settings.products_per_row_on_desktop | plus: 0
+  assign columns = section.settings.products_per_row_on_desktop | plus: 0
   assign columns_small = columns | at_most: 2
   assign columns_mobile = section.settings.columns_mobile | plus: 0
   assign number_of_products = section.settings.number_of_products
@@ -54,7 +57,7 @@
   assign add_collection_bottom = false
   if text_alignment == 'text-center' and is_split == false
     assign add_collection_bottom = true
-  elsif heading == blank and text == blank and is_split == false
+  elsif title == blank and text == blank and is_split == false
     assign add_collection_bottom = true
   endif
 
@@ -66,14 +69,168 @@
     if bg_color_secondary
       echo ' bg-secondary'
     endif
+    render 'button-fallback-classes', primary_color: button_color, bg_color_secondary: bg_color_secondary
   endcapture
--%}
 
-{%- style -%}
+  assign add_collection_link = true
+  if title contains '</a>'
+    assign add_collection_link = false
+  endif
+
+  capture title
+    render 'title-stripped', title: title, paragraph_wrap: true
+  endcapture
+-%}{% comment %}
+  Enhanced text decorations options - Liqiud variables
+
+  Dependencies:
+    - Title liquid object from settings: `assign title = section.settings.title`
+    - Highlight type from settings: `assign heading_highlight_type = section.settings.heading_highlight_type`
+    - Highlight color from settings: `assign highlight_color = section.settings.highlight_color or assign highlight_color = block.settings.highlight_color`
+    - SVG icons:
+      - icon-squiggle.svg (assets)
+      - icon-circle.liquid (snippet)
+{% endcomment %}
+
+{%- liquid
+  comment
+   Highlighted words count
+  endcomment
+  assign title_temp = title | split: '<em>'
+  assign em_arr = ''
+  if title_temp.size > 1
+    for text_part in title_temp offset: 1
+      assign em_text = text_part | split: '</em>' | first
+      assign em_arr = em_arr | append: '#separator#' | append: em_text
+    endfor
+  endif
+  assign em_arr = em_arr | split: '#separator#'
+  assign words_count_arr = ''
+  assign letters_count_arr = ''
+  if em_arr.size > 0
+    for words in em_arr offset: 1
+      assign word = words | split: ' '
+      assign words_count_arr = words_count_arr | append: word.size | append: ', '
+      assign letters_count_arr = letters_count_arr | append: words.size | append: ', '
+    endfor
+  endif
+
+  assign words_count_arr = words_count_arr | replace_last: ', ', '' | split: ', '
+  assign letters_count_arr = letters_count_arr | replace_last: ', ', '' | split: ', '
+
+  comment
+   Main highlight types logic
+  endcomment
+  assign icon_url = ''
+  assign icon_color = 'var(--text)'
+
+  if highlight_color != 'rgba(0,0,0,0)' and highlight_color != ''
+    assign icon_color = highlight_color
+  endif
+
+  capture text_highlight_icon
+    assign has_text_highlight = false
+
+    if title contains '<em>'
+      case heading_highlight_type
+        when 'squiggle'
+          assign icon_url = 'icon-squiggle.svg' | asset_url
+          echo '<span class="text-highlight__icon"></span>'
+        when 'circle'
+          echo '<span class="text-highlight__icon">'
+          render 'icon-circle', color: icon_color
+          echo '</span>'
+        when 'stroke' or 'circle' or 'squiggle' or 'highlight' or 'highlight-color' or 'underline'
+          assign has_text_highlight = true
+      endcase
+    endif
+  endcapture
+
+  capture icon_bg
+    if icon_url != ''
+      echo 'url( "' | append: icon_url | append: '" )'
+    else
+      echo 'none'
+    endif
+  endcapture
+  capture icon_styles
+    assign icon_bg = icon_bg | replace: '"', "'"
+    echo 'style="--icon-url: ' | append: icon_bg | append: ';' | append: '--icon-color: ' | append: icon_color | append: ';"'
+  endcapture
+
+  assign text_highlight_wrapper_class = 'text-highlight-wrapper' | append: ' text-highlight-wrapper--' | append: heading_highlight_type
+  capture text_highlight_start
+    echo '<span class="text-highlight" ' | append: icon_styles | append: '>'
+  endcapture
+  capture text_highlight_end
+    echo text_highlight_icon
+    echo '</span>'
+  endcapture
+
+  if title != blank and title contains '<em>'
+    case heading_highlight_type
+      when 'squiggle' or 'circle' or 'stroke' or 'highlight' or 'highlight-color' or 'underline'
+        assign title = title | replace: '<em>', text_highlight_start | replace: '</em>', text_highlight_end
+
+      when 'circle'
+        comment
+          Update icon's holder class based on the italicised words count
+        endcomment
+        assign title = title | split: 'class="text-highlight"'
+        assign title_mod = ''
+        for title_part in title offset: 1
+          assign current_part = title_part
+
+          if title_part contains 'text-highlight__icon'
+            capture highlight_icon_classes
+              echo 'text-highlight__icon'
+              assign current_count = words_count_arr[forloop.index0] | times: 1
+              assign letters_count = letters_count_arr[forloop.index0] | times: 1
+              if current_count == 1
+                echo ' text-highlight__icon--single-word'
+              endif
+              if letters_count < 6
+                echo ' text-highlight__icon--short'
+                echo ' text-highlight__icon--l' | append: letters_count
+              endif
+              if letters_count > 15
+                echo ' text-highlight__icon--long'
+              endif
+            endcapture
+
+            assign current_part = title_part | replace: 'text-highlight__icon', highlight_icon_classes
+          endif
+
+          unless forloop.last
+            assign title_mod = title_mod | append: current_part | append: 'class="text-highlight"'
+          else
+            assign title_mod = title_mod | append: current_part
+          endunless
+        endfor
+        assign title_first_part = title | first | append: 'class="text-highlight"'
+        assign title_mod = title_mod | prepend: title_first_part
+        assign title = title_mod
+    endcase
+  endif
+-%}{%- style -%}
   {{ selector_id }} {
     --PT: {{ section.settings.padding_top }}px;
     --PB: {{ section.settings.padding_bottom }}px;
     --adjust-heading: calc(var(--FONT-ADJUST-HEADING) * {{ heading_size }});
+  }
+
+  {{ selector_id }} .section__heading {
+    {%- if heading_highlight_type != 'highlight' -%}
+      --highlight-color: var(--text);
+    {%- endif -%}
+
+    {%- if highlight_color != 'rgba(0,0,0,0)' and highlight_color != '' -%}
+      --highlight-color: {{ highlight_color }};
+    {%- endif -%}
+
+    {%- if highlight_text_color != 'rgba(0,0,0,0)' and highlight_text_color != '' -%}
+      --highlight-text-color: {{ highlight_text_color }};
+    {%- endif -%}
   }
 
   {{ selector_id }} .section__text {
@@ -109,21 +266,28 @@
 
 {%- capture collection_button -%}
   {%- if button_text != blank -%}
-    <a class="btn {{ button_style }} {{ button_size }} {{ button_color }} btn--view-all" href="{{ collection.url }}">{{ button_text }}</a>
+    <a class="btn {{ button_style }} {{ button_size }} {{ button_color }} btn--view-all" href="{{ collection.url | default: '#!' }}">{{ button_text }}</a>
   {%- endif -%}
 {%- endcapture -%}
 
 {%- capture section_heading_content -%}
   <div class="section__header featured-collection__top__wrapper">
-    {%- if heading != blank -%}
-      <h2 class="section__heading h2"
-      {% if animations_enabled %}
-        data-aos="fade-up"
-        data-aos-delay="{{ animation_delay }}"
-        data-aos-anchor="{{ animation_anchor }}"
-        {%- assign animation_delay = animation_delay | plus: 150 -%}
-      {% endif %}>
-        {{- heading | escape -}}
+    {%- if title != blank -%}
+      <h2 class="section__heading h2{% if has_text_highlight %} {{ text_highlight_wrapper_class }}{% endif %}"
+        {% if animations_enabled %}
+          data-aos="fade-up"
+          data-aos-delay="{{ animation_delay }}"
+          data-aos-anchor="{{ animation_anchor }}"
+          {%- assign animation_delay = animation_delay | plus: 150 -%}
+        {% endif %}>
+
+        {%- if add_collection_link -%}
+          <a href="{{ collection.url | default: '#!' }}" class="section__link">
+            {%- render 'title-stripped', title: title -%}
+          </a>
+        {%- else -%}
+          {% render 'title-with-highlights', title: title, heading_highlight_type: heading_highlight_type, highlight_color: highlight_color, has_text_highlight: has_text_highlight %}
+        {%- endif -%}
       </h2>
     {%- endif -%}
 
@@ -167,7 +331,7 @@
 
 {%- capture section_heading -%}
   {%- if is_split -%}
-    {%- if heading != blank or text != blank or section.settings.show_collection_button == true and collection.handle != 'all' -%}
+    {%- if title != blank or text != blank or section.settings.show_collection_button == true and collection.handle != 'all' -%}
       <div class="featured-collection__top {{ text_alignment }}">
         <div class="featured-collection__top-inner">
           {{ section_heading_content }}
@@ -175,7 +339,7 @@
       </div>
     {%- endif -%}
   {%- else -%}
-    {%- if heading != blank or text != blank and collection.handle != 'all' -%}
+    {%- if title != blank or text != blank and collection.handle != 'all' -%}
       <div class="featured-collection__top {{ text_alignment }}">
         {{ section_heading_content }}
       </div>
@@ -217,6 +381,7 @@
   assign title = block.settings.title
   assign heading_highlight_type = block.settings.heading_highlight_type
   assign highlight_color = block.settings.highlight_color
+  assign highlight_text_color = block.settings.highlight_text_color
   assign promo_heading_size = block.settings.heading_size | times: 0.01
   assign promo_text_size = block.settings.text_size | times: 0.01
   assign promo_content = block.settings.content | strip_html
@@ -290,6 +455,34 @@
 {% endcomment %}
 
 {%- liquid
+  comment
+   Highlighted words count
+  endcomment
+  assign title_temp = title | split: '<em>'
+  assign em_arr = ''
+  if title_temp.size > 1
+    for text_part in title_temp offset: 1
+      assign em_text = text_part | split: '</em>' | first
+      assign em_arr = em_arr | append: '#separator#' | append: em_text
+    endfor
+  endif
+  assign em_arr = em_arr | split: '#separator#'
+  assign words_count_arr = ''
+  assign letters_count_arr = ''
+  if em_arr.size > 0
+    for words in em_arr offset: 1
+      assign word = words | split: ' '
+      assign words_count_arr = words_count_arr | append: word.size | append: ', '
+      assign letters_count_arr = letters_count_arr | append: words.size | append: ', '
+    endfor
+  endif
+
+  assign words_count_arr = words_count_arr | replace_last: ', ', '' | split: ', '
+  assign letters_count_arr = letters_count_arr | replace_last: ', ', '' | split: ', '
+
+  comment
+   Main highlight types logic
+  endcomment
   assign icon_url = ''
   assign icon_color = 'var(--text)'
 
@@ -309,7 +502,7 @@
           echo '<span class="text-highlight__icon">'
           render 'icon-circle', color: icon_color
           echo '</span>'
-        when 'stroke' or 'circle' or 'squiggle'
+        when 'stroke' or 'circle' or 'squiggle' or 'highlight' or 'highlight-color' or 'underline'
           assign has_text_highlight = true
       endcase
     endif
@@ -338,8 +531,47 @@
 
   if title != blank and title contains '<em>'
     case heading_highlight_type
-      when 'squiggle' or 'circle' or 'stroke'
+      when 'squiggle' or 'circle' or 'stroke' or 'highlight' or 'highlight-color' or 'underline'
         assign title = title | replace: '<em>', text_highlight_start | replace: '</em>', text_highlight_end
+
+      when 'circle'
+        comment
+          Update icon's holder class based on the italicised words count
+        endcomment
+        assign title = title | split: 'class="text-highlight"'
+        assign title_mod = ''
+        for title_part in title offset: 1
+          assign current_part = title_part
+
+          if title_part contains 'text-highlight__icon'
+            capture highlight_icon_classes
+              echo 'text-highlight__icon'
+              assign current_count = words_count_arr[forloop.index0] | times: 1
+              assign letters_count = letters_count_arr[forloop.index0] | times: 1
+              if current_count == 1
+                echo ' text-highlight__icon--single-word'
+              endif
+              if letters_count < 6
+                echo ' text-highlight__icon--short'
+                echo ' text-highlight__icon--l' | append: letters_count
+              endif
+              if letters_count > 15
+                echo ' text-highlight__icon--long'
+              endif
+            endcapture
+
+            assign current_part = title_part | replace: 'text-highlight__icon', highlight_icon_classes
+          endif
+
+          unless forloop.last
+            assign title_mod = title_mod | append: current_part | append: 'class="text-highlight"'
+          else
+            assign title_mod = title_mod | append: current_part
+          endunless
+        endfor
+        assign title_first_part = title | first | append: 'class="text-highlight"'
+        assign title_mod = title_mod | prepend: title_first_part
+        assign title = title_mod
     endcase
   endif
 -%}{%- style -%}
@@ -355,10 +587,16 @@
   }
 
   {{ block_selector_id }} .collection-promo__heading {
-    --highlight-color: var(--text);
+    {%- if heading_highlight_type != 'highlight' -%}
+      --highlight-color: var(--text);
+    {%- endif -%}
 
     {%- if highlight_color != 'rgba(0,0,0,0)' and highlight_color != '' -%}
       --highlight-color: {{ highlight_color }};
+    {%- endif -%}
+
+    {%- if highlight_text_color != 'rgba(0,0,0,0)' and highlight_text_color != '' -%}
+      --highlight-text-color: {{ highlight_text_color }};
     {%- endif -%}
   }
 {%- endstyle -%}
@@ -383,15 +621,29 @@
   <div class="collection-promo__content {{ promo_layout_class }}{% if show_text_shadow and promo_image != blank %} backdrop--radial{% endif %}">
     <div class="collection-promo__body">
       {%- if title != blank -%}
-
         {%- liquid
-          assign title = title | replace: '%', '<sup>%</sup>'
-          assign title = title | replace: '<sup>%</sup> off', '<sup>%</sup> <small>off</small>'
-          assign title = title | replace: '<sup>%</sup> OFF', '<sup>%</sup> <small>OFF</small>'
-          assign title = title | replace: '<sup>%</sup> Off', '<sup>%</sup> <small>Off</small>'
+          assign numbers_string = '0%,1%,2%,3%,4%,5%,6%,7%,8%,9%' | split: ','
+          assign has_percent_off = false
+          assign has_number_percent = false
+          for num in numbers_string
+            if title contains num
+              assign has_number_percent = true
+            endif
+          endfor
+
+          if has_number_percent
+            assign title = title | replace: '%', '<sup>%</sup>'
+
+            if title contains '<sup>%</sup> off' or title contains '<sup>%</sup> OFF' or title contains '<sup>%</sup> Off'
+              assign has_percent_off = true
+              assign title = title | replace: '<sup>%</sup> off', '<sup>%</sup> <small>off</small>'
+              assign title = title | replace: '<sup>%</sup> OFF', '<sup>%</sup> <small>OFF</small>'
+              assign title = title | replace: '<sup>%</sup> Off', '<sup>%</sup> <small>Off</small>'
+            endif
+          endif
         -%}
 
-        <h3 class="collection-promo__heading{% if has_text_highlight %} {{ text_highlight_wrapper_class }}{% endif %}"
+        <h3 class="collection-promo__heading{% if has_text_highlight %} {{ text_highlight_wrapper_class }}{% endif %}{% if has_percent_off %} haspercentoff{% elsif has_number_percent %} hasnumberpercent{% endif %}"
           {% if settings.animations_enabled %}
             data-aos="fade-up"
             data-aos-anchor="{{ animation_anchor }}"
@@ -600,9 +852,12 @@
   assign items_on_row_remaining = items_on_row_remaining | minus: 1
 
   if collection
-    render 'product-grid-item', product: product, animation_delay: animation_delay, tablet_counter: tablet_counter, mobile_counter: mobile_counter, carousel: carousel
+    render 'product-grid-item', product: product, animation_delay: animation_delay, tablet_counter: tablet_counter, mobile_counter: mobile_counter, carousel: carousel, columns: columns
   else
-    render 'product-grid-item--onboarding', columns_mobile: columns_mobile, carousel: carousel, index: index, animation_delay: animation_delay
+    capture placeholder_index
+      cycle 1, 2, 3, 4, 5, 6
+    endcapture
+    render 'product-grid-item--onboarding', columns_mobile: columns_mobile, carousel: carousel, index: placeholder_index, animation_delay: animation_delay, columns: columns
   endif
 
   assign tablet_counter = tablet_counter | plus: 1
@@ -623,7 +878,7 @@
               assign columns = settings.products_per_row_on_desktop | plus: 0
               assign animation_delay = forloop.index0 | modulo: columns | times: 1
             endif
-              render 'product-grid-item', columns_mobile: columns_mobile, product: product, carousel: carousel, animation_delay: animation_delay, tablet_counter: tablet_counter, mobile_counter: mobile_counter
+              render 'product-grid-item', columns: columns, columns_mobile: columns_mobile, product: product, carousel: carousel, animation_delay: animation_delay, tablet_counter: tablet_counter, mobile_counter: mobile_counter
             unless carousel
               assign tablet_counter = tablet_counter | plus: 1
               assign mobile_counter = mobile_counter | plus: 1
@@ -796,9 +1051,12 @@
   assign items_on_row_remaining = items_on_row_remaining | minus: 1
 
   if collection
-    render 'product-grid-item', product: product, animation_delay: animation_delay, tablet_counter: tablet_counter, mobile_counter: mobile_counter, carousel: carousel
+    render 'product-grid-item', product: product, animation_delay: animation_delay, tablet_counter: tablet_counter, mobile_counter: mobile_counter, carousel: carousel, columns: columns
   else
-    render 'product-grid-item--onboarding', columns_mobile: columns_mobile, carousel: carousel, index: index, animation_delay: animation_delay
+    capture placeholder_index
+      cycle 1, 2, 3, 4, 5, 6
+    endcapture
+    render 'product-grid-item--onboarding', columns_mobile: columns_mobile, carousel: carousel, index: placeholder_index, animation_delay: animation_delay, columns: columns
   endif
 
   assign tablet_counter = tablet_counter | plus: 1
@@ -822,6 +1080,7 @@
 
       {%- assign index = index | plus: 0 -%}
       {%- render 'product-grid-item--onboarding',
+        columns: columns,
         columns_mobile: columns_mobile,
         carousel: carousel,
         index: index,
@@ -918,6 +1177,26 @@
       "step": 1
     },
     {
+      "type": "range",
+      "id": "products_per_row_on_desktop",
+      "label": "Products per row on desktop",
+      "info": "Only applies to Grid and Carousel layouts",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Products per row on mobile",
+      "default": "2",
+      "options": [
+        { "label": "1", "value": "1" },
+        { "label": "2", "value": "2" }
+      ]
+    },
+    {
       "type": "header",
       "content": "Text"
     },
@@ -932,10 +1211,42 @@
       ]
     },
     {
-      "type": "text",
+      "type": "richtext",
       "id": "title",
       "label": "Heading",
-      "default": "Best Sellers"
+      "default": "<p>Best Sellers</p>",
+      "info": "Highlight one or two key words in your heading by italicizing them, then choose the highlight option below"
+    },
+    {
+      "type": "header",
+      "content": "Highlight"
+    },
+    {
+      "type": "select",
+      "id": "heading_highlight_type",
+      "label": "Type",
+      "default": "circle",
+      "options": [
+        { "value": "italics", "label": "Italics (no decoration)" },
+        { "value": "highlight", "label": "Highlight" },
+        { "value": "highlight-color", "label": "Text color" },
+        { "value": "underline", "label": "Underline" },
+        { "value": "squiggle", "label": "Squiggle" },
+        { "value": "circle", "label": "Circle" },
+        { "value": "stroke", "label": "Stroke (outlined text)" }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "highlight_color",
+      "label": "Highlight color",
+      "default": "#D43747"
+    },
+    {
+      "type": "color",
+      "id": "highlight_text_color",
+      "label": "Text color",
+      "default": "#000"
     },
     {
       "type": "range",
@@ -1031,16 +1342,6 @@
       "info": "Horizontal slider in mobile layout."
     },
     {
-      "type": "select",
-      "id": "columns_mobile",
-      "label": "Products per row",
-      "default": "2",
-      "options": [
-        { "label": "1", "value": "1" },
-        { "label": "2", "value": "2" }
-      ]
-    },
-    {
       "type": "header",
       "content": "Section spacing"
     },
@@ -1122,12 +1423,19 @@
           "info": "Highlight one or two key words in your heading by italicizing them, then choose the highlight option below"
         },
         {
+          "type": "header",
+          "content": "Highlight"
+        },
+        {
           "type": "select",
           "id": "heading_highlight_type",
-          "label": "Highlight type",
+          "label": "Type",
           "default": "circle",
           "options": [
             { "value": "italics", "label": "Italics (no decoration)" },
+            { "value": "highlight", "label": "Highlight" },
+            { "value": "highlight-color", "label": "Text color" },
+            { "value": "underline", "label": "Underline" },
             { "value": "squiggle", "label": "Squiggle" },
             { "value": "circle", "label": "Circle" },
             { "value": "stroke", "label": "Stroke (outlined text)" }
@@ -1138,6 +1446,12 @@
           "id": "highlight_color",
           "label": "Highlight color",
           "default": "#D43747"
+        },
+        {
+          "type": "color",
+          "id": "highlight_text_color",
+          "label": "Text color",
+          "default": "#000"
         },
         {
           "type": "range",

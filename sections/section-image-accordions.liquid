@@ -67,12 +67,8 @@
             assign button_2_size = block.settings.button_2_size
             assign animation_delay = 400
 
-            assign image_link = false
-            if button_1_link != blank and button_2_text == blank
+            if button_1_link != blank and button_1_text == blank and button_2_text == blank
               assign image_link = true
-            elsif button_1_text == blank and button_1_link == blank and button_2_link != blank
-              assign image_link = true
-              assign button_1_link = button_2_link
             endif
           -%}
 
@@ -173,11 +169,11 @@
                               data-aos-delay="{{ animation_delay }}"
                               {%- assign animation_delay = animation_delay | plus: 150 -%}
                             {% endif %}>
-                            {%- unless image_link -%}
+                            {%- if button_1_link != blank -%}
                               <a class="slide__btn btn {{ button_1_style }} {{ button_1_size }} {{ button_1_color }}" href="{{ button_1_link | default: '#!' }}" data-accordion-button>{{ button_1_text }}</a>
                             {%- else -%}
                               <span class="slide__btn btn {{ button_1_style }} {{ button_1_size }} {{ button_1_color }}">{{ button_1_text }}</span>
-                            {%- endunless -%}
+                            {%- endif -%}
                           </div>
                         {%- endif -%}
 
@@ -188,11 +184,11 @@
                               data-aos-anchor="{{ animation_anchor }}"
                               data-aos-delay="{{ animation_delay }}"
                             {% endif %}>
-                            {%- unless image_link -%}
+                            {%- if button_2_link != blank -%}
                               <a class="slide__btn btn {{ button_2_style }} {{ button_2_size }} {{ button_2_color }}" href="{{ button_2_link | default: '#!' }}" data-accordion-button>{{ button_2_text }}</a>
                             {%- else -%}
                               <span class="slide__btn btn {{ button_2_style }} {{ button_2_size }} {{ button_2_color }}">{{ button_2_text }}</span>
-                            {%- endunless -%}
+                            {%- endif -%}
                           </div>
                         {%- endif -%}
                       </div>

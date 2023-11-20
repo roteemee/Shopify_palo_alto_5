@@ -6,7 +6,12 @@
       "color_variant": "color variant",
       "more_colors": "+ {{ number }} more"
     },
+    "siblings": {
+      "label": "Color",
+      "swatches": "Color, Colour"
+    },
     "size_chart": {
+      "button": "Size guide",
       "size": "Size"
     },
     "accessibility": {
@@ -74,7 +79,7 @@
     "search": {
       "title": "Search for products on our site",
       "search": "Search",
-      "no_results": "Your search for \"{{ terms }}\" did not yield any results.",
+      "no_results": "No results for \"{{ terms }}\"",
       "results_for": "Results for \"{{ terms }}\"",
       "results_with_count": {
         "one": "{{ count }} result",
@@ -98,11 +103,9 @@
       "quick_tip": "Press enter",
       "browse_categories": "Browse categories",
       "popular_searches": "Suggested search terms",
-      "badge": {
-        "blog": "Blog",
-        "page": "Page"
-      },
       "products": "Products",
+      "articles": "Blogs",
+      "pages": "Pages",
       "suggestions": "Suggestions",
       "pages_and_blogs": "Pages and blog posts",
       "search_actions": "Search actions"
@@ -406,6 +409,7 @@
       "single_collection_description": "Once you choose a collection, its description will populate here automatically.",
       "single_collection_products_description": "Once you choose a collection, its product descriptions will populate here automatically.",
       "no_content": "This section doesn’t currently include any content. Add content to this section using the sidebar.",
+      "no_page_content": "This page doesn’t currently include any content.",
       "slideshow": {
         "heading": "Welcome to Palo Alto",
         "subheading": "This subheading helps you provide some more detail to the title above.",
@@ -522,7 +526,9 @@
       "save": "Save",
       "unit_price_label": "Unit price",
       "popup_missing": "Select page from the block settings.",
-      "popup_text_missing": "No text added in the selected page"
+      "popup_text_missing": "No text added in the selected page",
+      "show_more": "Show more",
+      "show_less": "Show less"
     }
   },
   "gift_cards": {
@@ -539,6 +545,29 @@
       "gift_card": "Gift Card"
     }
   },
+  "recipient": {
+    "form": {
+      "checkbox": "I want to send this as a gift",
+      "email_label": "Recipient email",
+      "email": "Recipient email",
+      "name_label": "Recipient name (optional)",
+      "name": "Recipient name (optional)",
+      "message_label": "Message (optional)",
+      "message": "Message (optional)",
+      "max_characters": "{{ max_chars }} characters max",
+      "error_heading": "Please adjust the following:",
+      "send_on": "YYYY-MM-DD",
+      "send_on_label": "Send on (optional)"
+    }
+  },
+  "countdown": {
+    "heading": "Shop before it ends.",
+    "ends": "Ends",
+    "days": "Days",
+    "hours": "Hours",
+    "minutes": "Minutes",
+    "seconds": "Seconds"
+  },
   "date_formats": {
     "month_day_year": "%B %d, %Y"
   },
@@ -547,8 +576,9 @@
       "title":"View {{ shop_name }} on {{ social }}",
       "rss":"RSS"
     },
-    "currency": "Currency",
+    "country": "Country",
     "language": "Language",
+    "update": "Update",
     "powered_by": "Powered by"
   },
   "store_availability": {
@@ -567,5 +597,8 @@
     "previous": "Previous",
     "next": "Next",
     "scroll_down": "Scroll down"
+  },
+  "video": {
+    "play_bg_video": "Play background video"
   }
 }

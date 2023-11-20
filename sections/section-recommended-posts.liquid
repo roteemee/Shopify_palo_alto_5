@@ -2,6 +2,7 @@
 {%- liquid
   assign id = 'RecommendedPosts--' | append: section.id
   assign selector_id = '#' | append: id
+  assign section_width = section.settings.width
   assign blog_style = section.settings.blog_style
   assign default_image = section.settings.default_image
   assign default_color = section.settings.default_color
@@ -161,7 +162,7 @@
     class="recommended-posts blog {{ blog_style }} section-padding{% if bg_color_secondary %} bg-secondary{% endif %}"
     data-section-type="recommended-posts"
     data-section-id="{{ section.id }}">
-    <div class="wrapper">
+    <div class="{{ section_width }}">
       {%- if title != empty or section.settings.show_rss_icon -%}
         <h2 class="section__heading text-center"
           {% if animations_enabled %}
@@ -289,6 +290,17 @@
       {
         "type": "header",
         "content": "Section spacing"
+      },
+      {
+        "type": "select",
+        "id": "width",
+        "label": "Width",
+        "default": "wrapper",
+        "options": [
+          { "value": "wrapper--full-padded", "label": "Full width padded" },
+          { "value": "wrapper", "label": "Page width" },
+          { "value": "wrapper--narrow", "label": "Page width narrow" }
+        ]
       },
       {
         "type": "range",

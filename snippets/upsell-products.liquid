@@ -1,12 +1,16 @@
 {%- liquid
   assign upsell_products = upsell_products | strip_newlines | split: ','
-  assign upsell_form_id = "UpsellForm--" | append: unique
-  assign upsell_button_id = "UpsellButton--" | append: unique
+  assign unique = unique | default: section.id
+  assign button_style = settings.upsells_button_style | default: 'btn--solid-border'
+  assign button_color = settings.upsells_button_color | default: 'btn--secondary'
+  assign button_size = settings.upsells_button_size | default: 'btn--medium'
 -%}
 
 {%- for product_handle in upsell_products -%}
   {%- liquid
     assign upsell_product = all_products[product_handle]
+    assign upsell_form_id = 'upsellForm--' | append: unique | append: '--' | append: upsell_product.id
+    assign upsell_button_id = 'upsellButton--' | append: unique | append: '--' | append: upsell_product.id
     assign upsell_link = upsell_product.url | default: '#!'
     assign upsell_variant = upsell_product.selected_or_first_available_variant
     assign upsell_variant_image = upsell_variant.featured_media | default: upsell_product.media[0]
@@ -37,7 +41,7 @@
               <input type="hidden" name="id" value="{{ upsell_product.first_available_variant.id }}">
 
               <button type="button" name="add"
-                class="product-upsell__btn btn btn--secondary btn--solid-border"
+                class="product-upsell__btn btn {{ button_style }} {{ button_size }} {{ button_color }}"
                 id="{{ upsell_button_id }}"
                 data-add-to-cart
                 data-upsell-btn
@@ -71,7 +75,7 @@
               </button>
             {%- endform -%}
           {%- else -%}
-            <a class="product-upsell__btn btn btn--secondary btn--solid-border"
+            <a class="product-upsell__btn btn {{ button_style }} {{ button_size }} {{ button_color }}"
               href="{{ upsell_link }}"
               data-handle="{{ upsell_product.handle }}"
               data-button-quick-view
@@ -88,7 +92,7 @@
             </a>
           {%- endif -%}
 
-          <div data-cart-errors-container class="product-upsell__errors"></div>
+          <div data-cart-errors-container role="alert" class="product-upsell__errors"></div>
         </div>
 
         <div class="product-upsell__image">

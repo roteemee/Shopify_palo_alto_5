@@ -3,7 +3,7 @@
     "name": "theme_info",
     "theme_name": "Palo Alto",
     "theme_author": "Presidio Creative",
-    "theme_version": "5.0.0",
+    "theme_version": "5.3.0",
     "theme_support_url": "https:\/\/presidiocreative.com\/link\/palo-alto\/contact",
     "theme_documentation_url": "https:\/\/presidiocreative.com\/link\/palo-alto\/docs"
   },
@@ -76,7 +76,7 @@
         "id": "heading_size",
         "label": "Base size",
         "default": 100,
-        "min": 75,
+        "min": 50,
         "max": 125,
         "step": 5,
         "unit": "%"
@@ -96,7 +96,7 @@
         "id": "text_size",
         "label": "Base size",
         "default": 100,
-        "min": 75,
+        "min": 50,
         "max": 125,
         "step": 5,
         "unit": "%"
@@ -144,7 +144,7 @@
       {
         "type": "range",
         "id": "nav_size",
-        "min": 75,
+        "min": 50,
         "max": 125,
         "step": 5,
         "unit": "%",
@@ -152,9 +152,32 @@
         "default": 100
       },
       {
+        "type": "range",
+        "id": "nav_letter_spacing",
+        "label": "Letter spacing",
+        "default": 0,
+        "min": -25,
+        "max": 200,
+        "unit": "%",
+        "step": 25
+      },
+      {
         "type": "checkbox",
-        "id": "nav_caps",
-        "label": "Uppercase",
+        "id": "nav_caps_letter_spacing",
+        "label": "Apply letter spacing to only uppercase",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "nav_caps_toplevel",
+        "label": "Uppercase top-level links",
+        "info": "Disabled on Hamburger menu",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "nav_caps_megamenu",
+        "label": "Uppercase all links in megamenu",
         "info": "Disabled on Hamburger menu",
         "default": false
       },
@@ -207,7 +230,7 @@
       {
         "type": "range",
         "id": "subheading_size",
-        "min": 75,
+        "min": 50,
         "max": 150,
         "step": 5,
         "unit": "%",
@@ -255,7 +278,7 @@
         "type": "range",
         "id": "button_size",
         "label": "Base size",
-        "min": 75,
+        "min": 50,
         "max": 125,
         "step": 5,
         "unit": "%",
@@ -557,6 +580,17 @@
           { "label": "Outline", "value": "btn--outline" },
           { "label": "Solid with border", "value": "btn--solid-border" }
         ]
+      },
+      {
+        "type": "header",
+        "content": "Gift card"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_gift_card_recipient",
+        "label": "Show recipient information form for gift card products",
+        "default": false,
+        "info": "Gift card products can optionally be sent direct to a recipient along with a personal message."
       }
     ]
   },
@@ -683,7 +717,7 @@
       {
         "type": "range",
         "id": "quick_buy_text_length",
-        "label": "Product descriptioon length (words)",
+        "label": "Product description length (words)",
         "min": 1,
         "max": 50,
         "step": 1,
@@ -850,6 +884,90 @@
         "id": "accept_terms_text",
         "label": "Checkbox label",
         "default": "<p>I agree to the terms and conditions<\/p>"
+      }
+    ]
+  },
+  {
+    "name": "Upsells",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Layout"
+      },
+      {
+        "type": "range",
+        "id": "upsells_height",
+        "label": "Height",
+        "min": 100,
+        "max": 200,
+        "step": 5,
+        "unit": "px",
+        "default": 130
+      },
+      {
+        "type": "range",
+        "id": "upsells_image_width",
+        "label": "Image width",
+        "min": 20,
+        "max": 60,
+        "step": 10,
+        "unit": "%",
+        "default": 30
+      },
+      {
+        "type": "header",
+        "content": "Colors"
+      },
+      {
+        "type": "color",
+        "id": "upsells_bg_color",
+        "label": "Background color",
+        "default": "#F1EFE8"
+      },
+      {
+        "type": "color",
+        "id": "upsells_text_color",
+        "label": "Text",
+        "default": "#0B0B0B"
+      },
+      {
+        "type": "header",
+        "content": "Button"
+      },
+      {
+        "type": "select",
+        "id": "upsells_button_color",
+        "label": "Color",
+        "default": "btn--secondary",
+        "options": [
+          { "label": "Primary", "value": "btn--primary" },
+          { "label": "Secondary", "value": "btn--secondary" },
+          { "label": "White", "value": "btn--white" },
+          { "label": "Black", "value": "btn--black" }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "upsells_button_style",
+        "label": "Style",
+        "default": "btn--solid-border",
+        "options": [
+          { "label": "Solid", "value": "btn--solid" },
+          { "label": "Outline", "value": "btn--outline" },
+          { "label": "Solid with border", "value": "btn--solid-border" },
+          { "label": "Text", "value": "btn--text" }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "upsells_button_size",
+        "label": "Size",
+        "default": "btn--medium",
+        "options": [
+          { "label": "Large", "value": "btn--large" },
+          { "label": "Medium", "value": "btn--medium" },
+          { "label": "Small", "value": "btn--small" }
+        ]
       }
     ]
   },
@@ -1352,6 +1470,11 @@
         "id": "info_page",
         "label": "Page",
         "info": "Note that this setting will apply to all your products. If you wish to have a size chart for specific products, connect a dynamic source using the instructions above."
+      },
+      {
+        "type": "text",
+        "id": "info_page_title_override",
+        "label": "Page title override"
       }
     ]
   }

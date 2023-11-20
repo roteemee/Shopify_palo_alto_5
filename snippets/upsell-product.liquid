@@ -1,4 +1,7 @@
 {%- liquid
+  assign button_style = settings.upsells_button_style | default: 'btn--solid-border'
+  assign button_color = settings.upsells_button_color | default: 'btn--secondary'
+  assign button_size = settings.upsells_button_size | default: 'btn--medium'
   assign upsell_variant = upsell_product.selected_or_first_available_variant
   assign upsell_link = upsell_product.url | default: '#!'
   assign upsell_image = upsell_product.featured_media.preview_image
@@ -13,12 +16,19 @@
     assign show_upsell = true
   endif
 
-  assign upsell_form_id = "UpsellForm--" | append: unique
-  assign upsell_button_id = "UpsellButton--" | append: unique
+  assign unique = unique | default: block.id | append: '--' | append: upsell_product.id
+  assign upsell_form_id = 'upsellForm--' | append: unique
+  assign upsell_button_id = 'upsellButton--' | append: unique
 
   assign single_variant = false
   if upsell_product.variants.size == 1 and upsell_product.selling_plan_groups.size == 0
     assign single_variant = true
+  endif
+
+  if settings.currency_code_enable
+    assign upsell_variant_price = upsell_variant.price | money_with_currency
+  else
+    assign upsell_variant_price = upsell_variant.price | money
   endif
 
   assign subtitle = 'general.upsell.pair_products' | t
@@ -28,7 +38,7 @@
 -%}
 
 {%- if show_upsell -%}
-  <div class="product-upsell__holder{% if upsell_error %} product-upsell__holder--onboarding{% endif %}" data-upsell-holder>
+  <div class="product-upsell__holder{% if upsell_error %} product-upsell__holder--onboarding{% endif %}" data-upsell-holder {% render 'upsells-fallback-styles', section: section %}>
     <div class="product-upsell">
       <div class="product-upsell__content">
         <p class="product-upsell__subtitle">{{ subtitle }}</p>
@@ -45,7 +55,7 @@
               <input type="hidden" name="id" value="{{ upsell_variant.id }}">
 
               <button type="submit" name="add"
-                class="product-upsell__btn btn btn--secondary btn--solid-border{% unless upsell_variant.available %} is-hidden{% endunless %}"
+                class="product-upsell__btn btn {{ button_style }} {{ button_size }} {{ button_color }}{% unless upsell_variant.available %} is-hidden{% endunless %}"
                 id="{{ upsell_button_id }}"
                 {% unless upsell_variant.available %} is-hidden{% endunless %}
                 data-add-to-cart
@@ -57,7 +67,7 @@
                     if upsell_variant.price == 0
                       echo 'products.product.free' | t
                     else
-                      echo upsell_variant.price | money
+                      echo upsell_variant_price
                     endif
                   -%}
                 </span>
@@ -79,25 +89,25 @@
               <p class="product-upsell__unavailable">{{ 'products.product.sold_out' | t }}</p>
             {%- endunless -%}
 
-            <a class="product-upsell__btn btn btn--secondary btn--solid-border"
+            <a class="product-upsell__btn btn {{ button_style }} {{ button_size }} {{ button_color }}"
               href="{{ upsell_link }}"
               data-handle="{{ upsell_product.handle }}"
               data-button-quick-view
               >
-                <span class="product-upsell__btn-text">{{ 'general.upsell.quick_view' | t }}</span>
-                <span class="product-upsell__btn-progress">
-                  <svg height="18" width="18" class="svg-loader">
-                    <circle r="7" cx="9" cy="9" />
-                    <circle stroke-dasharray="87.96459430051421 87.96459430051421" r="7" cx="9" cy="9" />
-                  </svg>
-                </span>
+              <span class="product-upsell__btn-text">{{ 'general.upsell.quick_view' | t }}</span>
+              <span class="product-upsell__btn-progress">
+                <svg height="18" width="18" class="svg-loader">
+                  <circle r="7" cx="9" cy="9" />
+                  <circle stroke-dasharray="87.96459430051421 87.96459430051421" r="7" cx="9" cy="9" />
+                </svg>
+              </span>
 
-                <span class="product-upsell__btn-check">&nbsp;</span>
+              <span class="product-upsell__btn-check">&nbsp;</span>
             </a>
           {%- endif -%}
         {%- endif -%}
 
-        <div data-cart-errors-container class="product-upsell__errors"></div>
+        <div data-cart-errors-container role="alert" class="product-upsell__errors"></div>
       </div>
 
       <div class="product-upsell__image">

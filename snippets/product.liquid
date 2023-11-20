@@ -13,6 +13,7 @@
 {%- endcomment -%}
 
 {%- liquid
+  assign section_width = section.settings.width
   assign image_layout = section.settings.image_layout
   assign image_width = section.settings.image_width
   assign hide_product_thumbnails = section.settings.hide_product_thumbnails | default: false
@@ -27,6 +28,7 @@
   assign show_newsletter = settings.show_newsletter
   assign product_wrapper_class = 'product-single__wrapper'
   assign product_wrapper_modifiers = ' ' | append: 'product-single__wrapper--carousel'
+  assign product_form_id = 'AddToCartForm--' | append: unique
 
   case image_layout
     when 'grid'
@@ -41,6 +43,44 @@
     when 'large'
       assign product_wrapper_modifiers = product_wrapper_modifiers | append: ' ' | append: 'product-single__wrapper--large'
   endcase
+
+  capture image_size_desktop
+    case image_layout
+      when 'grid'
+        if section_width == 'wrapper--full-padded'
+          case image_width
+            when 'standard'
+              echo 'calc(((100vw - 120px) / 2 - 30px) / 2 - 12px)'
+            when 'large'
+              echo 'calc(((100vw - 120px) * 0.6 - 30px) / 2 - 12px)'
+          endcase
+        else
+          case image_width
+            when 'standard'
+              echo '303px'
+            when 'large'
+              echo '369px'
+          endcase
+        endif
+
+      when 'stacked' or 'carousel'
+        if section_width == 'wrapper--full-padded'
+          case image_width
+            when 'standard'
+              echo 'calc((100vw - 120px) / 2 - 30px)'
+            when 'large'
+              echo 'calc((100vw - 120px) * 0.6 - 30px)'
+          endcase
+        else
+          case image_width
+            when 'standard'
+              echo '630px'
+            when 'large'
+              echo '762px'
+          endcase
+        endif
+    endcase
+  endcapture
 
   assign product_gallery_class = 'product-single__gallery'
   assign product_gallery_modifiers = ''
@@ -103,22 +143,16 @@
       id="ProductPhoto--{{ unique }}"
       data-gallery="{{ enable_zoom }}"
       data-autoplay-video="false"
-      data-product-single-media-group
-      {% if animations_enabled %}
-        data-aos="fade"
-        data-aos-anchor="{{ animation_anchor }}"
-        data-aos-delay="{{ animation_delay }}"
-        {%- assign animation_delay = animation_delay | plus: 150 -%}
-      {% endif %}>
+      data-product-single-media-group>
       <div class="product-single__media-slider{% if product.media.size == 1 %} product-single__media-slider--single{% endif %}" data-product-single-media-slider>
         {%- if product.media.size > 0 -%}
           {%- comment -%} Show Featured media first {%- endcomment -%}
-          {%- render 'media', unique: unique, current_variant: current_variant, media: featured_media, featured_media: featured_media, enable_video_looping: enable_video_looping, enable_zoom: enable_zoom, section_type: section_type -%}
+          {%- render 'media', unique: unique, current_variant: current_variant, media: featured_media, featured_media: featured_media, image_width: image_size_desktop, enable_video_looping: enable_video_looping, enable_zoom: enable_zoom, section_type: section_type -%}
 
           {%- comment -%} Loop product media skipping the featured {%- endcomment -%}
           {%- for media in product.media -%}
             {%- if media.id != featured_media_id -%}
-              {%- render 'media', unique: unique, current_variant: current_variant, media: media, featured_media: featured_media, enable_video_looping: enable_video_looping, enable_zoom: enable_zoom, section_type: section_type -%}
+              {%- render 'media', unique: unique, current_variant: current_variant, media: media, featured_media: featured_media, image_width: image_size_desktop, enable_video_looping: enable_video_looping, enable_zoom: enable_zoom, section_type: section_type -%}
             {%- endif -%}
           {%- endfor -%}
         {%- else -%}
@@ -238,7 +272,7 @@
 
               {%- comment -%} Display app in tabs if it contains reviews {%- endcomment -%}
               {%- if app_code contains '<div id="shopify-product-reviews" data-id=' -%}
-                {%- comment -%} Check if prev or next blocks are accordions {%- endcomment -%}
+                {%- comment -%} Check if prev or next blocks are accordions and determine block styling based on adjacent block {%- endcomment -%}
                 {%- liquid
                   unless forloop.first
                     assign prev_block_index = forloop.index0 | minus: 1
@@ -249,22 +283,16 @@
                     assign next_block = section.blocks[next_block_index]
                   endunless
 
-                  if block_style == blank
+                  if prev_block.type == 'product_accordion'
+                    assign block_style = 'style="--PBB:' | append: prev_block.settings.padding_bottom | append: 'px;"'
+                  elsif next_block.type == 'product_accordion'
+                    assign block_style = 'style="--PBB:' | append: next_block.settings.padding_bottom | append: 'px;"'
+                  elsif block_style == blank
                     assign block_style = 'style="--PBB:20px;"'
-                  endif
-
-                  assign block_class = 'product__accordions'
-
-                  if prev_block.type == 'product_accordions'
-                    assign block_class = block_class | append: ' product__accordions--reviews-next'
-                  endif
-
-                  if next_block.type == 'product_accordions'
-                    assign block_class = block_class | append: ' product__accordions--reviews-prev'
                   endif
                 -%}
 
-                <div class="product__block {{ block_class }}" {{ block_style }} {{ animations_attributes }} {{ block.shopify_attributes }}>
+                <div class="product__block product__accordions" {{ block_style }} {{ animations_attributes }} {{ block.shopify_attributes }}>
                   <div class="product__accordion" id="ProductAccordion--reviews-container">
                     <button class="product__accordion__title" aria-controls="ProductAccordion--{{ section.id }}-{{ block.id }}" data-collapsible-trigger>
                       {{- 'products.general.reviews' | t -}}
@@ -462,6 +490,16 @@
   assign current_variant = product.selected_or_first_available_variant
   assign unique = unique | default: ''
   assign variants_style = settings.variants_style
+  assign show_payment_button = false
+  assign gift_card_recipient_feature_active = false
+
+  if settings.show_gift_card_recipient and product.gift_card?
+    assign gift_card_recipient_feature_active = true
+  endif
+
+  if block.settings.show_payment_button and gift_card_recipient_feature_active == false
+    assign show_payment_button = true
+  endif
 
   comment
     Override buy button setting if there are selling plan groups and cart terms
@@ -473,14 +511,37 @@
   endif
 
   assign product_form_id = 'AddToCartForm--' | append: unique
+-%}{%- comment -%}
+  Size chart
 
-  comment
-    Size chart
-  endcomment
+  Inherited variables:
+    - product: {Object} Product object.
+    - section: {Object} the current Section this code block belongs to.
+  Returns variables:
+    - specific_pages_arr: {Array} Page handles array from product tags
+    - info_page: {Object} Page object || blank
+    - show_size_guide: {Boolean}
+    - size_chart_button_as_label: {Boolean}
+    - size_chart_button: {String} captured markup of a button that opens the size chart drawer
+    - size_chart_drawer: {String} captured markup of the size chart drawer
+{%- endcomment -%}
+
+{%- liquid
+  assign show_size_guide = false
+  assign size_guide_string = 'general.size_chart.button' | t
+  assign info_page_title_override = settings.info_page_title_override
+
+  capture size_chart_button_text
+    if info_page_title_override != blank
+      echo info_page_title_override
+    else
+      echo size_guide_string
+    endif
+  endcapture
+
   assign tags_string = product.tags | join: ','
   assign size_separator = '_size_'
   assign specific_pages = ''
-
   if tags_string contains size_separator
     for tag in product.tags
       if tag contains size_separator
@@ -489,138 +550,180 @@
       endif
     endfor
   endif
+  assign specific_pages_arr = specific_pages | split: ','
+  if specific_pages_arr.size > 0
+    assign show_size_guide = true
+  endif
 
   assign product_size_chart = product.metafields.theme.size_chart.value
   assign info_page = settings.info_page
-
   if product_size_chart != blank or info_page != blank
     if product_size_chart != blank
       assign info_page = product_size_chart
     elsif info_page != blank
       assign info_page = pages[info_page]
     endif
-    assign size_translation = 'general.size_chart.size' | t
-    assign size_translation = size_translation | lstrip | rstrip | downcase
-    assign show_size_link_as_label = false
 
-    for option in product.options
-      assign option_san = option | lstrip | rstrip | downcase
+    assign show_size_guide = true
+  endif
 
-      if option_san contains size_translation and show_labels
-        assign show_size_link_as_label = true
-      endif
+  assign size_chart_button_as_label = false
+  assign has_size_option = false
+  unless product.has_only_default_variant
+    for option in product.options_with_values
+      assign separator = option.name | handle | prepend: ',' | append: ','
+      assign size_translation = 'general.size_chart.size' | t
+      assign translation_string = size_translation | remove: '  ' | replace: ', ', ',' | replace: ' ,', ',' | replace: ',', '____' | handle | replace: '____', ',' | append: ',' | prepend: ','
+
+      unless translation_string contains separator
+        continue
+      endunless
+
+      assign has_size_option = true
     endfor
+  endunless
+
+  if has_size_option and show_labels
+    assign size_chart_button_as_label = true
   endif
 -%}
 
-{%- if info_page != blank or specific_pages != '' -%}
-  {%- assign specific_pages_arr = specific_pages | split: ',' -%}
+{%- if show_size_guide -%}
+  {%- liquid
+    assign empty_size_guide = true
 
-  {%- capture size_chart_button -%}
-    <button type="button" class="product__popup__link" href="{{ info_page.url }}" aria-controls="size-chart--{{ section.id }}" data-drawer-toggle>
-      {% render 'icon-ruler' %}
-      <span>
-      {%- if pages[specific_pages_arr[0]].title != blank -%}
-        {{ pages[specific_pages_arr[0]].title }}
-      {%- else -%}
-        {{ info_page.title }}
+    capture drawer_classes
+      echo 'popup-chart drawer drawer--right'
+      if section_type == 'quickview'
+        echo ' popup-chart--quickview'
+      else
+        echo ' cv-h'
+      endif
+    endcapture
+
+    capture drawer_close_icon
+      if section_type == 'quickview'
+        render 'icon-chevron-right'
+      else
+        render 'icon-close'
+      endif
+    endcapture
+
+    assign show_tabs_nav = false
+    assign tabs_navigation = ''
+    assign tabs = ''
+    assign has_current = false
+    assign index = 0
+    assign pages_count = 0
+  -%}
+
+  {%- for page_handle in specific_pages_arr -%}
+    {%- assign page_size_chart = pages[page_handle] -%}
+
+    {%- if page_size_chart.title != blank -%}
+      {%- capture tabs_navigation -%}
+        {{ tabs_navigation }}
+        <li class="tabs__link" data-tabs-link="{{ forloop.index0 }}" tabindex="0">{{ page_size_chart.title }}</li>
+      {%- endcapture -%}
+
+      {%- capture tabs -%}
+        {{ tabs }}
+        <div class="tab{% unless has_current %} current{% endunless %}" data-tab="{{ forloop.index0 }}">
+          {%- if page_size_chart.content != blank -%}
+            {{ page_size_chart.content }}
+          {%- else -%}
+            {{ 'homepage.onboarding.no_page_content' | t }}
+          {%- endif -%}
+        </div>
+      {%- endcapture -%}
+
+      {%- assign has_current = true -%}
+      {%- assign pages_count = pages_count | plus: 1 -%}
+    {%- endif -%}
+  {%- endfor -%}
+
+  {%- if info_page != blank -%}
+    {%- assign index = specific_pages_arr.size -%}
+
+    {%- capture tabs_navigation -%}
+      {{ tabs_navigation }}
+      {%- if info_page.title != blank -%}
+        <li class="tabs__link" data-tabs-link="{{ index }}" data-lock-scroll tabindex="0">{{ info_page.title }}</li>
       {%- endif -%}
-      </span>
-    </button>
-  {%- endcapture -%}
+    {%- endcapture -%}
 
-  {%- capture size_chart_modal -%}
-    <div class="popup-chart drawer drawer--right cv-h" id="size-chart--{{ section.id }}" aria-hidden="true" role="dialog" data-drawer>
-      <button type="button" class="drawer__close-button" aria-controls="size-chart--{{ section.id }}" data-drawer-toggle>
-        <span class="visually-hidden">{{ 'general.accessibility.close_drawer' | t }}</span>
-        {%- render 'icon-close' -%}
-      </button>
+    {%- capture tabs -%}
+      {{ tabs }}
+      <div class="tab{% unless has_current %} current{% endunless %}" data-tab="{{ index }}">
+        {%- if info_page.content != blank -%}
+          {{ info_page.content }}
+        {%- else -%}
+          {{ 'homepage.onboarding.no_page_content' | t }}
+        {%- endif -%}
+      </div>
+    {%- endcapture -%}
 
-      <div class="popup-chart__inner" data-scroll>
-        <div class="popup-chart__content">
-          <div class="rte tabs" data-tabs-holder>
-            {%- liquid
-              assign tabs_navigation = ''
-              assign tabs = ''
-              assign has_current = false
-              assign index = 0
-            -%}
+    {%- assign has_current = true -%}
+    {%- assign pages_count = pages_count | plus: 1 -%}
+  {%- endif -%}
 
-            {%- for page_handle in specific_pages_arr -%}
-              {%- assign page_size_chart = pages[page_handle] -%}
+  {%- liquid
+    if tabs != blank
+      assign empty_size_guide = false
+    endif
+    if pages_count > 1 and tabs_navigation != blank
+      assign show_tabs_nav = true
+    endif
+  -%}
 
-              {%- if page_size_chart.title != blank -%}
-                {%- capture tabs_navigation -%}
-                  {{ tabs_navigation }}
+  {%- capture size_chart_drawer -%}
+    {%- unless empty_size_guide -%}
+      <div class="{{ drawer_classes }}" id="size-chart--{{ unique }}" aria-hidden="true" role="dialog" data-drawer>
+        <button type="button" class="drawer__close-button" aria-controls="size-chart--{{ unique }}" data-drawer-toggle>
+          <span class="visually-hidden">{{ 'general.accessibility.close_drawer' | t }}</span>
+          {{- drawer_close_icon -}}
+        </button>
 
-                  <li class="tabs__link" data-tabs-link="{{ forloop.index0 }}" tabindex="0">{{ page_size_chart.title }}</li>
-                {%- endcapture -%}
+        <div class="popup-chart__inner" data-scroll>
+          <div class="popup-chart__content">
+            <div class="rte tabs" data-tabs-holder>
+              {%- if show_tabs_nav -%}
+                <div class="tabs__head">
+                  <div class="tabs-scrollbar" data-custom-scrollbar-parent>
+                    <div class="tabs-scrollbar__holder" data-custom-scrollbar-holder>
+                      <ul class="tabs__nav" data-custom-scrollbar-items>
+                        {{ tabs_navigation }}
+                      </ul>
 
-                {%- capture tabs -%}
-                  {{ tabs }}
-
-                  <div class="tab{% unless has_current %} current{% endunless %}" data-tab="{{ forloop.index0 }}">
-                    <div class="tab__title h3">{{ info_page.title }}</div>
-                    {{ page_size_chart.content }}
-                  </div>
-                {%- endcapture -%}
-
-                {%- assign has_current = true -%}
-              {%- endif -%}
-            {%- endfor -%}
-
-            {%- if info_page != blank -%}
-              {%- assign index = specific_pages_arr.size -%}
-
-              {%- capture tabs_navigation -%}
-                {{ tabs_navigation }}
-
-                <li class="tabs__link" data-tabs-link="{{ index }}" data-lock-scroll tabindex="0">{{ info_page.title }}
-                </li>
-              {%- endcapture -%}
-
-              {%- capture tabs -%}
-                {{ tabs }}
-
-                <div class="tab{% unless has_current %} current{% endunless %}" data-tab="{{ index }}">
-                  <div class="tab__title h3">{{ info_page.title }}</div>
-
-                  {{ info_page.content }}
-                </div>
-              {%- endcapture -%}
-
-              {%- assign has_current = true -%}
-            {%- endif -%}
-
-            {%- if specific_pages_arr.size > 1 -%}
-              <div class="tabs__head">
-                <div class="tabs-scrollbar" data-custom-scrollbar-parent>
-                  <div class="tabs-scrollbar__holder" data-custom-scrollbar-holder>
-                    <ul class="tabs__nav" data-custom-scrollbar-items>
-                      {{ tabs_navigation }}
-                    </ul>
-
-                    <div class="custom-scrollbar" data-custom-scrollbar>
-                      <div class="custom-scrollbar__thumb" data-custom-scrollbar-thumb></div>
+                      <div class="custom-scrollbar" data-custom-scrollbar>
+                        <div class="custom-scrollbar__thumb" data-custom-scrollbar-thumb></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            {%- endif -%}
+              {%- endif -%}
 
-            <div class="tabs__contents" data-tabs-contents>
               {%- if tabs != '' -%}
-                {{ tabs }}
+                <div class="tabs__contents" data-tabs-contents>
+                  {{ tabs }}
+                </div>
               {%- endif -%}
             </div>
           </div>
         </div>
       </div>
-    </div>
+    {%- endunless -%}
   {%- endcapture -%}
-{%- endif -%}
 
-{%- form 'product', product, class: 'product__form', data-product-form: '', id: product_form_id -%}
+  {%- capture size_chart_button -%}
+    {%- unless empty_size_guide -%}
+      <button type="button" class="product__popup__link" href="{{ info_page.url | default: '#!' }}" aria-controls="size-chart--{{ unique }}" data-drawer-toggle>
+        {% render 'icon-ruler' %}
+        <span>{{ size_chart_button_text }}</span>
+      </button>
+    {%- endunless -%}
+  {%- endcapture -%}
+{%- endif -%}{%- form 'product', product, class: 'product__form', data-product-form: '', id: product_form_id, data-recipient-errors: gift_card_recipient_feature_active -%}
   {% comment %} The input with name="id" submits to cart {% endcomment %}
   <input type="hidden" name="id" value="{{ current_variant.id }}" data-product-select>
 
@@ -628,7 +731,7 @@
     <input type="hidden" name="quantity" value="1">
   {%- endunless -%}
 
-  {%- unless show_size_link_as_label or size_chart_button == blank -%}
+  {%- unless size_chart_button_as_label or size_chart_button == blank -%}
     <div class="product__form__size-chart"
       {% if animations_enabled %}
         data-aos="fade-up"
@@ -641,7 +744,13 @@
   {%- endunless -%}
 
   {% comment %} Shop pay split payment terms {% endcomment %}
-  <div class="shop-pay-terms">{{ form | payment_terms }}</div>
+  <div class="shop-pay-terms"
+    {% if animations_enabled %}
+      data-aos="fade-up"
+      data-aos-anchor="{{ animation_anchor }}"
+      data-aos-delay="{{ animation_delay }}"
+      {%- assign animation_delay = animation_delay | plus: 100 -%}
+    {% endif %}>{{ form | payment_terms }}</div>
 
   {%- assign quantity_position_bottom = true -%}
 
@@ -694,7 +803,8 @@
           {%- comment -%} Use select over radio for long inputs and mismatched lengths {%- endcomment -%}
 
           {%- assign option_name_handle_separator = option.name | handle | prepend: ',' | append: ',' -%}
-          {%- assign enable_color_swatches = settings.enable_color_swatches_product -%}{%- liquid
+          {%- assign enable_color_swatches = settings.enable_color_swatches_product -%}
+          {%- assign current_option_position = option.position | prepend: 'option' -%}{%- liquid
   if enable_color_swatches
     comment
       Determine if current option matches swatch handle translations
@@ -707,20 +817,63 @@
       assign is_swatch_option = true
     endif
   endif
+-%}{%- comment -%}
+  Determine if current option matches siblings handle translations
+  Inherited variables:
+    - product: {Object} Product object.
+    - section: {Object} the current Section this code block belongs to.
+    - option_name_handle_separator: {String} handle option.name surrounded by commas
+  Returns variables:
+    - hide_sib_option: {Boolean}
+    - is_current_product_in_siblings: {Boolean}
+{%- endcomment -%}
+
+{%- liquid
+  assign sib_options_count = 0
+  assign hide_sib_option = false
+  assign sib_translation = 'general.siblings.swatches' | t
+  assign sib_translation_string = sib_translation | remove: '  ' | replace: ', ', ',' | replace: ' ,', ',' | replace: ',', '____' | handle | replace: '____', ',' | append: ',' | prepend: ','
+
+  if sib_translation_string contains option_name_handle_separator
+    assign sib_options = product.options_with_values | where: 'name', option.name
+    assign sib_options_count = sib_options[0].values.size
+  endif
+  if sib_options_count == 1
+    assign hide_sib_option = true
+  endif
+
+  assign is_current_product_in_siblings = false
+  assign siblings_blocks = section.blocks | map: 'settings' | where: 'siblings_product_list'
+  if siblings_blocks.size > 0
+    assign sib_lists = siblings_blocks | map: 'siblings_product_list'
+
+    for sib_list in sib_lists
+      assign sib_ids = sib_list | map: 'id'
+      if sib_ids contains product.id
+        assign is_current_product_in_siblings = true
+      endif
+    endfor
+  endif
+-%}{%- comment -%}
+  Determine if current option matches size handle translations
+  Inherited variables:
+    - option_name_handle_separator: {String} handle option.name surrounded by commas
+  Returns variables:
+    - is_size_option: {Boolean}
+{%- endcomment -%}
+
+{%- liquid
+  assign is_size_option = false
+  assign size_translation = 'general.size_chart.size' | t
+  assign translation_string = size_translation | remove: '  ' | replace: ', ', ',' | replace: ' ,', ',' | replace: ',', '____' | handle | replace: '____', ',' | append: ',' | prepend: ','
+
+  if translation_string contains option_name_handle_separator
+    assign is_size_option = true
+  endif
 -%}{%- liquid
-            assign is_size_option = false
-
-            if info_page and is_size_option == false
-
-              comment
-                Determine if current option matches size handle translations
-              endcomment
-              assign size_translation = 'general.size_chart.size' | t
-              assign translation_string = size_translation | remove: '  ' | replace: ', ', ',' | replace: ' ,', ',' | replace: ',', '____' | handle | replace: '____', ',' | append: ',' | prepend: ','
-
-              if translation_string contains option_name_handle_separator
-                assign is_size_option = true
-              endif
+            assign show_size_guide_as_label = false
+            if show_size_guide and is_size_option and size_chart_button_as_label
+              assign show_size_guide_as_label = true
             endif
 
             assign longest_value = 0
@@ -759,6 +912,10 @@
               if is_swatch_option
                 echo ' selector-wrapper--swatches'
               endif
+
+              if hide_sib_option and is_current_product_in_siblings
+                echo ' hidden'
+              endif
             endcapture
           -%}
 
@@ -772,27 +929,30 @@
             {% endif %}>
             {%- if enable_variant_boxes or is_swatch_option -%}
               {%- assign current_value = current_variant.options[forloop.index0] -%}
-              <fieldset class="radio__fieldset radio__fieldset--{{ settings.color_swatches_product_style }}">
-                <legend class="radio__legend{% if is_size_option and info_page != blank %} radio__legend--flex{% endif %}">
+              <fieldset class="radio__fieldset radio__fieldset--{{ settings.color_swatches_product_style }}"{% if is_swatch_option %} data-swatches-container{% endif %}>
+                <legend class="radio__legend{% if show_size_guide_as_label %} radio__legend--flex{% endif %}"{% if is_swatch_option %} data-swatches-label{% endif %}>
                   <span class="radio__legend__label">{{ option.name | escape_once }}</span>
-                  {%- if is_size_option and show_labels and info_page != blank -%}
-                    {{- size_chart_button -}}
-                  {%- endif -%}
+                  {%- if show_size_guide_as_label -%}{{- size_chart_button -}}{%- endif -%}
                 </legend>
                 {%- for value in option.values -%}
                   {%- capture input_id -%}{{ unique }}-{{ product.id }}-{{ option.name | escape_once }}-{{ value | escape_once }}{%- endcapture -%}
 
                   {%- if is_swatch_option -%}
-                    <span class="swatch__button swatch__button--{{ settings.color_swatches_product_style }}">
+                    {%- liquid
+                      assign current_option_variants = product | map: 'variants' | where: current_option_position, value
+                      assign current_option_variants_id = current_option_variants | map: 'id' | join: ','
+                    -%}
+
+                    <span class="swatch__button swatch__button--{{ settings.color_swatches_product_style }}" data-swatches-button>
                       <input type="radio"
                         class="swatch__input"
                         data-single-option-selector
-                        data-index="option{{ option.position }}"
+                        data-index="{{ current_option_position }}"
                         name="options[{{ option.name | escape_once }}]"
                         value="{{ value | escape_once }}"
                         id="{{ input_id }}"
                         {% if value == current_value %}checked{% endif %}>
-                      <label for="{{ input_id }}" class="swatch__label" data-swatch="{{ value | escape_once }}" data-tooltip="{{ value | escape_once }}">
+                      <label for="{{ input_id }}" class="swatch__label" data-swatch="{{ value | escape_once }}" data-tooltip="{{ value | escape_once }}" data-swatch-variant="{{ current_option_variants_id }}">
                         <span class="visually-hidden">{{ value | escape_once }}</span>
                         {%- if settings.color_swatches_product_style == 'circle' -%}
                           <span class="icon icon-check"></span>
@@ -806,7 +966,7 @@
                         type="radio"
                         class="radio__input"
                         data-single-option-selector
-                        data-index="option{{ option.position }}"
+                        data-index="{{ current_option_position }}"
                         name="options[{{ option.name | escape_once }}]"
                         value="{{ value | escape_once }}" id="{{ input_id }}"
                         {% if value == current_value %}checked{% endif %}>
@@ -815,15 +975,20 @@
                       </label>
                     </span>
                   {%- endif -%}
-
                 {%- endfor -%}
               </fieldset>
+              {%- if is_swatch_option -%}
+                <button type="button" class="btn btn--text swatch__more" aria-expanded="false" aria-controls="CollectionFilterActions--product-type" data-swatches-more>
+                  <span>{{ 'products.product.show_more' | t }}</span>
+                  <span>{{ 'products.product.show_less' | t }}</span>
+                </button>
+              {%- endif -%}
             {%- else -%}
               {%- assign selects_counter = selects_counter | plus: 1 -%}
               <div class="select__fieldset">
                 {%- capture input_id -%}{{ unique }}-{{ product.id }}-option-{{ option.position }}{%- endcapture -%}
                 <div class="select__label" id="{{ unique }}-select-{{ option.name | handle }}-label">
-                  {%- if is_size_option and show_labels and info_page != blank -%}
+                  {%- if show_size_guide_as_label -%}
                     {{- size_chart_button -}}
                   {%- else -%}
                     {{- option.name | escape_once -}}
@@ -873,6 +1038,15 @@
       {%- endfor -%}
     </select>
   </noscript>
+
+  {%- if gift_card_recipient_feature_active -%}
+    {%- render 'gift-card-recipient-form',
+      product: product,
+      form: form,
+      section: section,
+      animation_delay: animation_delay,
+      animation_anchor: animation_anchor -%}
+  {%- endif -%}
 
   {%- if product.selling_plan_groups.size > 0 -%}
     {%- if enable_subscriptions_selectors -%}
@@ -952,7 +1126,7 @@
       {%- endif -%}
     </div>
 
-    <div data-cart-errors-container class="product__form__errors"></div>
+    <div data-cart-errors-container role="alert" class="product__form__errors"></div>
   </div>
 {%- endform -%}</div>
               {%- else -%}
@@ -1280,29 +1454,9 @@
 {%- endif -%}
 </div>
 
-            {%- when 'product_accordions' -%}
-              {%- comment -%} Check if next block is app with reviews {%- endcomment -%}
-              {%- liquid
-                unless forloop.last
-                  assign next_block_index = forloop.index0 | plus: 1
-                  assign next_block = section.blocks[next_block_index]
-                endunless
-
-                assign block_class = 'product__accordions'
-
-                if next_block.type == '@app'
-                  capture next_app_code
-                    render next_block
-                  endcapture
-
-                  if next_app_code contains '<div id="shopify-product-reviews" data-id='
-                    assign block_class = block_class | append: ' product__accordions--prev'
-                  endif
-                endif
-              -%}
-
+            {%- when 'product_accordion' -%}
               {%- comment -%} Accordions {%- endcomment -%}
-              <div class="product__block {{ block_class }}"
+              <div class="product__block product__accordions"
                 {% if animations_enabled %}
                   data-aos="fade-up"
                   data-aos-anchor="{{ animation_anchor }}"
@@ -1311,7 +1465,7 @@
                 {% endif %}
                 {{ block_style }}
                 {{ block.shopify_attributes }}>
-                {%- render 'product-accordions', block_settings: block.settings -%}
+                {%- render 'product-accordions', block_settings: block.settings, block_id: block.id -%}
               </div>
 
             {%- when 'upsell' -%}
@@ -1395,9 +1549,10 @@
                           data-aos-delay="{{ animation_delay }}"
                           {%- assign animation_delay = animation_delay | plus: 150 -%}
                         {% endif %}>
-                        {%- render 'upsell-product',
-                          upsell_product: product,
-                          is_complementary: true -%}
+                        {%- liquid
+                          assign upsell_unique = block.id | append: '--' | append: forloop.index
+                          render 'upsell-product', upsell_product: product, is_complementary: true, unique: upsell_unique
+                        -%}
                       </div>
                     {%- endfor -%}
                   {%- endif -%}
@@ -1552,6 +1707,18 @@
                 </div>
               </div>
 
+            {% when 'siblings' %}
+              {% capture animation_attributes %}
+                {% if animations_enabled %}
+                  data-aos="fade-up"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-delay="{{ animation_delay }}"
+                  {%- assign animation_delay = animation_delay | plus: 150 -%}
+                {% endif %}
+              {% endcapture %}
+
+              {% render 'product-siblings' product: product, block: block, animation_attributes: animation_attributes %}
+
             {%- when 'inventory_countdown' -%}
               <div class="product__block"
                 {% if animations_enabled %}
@@ -1619,7 +1786,6 @@
               {%- if block.settings.label != blank -%}
                 {%- liquid
                   assign line_item_label = block.settings.label | escape_once
-                  assign product_form_id = 'AddToCartForm--' | append: unique
                   assign input_id = 'Form-' | append: section.id | append: '-' | append: block.id
 
                   assign type = block.settings.type
@@ -1803,7 +1969,7 @@
 
     {%- comment -%}Popup text & size chart drawers, leave outsude .form__wrapper otherwise it will break when sticky form is enabled{%- endcomment -%}
     {{- popup_text -}}
-    {{- size_chart_modal -}}
+    {{- size_chart_drawer -}}
 
     <script type="application/json" id="ProductJson-{{ unique }}" data-product-json>{{ product | json }}</script>
     <script type="application/json" id="ModelJson-{{ unique }}">{{ product.media | where: 'media_type', 'model' | json }}</script>
@@ -1817,6 +1983,14 @@
         data-quick-view-item>
   {%- endunless -%}
 
+    {%- liquid
+      assign gift_card_recipient_feature_active = false
+
+      if settings.show_gift_card_recipient and product.gift_card?
+        assign gift_card_recipient_feature_active = true
+      endif
+    -%}
+
     {%- comment -%} Code to be shown on QuickView {%- endcomment -%}
     {%- assign unique = unique | default: '' -%}
     {%- assign product_form_id = 'AddToCartForm--' | append: unique -%}
@@ -1824,7 +1998,7 @@
     {%- assign quickview_form_classes = 'product__form popup-quick-view__form' | append: ' popup-quick-view__form--' | append: settings.quick_buy_image_layout -%}
 
     {%- if product != blank -%}
-      {%- form 'product', product, class: quickview_form_classes, data-product-form: '', id: product_form_id -%}
+      {%- form 'product', product, class: quickview_form_classes, data-product-form: '', id: product_form_id, data-recipient-errors: gift_card_recipient_feature_active -%}
         <div class="popup-quick-view__wrapper product__form__wrapper{{ hide_labels_class }}{% if sold_out %} variant--soldout{% endif %}" data-form-wrapper data-scroll-lock-scrollable>
           <div class="popup-quick-view__body" data-scroll-lock-scrollable>
             {%- if quick_view_nav != '' -%}
@@ -1966,6 +2140,16 @@
 {%- liquid
   assign current_variant = product.selected_or_first_available_variant
   assign variants_style = settings.variants_style
+  assign show_payment_button = false
+  assign gift_card_recipient_feature_active = false
+
+  if settings.show_gift_card_recipient and product.gift_card?
+    assign gift_card_recipient_feature_active = true
+  endif
+
+  if settings.show_payment_button and gift_card_recipient_feature_active == false
+    assign show_payment_button = true
+  endif
 
   comment
     Override buy button setting if there are selling plan groups and cart terms
@@ -1975,14 +2159,37 @@
   else
     assign show_payment_button = false
   endif
+-%}{%- comment -%}
+  Size chart
 
-  comment
-    Size chart
-  endcomment
+  Inherited variables:
+    - product: {Object} Product object.
+    - section: {Object} the current Section this code block belongs to.
+  Returns variables:
+    - specific_pages_arr: {Array} Page handles array from product tags
+    - info_page: {Object} Page object || blank
+    - show_size_guide: {Boolean}
+    - size_chart_button_as_label: {Boolean}
+    - size_chart_button: {String} captured markup of a button that opens the size chart drawer
+    - size_chart_drawer: {String} captured markup of the size chart drawer
+{%- endcomment -%}
+
+{%- liquid
+  assign show_size_guide = false
+  assign size_guide_string = 'general.size_chart.button' | t
+  assign info_page_title_override = settings.info_page_title_override
+
+  capture size_chart_button_text
+    if info_page_title_override != blank
+      echo info_page_title_override
+    else
+      echo size_guide_string
+    endif
+  endcapture
+
   assign tags_string = product.tags | join: ','
   assign size_separator = '_size_'
   assign specific_pages = ''
-
   if tags_string contains size_separator
     for tag in product.tags
       if tag contains size_separator
@@ -1991,137 +2198,180 @@
       endif
     endfor
   endif
+  assign specific_pages_arr = specific_pages | split: ','
+  if specific_pages_arr.size > 0
+    assign show_size_guide = true
+  endif
 
   assign product_size_chart = product.metafields.theme.size_chart.value
   assign info_page = settings.info_page
-
   if product_size_chart != blank or info_page != blank
     if product_size_chart != blank
       assign info_page = product_size_chart
     elsif info_page != blank
       assign info_page = pages[info_page]
     endif
-    assign size_translation = 'general.size_chart.size' | t
-    assign size_translation = size_translation | lstrip | rstrip | downcase
-    assign show_size_link_as_label = false
 
-    for option in product.options
-      assign option_san = option | lstrip | rstrip | downcase
+    assign show_size_guide = true
+  endif
 
-      if option_san contains size_translation and show_labels
-        assign show_size_link_as_label = true
-      endif
+  assign size_chart_button_as_label = false
+  assign has_size_option = false
+  unless product.has_only_default_variant
+    for option in product.options_with_values
+      assign separator = option.name | handle | prepend: ',' | append: ','
+      assign size_translation = 'general.size_chart.size' | t
+      assign translation_string = size_translation | remove: '  ' | replace: ', ', ',' | replace: ' ,', ',' | replace: ',', '____' | handle | replace: '____', ',' | append: ',' | prepend: ','
+
+      unless translation_string contains separator
+        continue
+      endunless
+
+      assign has_size_option = true
     endfor
+  endunless
+
+  if has_size_option and show_labels
+    assign size_chart_button_as_label = true
   endif
 -%}
 
-{%- if info_page != blank or specific_pages != '' -%}
-  {%- assign specific_pages_arr = specific_pages | split: ',' -%}
+{%- if show_size_guide -%}
+  {%- liquid
+    assign empty_size_guide = true
 
-  {%- capture size_chart_button -%}
-    <button type="button" class="product__popup__link" href="{{ info_page.url }}" aria-controls="size-chart--{{ product.id }}" data-drawer-toggle>
-      {% render 'icon-ruler' %}
-      <span>
-      {%- if pages[specific_pages_arr[0]].title != blank -%}
-        {{ pages[specific_pages_arr[0]].title }}
-      {%- else -%}
-        {{ info_page.title }}
+    capture drawer_classes
+      echo 'popup-chart drawer drawer--right'
+      if section_type == 'quickview'
+        echo ' popup-chart--quickview'
+      else
+        echo ' cv-h'
+      endif
+    endcapture
+
+    capture drawer_close_icon
+      if section_type == 'quickview'
+        render 'icon-chevron-right'
+      else
+        render 'icon-close'
+      endif
+    endcapture
+
+    assign show_tabs_nav = false
+    assign tabs_navigation = ''
+    assign tabs = ''
+    assign has_current = false
+    assign index = 0
+    assign pages_count = 0
+  -%}
+
+  {%- for page_handle in specific_pages_arr -%}
+    {%- assign page_size_chart = pages[page_handle] -%}
+
+    {%- if page_size_chart.title != blank -%}
+      {%- capture tabs_navigation -%}
+        {{ tabs_navigation }}
+        <li class="tabs__link" data-tabs-link="{{ forloop.index0 }}" tabindex="0">{{ page_size_chart.title }}</li>
+      {%- endcapture -%}
+
+      {%- capture tabs -%}
+        {{ tabs }}
+        <div class="tab{% unless has_current %} current{% endunless %}" data-tab="{{ forloop.index0 }}">
+          {%- if page_size_chart.content != blank -%}
+            {{ page_size_chart.content }}
+          {%- else -%}
+            {{ 'homepage.onboarding.no_page_content' | t }}
+          {%- endif -%}
+        </div>
+      {%- endcapture -%}
+
+      {%- assign has_current = true -%}
+      {%- assign pages_count = pages_count | plus: 1 -%}
+    {%- endif -%}
+  {%- endfor -%}
+
+  {%- if info_page != blank -%}
+    {%- assign index = specific_pages_arr.size -%}
+
+    {%- capture tabs_navigation -%}
+      {{ tabs_navigation }}
+      {%- if info_page.title != blank -%}
+        <li class="tabs__link" data-tabs-link="{{ index }}" data-lock-scroll tabindex="0">{{ info_page.title }}</li>
       {%- endif -%}
-      </span>
-    </button>
-  {%- endcapture -%}
+    {%- endcapture -%}
 
-  {%- capture size_chart_modal -%}
-    <div class="popup-chart popup-chart--quickview drawer drawer--right" id="size-chart--{{ product.id }}" aria-hidden="true" role="dialog" data-drawer>
-      <button type="button" class="drawer__close-button" aria-controls="size-chart--{{ product.id }}" data-drawer-toggle>
-        <span class="visually-hidden">{{ 'general.accessibility.close_drawer' | t }}</span>
-        {%- render 'icon-chevron-right' -%}
-      </button>
+    {%- capture tabs -%}
+      {{ tabs }}
+      <div class="tab{% unless has_current %} current{% endunless %}" data-tab="{{ index }}">
+        {%- if info_page.content != blank -%}
+          {{ info_page.content }}
+        {%- else -%}
+          {{ 'homepage.onboarding.no_page_content' | t }}
+        {%- endif -%}
+      </div>
+    {%- endcapture -%}
 
-      <div class="popup-chart__inner" data-scroll>
-        <div class="popup-chart__content">
-          <div class="rte tabs" data-tabs-holder>
-            {%- liquid
-              assign tabs_navigation = ''
-              assign tabs = ''
-              assign has_current = false
-              assign index = 0
-            -%}
+    {%- assign has_current = true -%}
+    {%- assign pages_count = pages_count | plus: 1 -%}
+  {%- endif -%}
 
-            {%- for page_handle in specific_pages_arr -%}
-              {%- assign page_size_chart = pages[page_handle] -%}
+  {%- liquid
+    if tabs != blank
+      assign empty_size_guide = false
+    endif
+    if pages_count > 1 and tabs_navigation != blank
+      assign show_tabs_nav = true
+    endif
+  -%}
 
-              {%- if page_size_chart.title != blank -%}
-                {%- capture tabs_navigation -%}
-                  {{ tabs_navigation }}
+  {%- capture size_chart_drawer -%}
+    {%- unless empty_size_guide -%}
+      <div class="{{ drawer_classes }}" id="size-chart--{{ unique }}" aria-hidden="true" role="dialog" data-drawer>
+        <button type="button" class="drawer__close-button" aria-controls="size-chart--{{ unique }}" data-drawer-toggle>
+          <span class="visually-hidden">{{ 'general.accessibility.close_drawer' | t }}</span>
+          {{- drawer_close_icon -}}
+        </button>
 
-                  <li class="tabs__link" data-tabs-link="{{ forloop.index0 }}" tabindex="0">{{ page_size_chart.title }}</li>
-                {%- endcapture -%}
+        <div class="popup-chart__inner" data-scroll>
+          <div class="popup-chart__content">
+            <div class="rte tabs" data-tabs-holder>
+              {%- if show_tabs_nav -%}
+                <div class="tabs__head">
+                  <div class="tabs-scrollbar" data-custom-scrollbar-parent>
+                    <div class="tabs-scrollbar__holder" data-custom-scrollbar-holder>
+                      <ul class="tabs__nav" data-custom-scrollbar-items>
+                        {{ tabs_navigation }}
+                      </ul>
 
-                {%- capture tabs -%}
-                  {{ tabs }}
-
-                  <div class="tab{% unless has_current %} current{% endunless %}" data-tab="{{ forloop.index0 }}">
-                    {{ page_size_chart.content }}
-                  </div>
-                {%- endcapture -%}
-
-                {%- assign has_current = true -%}
-              {%- endif -%}
-            {%- endfor -%}
-
-            {%- if info_page != blank -%}
-              {%- assign index = specific_pages_arr.size -%}
-
-              {%- capture tabs_navigation -%}
-                {{ tabs_navigation }}
-
-                <li class="tabs__link" data-tabs-link="{{ index }}" data-lock-scroll tabindex="0">{{ info_page.title }}
-                </li>
-              {%- endcapture -%}
-
-              {%- capture tabs -%}
-                {{ tabs }}
-
-                <div class="tab{% unless has_current %} current{% endunless %}" data-tab="{{ index }}">
-                  <div class="tab__title h3">{{ info_page.title }}</div>
-
-                  {{ info_page.content }}
-                </div>
-              {%- endcapture -%}
-
-              {%- assign has_current = true -%}
-            {%- endif -%}
-
-            {%- if specific_pages_arr.size > 1 -%}
-              <div class="tabs__head">
-                <div class="tabs-scrollbar" data-custom-scrollbar-parent>
-                  <div class="tabs-scrollbar__holder" data-custom-scrollbar-holder>
-                    <ul class="tabs__nav" data-custom-scrollbar-items>
-                      {{ tabs_navigation }}
-                    </ul>
-
-                    <div class="custom-scrollbar" data-custom-scrollbar>
-                      <div class="custom-scrollbar__thumb" data-custom-scrollbar-thumb></div>
+                      <div class="custom-scrollbar" data-custom-scrollbar>
+                        <div class="custom-scrollbar__thumb" data-custom-scrollbar-thumb></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            {%- endif -%}
+              {%- endif -%}
 
-            <div class="tabs__contents" data-tabs-contents>
               {%- if tabs != '' -%}
-                {{ tabs }}
+                <div class="tabs__contents" data-tabs-contents>
+                  {{ tabs }}
+                </div>
               {%- endif -%}
             </div>
           </div>
         </div>
       </div>
-    </div>
+    {%- endunless -%}
   {%- endcapture -%}
-{%- endif -%}
 
-<div class="product__form">
+  {%- capture size_chart_button -%}
+    {%- unless empty_size_guide -%}
+      <button type="button" class="product__popup__link" href="{{ info_page.url | default: '#!' }}" aria-controls="size-chart--{{ unique }}" data-drawer-toggle>
+        {% render 'icon-ruler' %}
+        <span>{{ size_chart_button_text }}</span>
+      </button>
+    {%- endunless -%}
+  {%- endcapture -%}
+{%- endif -%}<div class="product__form">
   {% comment %} The input with name="id" submits to cart {% endcomment %}
   <input type="hidden" name="id" value="{{ current_variant.id }}" data-product-select>
 
@@ -2136,7 +2386,7 @@
     -%}
   {%- endif -%}
 
-  {%- unless show_size_link_as_label or size_chart_button == blank -%}
+  {%- unless size_chart_button_as_label or size_chart_button == blank -%}
     <div class="product__form__size-chart"
       {% if animations_enabled %}
         data-aos="fade-up"
@@ -2149,7 +2399,13 @@
   {%- endunless -%}
 
   {% comment %} Shop pay split payment terms {% endcomment %}
-  <div class="shop-pay-terms">{{ form | payment_terms }}</div>
+  <div class="shop-pay-terms"
+    {% if animations_enabled %}
+      data-aos="fade-up"
+      data-aos-anchor="{{ animation_anchor }}"
+      data-aos-delay="{{ animation_delay }}"
+      {%- assign animation_delay = animation_delay | plus: 100 -%}
+    {% endif %}>{{ form | payment_terms }}</div>
 
   {%- capture quantity_selector -%}
     <div class="select__fieldset">
@@ -2200,7 +2456,8 @@
           {%- comment -%} Use select over radio for long inputs and mismatched lengths {%- endcomment -%}
 
           {%- assign option_name_handle_separator = option.name | handle | prepend: ',' | append: ',' -%}
-          {%- assign enable_color_swatches = settings.enable_color_swatches_product -%}{%- liquid
+          {%- assign enable_color_swatches = settings.enable_color_swatches_product -%}
+          {%- assign current_option_position = option.position | prepend: 'option' -%}{%- liquid
   if enable_color_swatches
     comment
       Determine if current option matches swatch handle translations
@@ -2213,19 +2470,26 @@
       assign is_swatch_option = true
     endif
   endif
+-%}{%- comment -%}
+  Determine if current option matches size handle translations
+  Inherited variables:
+    - option_name_handle_separator: {String} handle option.name surrounded by commas
+  Returns variables:
+    - is_size_option: {Boolean}
+{%- endcomment -%}
+
+{%- liquid
+  assign is_size_option = false
+  assign size_translation = 'general.size_chart.size' | t
+  assign translation_string = size_translation | remove: '  ' | replace: ', ', ',' | replace: ' ,', ',' | replace: ',', '____' | handle | replace: '____', ',' | append: ',' | prepend: ','
+
+  if translation_string contains option_name_handle_separator
+    assign is_size_option = true
+  endif
 -%}{%- liquid
-            assign is_size_option = false
-
-            if info_page and is_size_option == false
-              comment
-                Determine if current option matches size handle translations
-              endcomment
-              assign size_translation = 'general.size_chart.size' | t
-              assign translation_string = size_translation | remove: '  ' | replace: ', ', ',' | replace: ' ,', ',' | replace: ',', '____' | handle | replace: '____', ',' | append: ',' | prepend: ','
-
-              if translation_string contains option_name_handle_separator
-                assign is_size_option = true
-              endif
+            assign show_size_guide_as_label = false
+            if show_size_guide and is_size_option and size_chart_button_as_label
+              assign show_size_guide_as_label = true
             endif
 
             assign longest_value = 0
@@ -2277,27 +2541,29 @@
             {% endif %}>
             {%- if enable_variant_boxes or is_swatch_option -%}
               {%- assign current_value = current_variant.options[forloop.index0] -%}
-              <fieldset class="radio__fieldset radio__fieldset--{{ settings.color_swatches_product_style }}">
-                <legend class="radio__legend{% if is_size_option and info_page != blank %} radio__legend--flex{% endif %}">
+              <fieldset class="radio__fieldset radio__fieldset--{{ settings.color_swatches_product_style }}"{% if is_swatch_option %} data-swatches-container{% endif %}>
+                <legend class="radio__legend{% if show_size_guide_as_label %} radio__legend--flex{% endif %}"{% if is_swatch_option %} data-swatches-label{% endif %}>
                   <span class="radio__legend__label">{{ option.name | escape_once }}</span>
-                  {%- if is_size_option and show_labels and info_page != blank -%}
-                    {{- size_chart_button -}}
-                  {%- endif -%}
+                  {%- if show_size_guide_as_label -%}{{- size_chart_button -}}{%- endif -%}
                 </legend>
                 {%- for value in option.values -%}
                   {%- capture input_id -%}{{ unique }}-{{ product.id }}-{{ option.name | escape_once }}-{{ value | escape_once }}{%- endcapture -%}
 
                   {%- if is_swatch_option -%}
-                    <span class="swatch__button swatch__button--{{ settings.color_swatches_product_style }}">
+                    {%- liquid
+                      assign current_option_variants = product | map: 'variants' | where: current_option_position, value
+                      assign current_option_variants_id = current_option_variants | map: 'id' | join: ','
+                    -%}
+                    <span class="swatch__button swatch__button--{{ settings.color_swatches_product_style }}" data-swatches-button>
                       <input type="radio"
                         class="swatch__input"
                         data-single-option-selector
-                        data-index="option{{ option.position }}"
+                        data-index="{{ current_option_position }}"
                         name="options[{{ option.name | escape_once }}]"
                         value="{{ value | escape_once }}"
                         id="{{ input_id }}"
                         {% if value == current_value %}checked{% endif %}>
-                      <label for="{{ input_id }}" class="swatch__label" data-swatch="{{ value | escape_once }}" data-tooltip="{{ value | escape_once | capitalize }}">
+                      <label for="{{ input_id }}" class="swatch__label" data-swatch="{{ value | escape_once }}" data-tooltip="{{ value | escape_once | capitalize }}" data-swatch-variant="{{ current_option_variants_id }}">
                         <span class="visually-hidden">{{ value | escape_once }}</span>
                         {%- if settings.color_swatches_product_style == 'circle' -%}
                           <span class="icon icon-check"></span>
@@ -2311,7 +2577,7 @@
                         type="radio"
                         class="radio__input"
                         data-single-option-selector
-                        data-index="option{{ option.position }}"
+                        data-index="{{ current_option_position }}"
                         name="options[{{ option.name | escape_once }}]"
                         value="{{ value | escape_once }}" id="{{ input_id }}"
                         {% if value == current_value %}checked{% endif %}>
@@ -2320,15 +2586,20 @@
                       </label>
                     </span>
                   {%- endif -%}
-
                 {%- endfor -%}
               </fieldset>
+              {%- if is_swatch_option -%}
+                <button type="button" class="btn btn--text swatch__more" data-swatches-more>
+                  <span>{{ 'products.product.show_more' | t }}</span>
+                  <span>{{ 'products.product.show_less' | t }}</span>
+                </button>
+              {%- endif -%}
             {%- else -%}
               {%- assign selects_counter = selects_counter | plus: 1 -%}
               <div class="select__fieldset">
                 {%- capture input_id -%}{{ unique }}-{{ product.id }}-option-{{ option.position }}{%- endcapture -%}
                 <div class="select__label" id="{{ unique }}-select-{{ option.name | handle }}-label">
-                  {%- if is_size_option and show_labels and info_page != blank -%}
+                  {%- if show_size_guide_as_label -%}
                     {{- size_chart_button -}}
                   {%- else -%}
                     {{- option.name | escape_once -}}
@@ -2379,6 +2650,15 @@
     </select>
   </noscript>
 
+  {%- if gift_card_recipient_feature_active -%}
+    {%- render 'gift-card-recipient-form',
+      product: product,
+      form: form,
+      section: section,
+      animation_delay: animation_delay,
+      animation_anchor: animation_anchor -%}
+  {%- endif -%}
+
   {%- if product.selling_plan_groups.size > 0 -%}
     {%- if enable_subscriptions_selectors -%}
       {%- render 'subscription-form',
@@ -2424,7 +2704,7 @@
   <p class="product-cutline" style="{{ style }}">{{ product.metafields.theme.cutline.value }}</p>
 {%- endif -%}
 {%- elsif settings.quick_buy_text == 'description'-%}
-              <p>{{ product.description | truncatewords: settings.quick_buy_text_length}}</p>
+              <p>{{ product.description | strip_html | truncatewords: settings.quick_buy_text_length }}</p>
             {% endif %}
 
           </div>
@@ -2477,7 +2757,7 @@
     {%- endif -%}
   </div>
 
-  <div data-cart-errors-container class="product__form__errors"></div>
+  <div data-cart-errors-container role="alert" class="product__form__errors"></div>
 </div>
 <a class="popup-quick-view__view-button popup-quick-view__view-button--desktop" href="{{ product_url }}">{{ 'products.general.view_all_details' | t }}</a>
             </div>
@@ -2500,7 +2780,7 @@
         animation_delay: animation_delay -%}
     {%- endif -%}
 
-    {{- size_chart_modal -}}
+    {{- size_chart_drawer -}}
 
   {%- unless multiple_quick_view_items -%}
       </div>

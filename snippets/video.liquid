@@ -9,7 +9,7 @@
   {%- endcapture -%}
 
   {%- capture image_classes -%}
-    video-background {% if image == blank %}placeholder-bg{% endif %}
+    video-background video-background--image {% if image == blank %}placeholder-bg{% endif %}
   {%- endcapture -%}
 
   {%- render 'image-fill',
@@ -25,6 +25,20 @@
 
     {%- if video_link_bg_downcase contains '.mp4' -%}
       {%- assign video_bg_show = true -%}
+
+      {%- capture additional_video_button -%}
+        <a href="#" class="video-text-link" data-video-bg-play>
+          {%- render 'icon-play' -%}
+        </a>
+      {%- endcapture -%}
+
+      {%- if video_link != blank -%}
+        {%- capture additional_video_button -%}
+          <a href="#" class="btn {{ button_style }} {{ button_size }} {{ button_color }}" data-video-bg-play>
+            {{ 'video.play_bg_video' | t }}
+          </a>
+        {%- endcapture -%}
+      {%- endif -%}
     {%- endif -%}
   {%- endif -%}
 
@@ -121,6 +135,20 @@
             </a>
           </div>
         {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if video_bg_show -%}
+      <div class="main-buttons main-buttons--video main-buttons--video-bg align--{{ text_position }}">
+        <div class="main-buttons__item"
+          {% if animations_enabled %}
+            data-aos="fade-up"
+            data-aos-anchor="{{ animation_anchor }}"
+            data-aos-delay="{{ animation_delay }}"
+            {%- assign animation_delay = animation_delay | plus: 150 -%}
+          {% endif %}>
+          {{- additional_video_button -}}
+        </div>
       </div>
     {%- endif -%}
 

@@ -2,7 +2,7 @@
   Logic to set the grid size
 {%- endcomment -%}
 {%- liquid
-  assign columns = settings.products_per_row_on_desktop | plus: 0
+  assign columns = columns | default: settings.products_per_row_on_desktop | plus: 0
   assign columns_mobile = columns_mobile | default: settings.products_per_row_on_mobile | plus: 0
 
   case columns

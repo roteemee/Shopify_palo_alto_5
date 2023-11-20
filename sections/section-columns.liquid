@@ -75,7 +75,7 @@
               assign video_link_color = block.settings.video_link_color
             -%}
 
-            <div class="column__item carousel__item {{ item_width }}"
+            <div class="column__item carousel__item {{ item_width }}{%- render 'button-fallback-classes', primary_color: button_color, bg_color_secondary: bg_color_secondary -%}"
             {{ block.shopify_attributes }}
             data-slider-item>
               <div class="column__item__inner">

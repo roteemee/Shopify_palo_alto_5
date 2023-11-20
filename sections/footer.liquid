@@ -1,17 +1,54 @@
 <!-- /sections/footer.liquid -->
 {%- liquid
   assign section_width = section.settings.width
-  assign blocks_size = section.blocks.size
   assign color_text = section.settings.color_text
   assign color_bg = section.settings.color_bg
   assign color_border = section.settings.color_border
   assign footer_wave = section.settings.show_footer_wave
+  assign bottom_bar_alignment = section.settings.bottom_bar_alignment
+  assign show_social_links = section.settings.show_social_links
+  assign show_payment_icons = section.settings.show_payment_icons
   assign animations_enabled = settings.animations_enabled
   assign animation_anchor = '#SiteFooter'
   assign animation_delay = 150
+
+  assign show_follow_on_shop = false
+  if shop.features.follow_on_shop? and section.settings.enable_follow_on_shop
+    assign show_follow_on_shop = true
+  endif
+
+  assign has_social_icons = false
+  if show_social_links and settings.social_facebook_link != blank or settings.social_twitter_link != blank or settings.social_pinterest_link != blank or settings.social_instagram_link != blank or settings.social_youtube_link != blank or settings.social_tiktok_link != blank or settings.social_snapchat_link != blank or settings.social_tumblr_link != blank or settings.social_rss_link != blank
+    assign has_social_icons = true
+  endif
+
+  assign render_socials = false
+  if has_social_icons or show_follow_on_shop
+    assign render_socials = true
+  endif
+
+  assign has_payment_icons = false
+  if show_payment_icons and shop.enabled_payment_types != empty
+    assign has_payment_icons = true
+  endif
+
+  if render_socials and has_payment_icons
+    assign columns = 3
+  elsif render_socials or has_payment_icons
+    assign columns = 2
+  else
+    assign columns = 1
+  endif
 -%}
 
 {%- style -%}
+  #SiteFooter {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+  }
+
+  .footer-bottom { --grid-columns: {{ columns }}; }
+
   {%- if color_bg != 'rgba(0,0,0,0)' and color_bg != '' -%}
     .site-footer { --bg: {{ color_bg }}; }
   {%- endif -%}
@@ -37,11 +74,10 @@
       .slideshow:last-child .slider__scroll-down { bottom: 10px; }
     }
   {%- endif -%}
-  .footer-block { --items-count: {{ blocks_size }}; }
 {%- endstyle -%}
 
 <footer id="SiteFooter"
-  class="site-footer{% if footer_wave %} site-footer--wavy{% endif %}"
+  class="section-padding site-footer{% if footer_wave %} site-footer--wavy{% endif %}"
   role="contentinfo"
   data-section-id="{{ section.id }}"
   data-section-type="footer">
@@ -51,7 +87,14 @@
   <div class="footer-content {{ section_width }}">
     <div class="footer-blocks">
       {%- for block in section.blocks -%}
-        {%- assign title = block.settings.title -%}
+        {%- liquid
+          assign title = block.settings.title
+          assign alignment = block.settings.alignment
+
+          capture block_style
+            echo '--desktop-width: ' | append: block.settings.column_width | append: '%'
+          endcapture
+        -%}
 
         {%- case block.type -%}
 
@@ -61,13 +104,14 @@
               .footer-block--logo { min-width: calc({{ logo_width }}px + calc(var(--gutter) / 2)); }
               .footer-block__logo-image { width: {{ logo_width }}px; }
             {%- endstyle -%}
-            <div class="footer-block footer-block--logo"
+            <div class="footer-block footer-block--logo {{ alignment }}"
               {% if animations_enabled %}
                 data-aos="fade-up"
                 data-aos-anchor="{{ animation_anchor }}"
                 data-aos-delay="{{ animation_delay }}"
                 {%- assign animation_delay = animation_delay | plus: 150 -%}
               {% endif %}
+              style="{{ block_style }}"
               {{ block.shopify_attributes }}>
               {%- if block.settings.image != blank -%}
                 <a href="{{ routes.root_url }}" class="footer-block__logo-image">
@@ -88,13 +132,14 @@
 
           {%- when 'link' -%}
             {%- assign menu_links = linklists[block.settings.menu].links -%}
-            <div class="footer-block footer-block--menu"
+            <div class="footer-block footer-block--menu {{ alignment }}"
               {% if animations_enabled %}
                 data-aos="fade-up"
                 data-aos-anchor="{{ animation_anchor }}"
                 data-aos-delay="{{ animation_delay }}"
                 {%- assign animation_delay = animation_delay | plus: 150 -%}
               {% endif %}
+              style="{{ block_style }}"
               {{ block.shopify_attributes }}>
               {%- if title != blank -%}
                 <p class="footer-title footer-title--links">
@@ -121,13 +166,14 @@
             {%- assign blog = blogs[block.settings.blog] | default: false -%}
             {%- assign layout = block.settings.layout -%}
 
-            <div class="footer-block footer-block--blog"
+            <div class="footer-block footer-block--blog {{ alignment }}"
               {% if animations_enabled %}
                 data-aos="fade-up"
                 data-aos-anchor="{{ animation_anchor }}"
                 data-aos-delay="{{ animation_delay }}"
                 {%- assign animation_delay = animation_delay | plus: 150 -%}
               {% endif %}
+              style="{{ block_style }}"
               {{ block.shopify_attributes }}>
               {%- if title != blank -%}
                 <p class="footer-title h5">{{ title }}</p>
@@ -171,13 +217,14 @@
             </div>
 
           {%- when 'newsletter' -%}
-            <div class="footer-block footer-block--newsletter"
+            <div class="footer-block footer-block--newsletter {{ alignment }}"
               {% if animations_enabled %}
                 data-aos="fade-up"
                 data-aos-anchor="{{ animation_anchor }}"
                 data-aos-delay="{{ animation_delay }}"
                 {%- assign animation_delay = animation_delay | plus: 150 -%}
               {% endif %}
+              style="{{ block_style }}"
               {{ block.shopify_attributes }}>
               {%- if title != blank -%}
                 <div class="footer-title h5">{{ title }}</div>
@@ -193,13 +240,14 @@
           {%- when 'text' -%}
             {%- assign footer_text = block.settings.footer_text -%}
 
-            <div class="footer-block footer-block--text"
+            <div class="footer-block footer-block--text {{ alignment }}"
               {% if animations_enabled %}
                 data-aos="fade-up"
                 data-aos-anchor="{{ animation_anchor }}"
                 data-aos-delay="{{ animation_delay }}"
                 {%- assign animation_delay = animation_delay | plus: 150 -%}
               {% endif %}
+              style="{{ block_style }}"
               {{ block.shopify_attributes }}>
               {%- if title != blank -%}
                 <p class="footer-title h5">{{ title }}</p>
@@ -209,27 +257,45 @@
                 {{- footer_text -}}
               </div>
             </div>
+
+          {%- when 'divider' -%}
+            <div class="footer-block footer-block--divider{% if block.settings.column_width == '100' %} footer-block--divider-full{% endif %}"
+              {% if animations_enabled %}
+                data-aos="fade-up"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-delay="{{ animation_delay }}"
+                {%- assign animation_delay = animation_delay | plus: 150 -%}
+              {% endif %}
+              style="{{ block_style }}"
+              {{ block.shopify_attributes }}>
+
+              {%- if block.settings.show_border_line -%}
+                <hr class="hr--full">
+              {%- endif -%}
+            </div>
         {%- endcase -%}
       {%- endfor -%}
     </div>
   </div>
 
-  <div class="footer-bottom {{ section_width }}"
+  <div class="footer-bottom {{ section_width }} {{ bottom_bar_alignment }}"
     {% if animations_enabled %}
       data-aos="fade-up"
       data-aos-anchor="{{ animation_anchor }}"
       data-aos-delay="{{ animation_delay }}"
       {%- assign animation_delay = animation_delay | plus: 150 -%}
     {% endif %}>
-    {%- render 'cross-border' -%}
-
-    {%- if section.settings.show_social_links -%}
-      {%- render 'footer-social' -%}
+    {%- if render_socials -%}
+      {%- render 'footer-social', show_social_links: show_social_links, show_follow_on_shop: show_follow_on_shop, color_bg: color_bg, color_text: color_text -%}
     {%- endif -%}
 
-    {%- render 'footer-copyright' -%}
+    <div class="footer-bottom__content">
+      {%- render 'cross-border' -%}
 
-    {%- if section.settings.show_payment_icons -%}
+      {%- render 'footer-copyright' -%}
+    </div>
+
+    {%- if show_payment_icons -%}
       {%- render 'footer-payment' -%}
     {%- endif -%}
   </div>
@@ -245,16 +311,6 @@
       "content": "Appearance"
     },
     {
-      "type": "select",
-      "id": "width",
-      "label": "Width",
-      "default": "wrapper",
-      "options": [
-        { "value": "wrapper--full-padded", "label": "Full width padded" },
-        { "value": "wrapper", "label": "Page width" }
-      ]
-    },
-    {
       "type": "checkbox",
       "id": "show_footer_wave",
       "label": "Show footer wave",
@@ -265,11 +321,29 @@
       "content": "Bottom bar"
     },
     {
+      "type": "select",
+      "id": "bottom_bar_alignment",
+      "label": "Alignment",
+      "default": "text-left",
+      "options": [
+        { "value": "text-left", "label": "Left" },
+        { "value": "text-center", "label": "Center" }
+      ],
+      "info": "Mobile only"
+    },
+    {
       "type": "checkbox",
       "id": "show_social_links",
       "label": "Show social icons",
       "info": "Edit your social settings and accounts in [Theme settings](/admin/themes/current/editor?context=theme)",
       "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_follow_on_shop",
+      "default": true,
+      "label": "Enable Follow on Shop",
+      "info": "Display follow button for your storefront on the Shop app. [Learn more](https://help.shopify.com/manual/online-store/themes/customizing-themes/follow-on-shop)"
     },
     {
       "type": "checkbox",
@@ -306,7 +380,7 @@
     },
     {
       "type": "header",
-      "content": "language selector",
+      "content": "Language selector",
       "info": "To add a language, go to your [language settings.](/admin/settings/languages)"
     },
     {
@@ -317,29 +391,54 @@
     },
     {
       "type": "header",
-      "content": "Currency selector",
-      "info": "To add a currency, go to your [currency settings.](/admin/settings/payments)"
+      "content": "Country/Region selector",
+      "info": "To add a country/region, go to your [markets settings](/admin/settings/markets)."
     },
     {
       "type": "checkbox",
-      "id": "show_currency_selector",
-      "label": "Show currency selector",
+      "id": "show_country_selector",
+      "label": "Show country selector",
       "default": false
     },
     {
+      "type": "checkbox",
+      "id": "show_country_flag",
+      "label": "Show country flag",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
       "type": "select",
-      "id": "currency_type",
-      "label": "Type",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper",
       "options": [
-        {
-          "value": "currency",
-          "label": "Currency"
-        },
-        {
-          "value": "country",
-          "label": "Country"
-        }
+        { "value": "wrapper--full-padded", "label": "Full width padded" },
+        { "value": "wrapper", "label": "Page width" }
       ]
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 60
     }
   ],
   "blocks": [
@@ -348,6 +447,16 @@
       "name": "Logo",
       "limit": 1,
       "settings": [
+        {
+          "type": "select",
+          "id": "alignment",
+          "label": "Alignment",
+          "default": "text-left",
+          "options": [
+            { "value": "text-left", "label": "Left" },
+            { "value": "text-center", "label": "Center" }
+          ]
+        },
         {
           "type": "image_picker",
           "id": "image",
@@ -373,6 +482,24 @@
           "type": "richtext",
           "id": "text",
           "label": "Text"
+        },
+        {
+          "type": "select",
+          "id": "column_width",
+          "label": "Column width",
+          "default": "25",
+          "options": [
+            { "value": "20", "label": "20%"},
+            { "value": "25", "label": "25%"},
+            { "value": "30", "label": "30%"},
+            { "value": "33.33", "label": "33%"},
+            { "value": "50", "label": "50%"},
+            { "value": "66.66", "label": "66%"},
+            { "value": "75", "label": "75%"},
+            { "value": "80", "label": "80%"},
+            { "value": "100", "label": "100%"}
+          ],
+          "info": "Desktop only"
         }
       ]
     },
@@ -381,16 +508,45 @@
       "name": "Link list",
       "settings": [
         {
+          "type": "select",
+          "id": "alignment",
+          "label": "Alignment",
+          "default": "text-left",
+          "options": [
+            { "value": "text-left", "label": "Left" },
+            { "value": "text-center", "label": "Center" }
+          ]
+        },
+        {
           "type": "link_list",
           "id": "menu",
           "label": "Link list",
-          "default": "footer",
+          "default": "main-menu",
           "info":"This menu won't show dropdown items"
         },
         {
           "type": "text",
           "id": "title",
-          "label": "Title"
+          "label": "Title",
+          "default": "Shop"
+        },
+        {
+          "type": "select",
+          "id": "column_width",
+          "label": "Column width",
+          "default": "20",
+          "options": [
+            { "value": "20", "label": "20%"},
+            { "value": "25", "label": "25%"},
+            { "value": "30", "label": "30%"},
+            { "value": "33.33", "label": "33%"},
+            { "value": "50", "label": "50%"},
+            { "value": "66.66", "label": "66%"},
+            { "value": "75", "label": "75%"},
+            { "value": "80", "label": "80%"},
+            { "value": "100", "label": "100%"}
+          ],
+          "info": "Desktop only"
         }
       ]
     },
@@ -398,6 +554,16 @@
       "type": "text",
       "name": "Text",
       "settings": [
+        {
+          "type": "select",
+          "id": "alignment",
+          "label": "Alignment",
+          "default": "text-left",
+          "options": [
+            { "value": "text-left", "label": "Left" },
+            { "value": "text-center", "label": "Center" }
+          ]
+        },
         {
           "type": "text",
           "id": "title",
@@ -409,6 +575,24 @@
           "id": "footer_text",
           "label": "Text",
           "default": "<p>Leave your customers with a final message about your brand in this rich text block.</p>"
+        },
+        {
+          "type": "select",
+          "id": "column_width",
+          "label": "Column width",
+          "default": "30",
+          "options": [
+            { "value": "20", "label": "20%"},
+            { "value": "25", "label": "25%"},
+            { "value": "30", "label": "30%"},
+            { "value": "33.33", "label": "33%"},
+            { "value": "50", "label": "50%"},
+            { "value": "66.66", "label": "66%"},
+            { "value": "75", "label": "75%"},
+            { "value": "80", "label": "80%"},
+            { "value": "100", "label": "100%"}
+          ],
+          "info": "Desktop only"
         }
       ]
     },
@@ -416,6 +600,16 @@
       "type": "blog",
       "name": "Blog",
       "settings": [
+        {
+          "type": "select",
+          "id": "alignment",
+          "label": "Alignment",
+          "default": "text-left",
+          "options": [
+            { "value": "text-left", "label": "Left" },
+            { "value": "text-center", "label": "Center" }
+          ]
+        },
         {
           "type": "text",
           "id": "title",
@@ -436,6 +630,24 @@
             { "label": "Show recent articles", "value": "articles" },
             { "label": "Show article tags", "value": "tags" }
           ]
+        },
+        {
+          "type": "select",
+          "id": "column_width",
+          "label": "Column width",
+          "default": "20",
+          "options": [
+            { "value": "20", "label": "20%"},
+            { "value": "25", "label": "25%"},
+            { "value": "30", "label": "30%"},
+            { "value": "33.33", "label": "33%"},
+            { "value": "50", "label": "50%"},
+            { "value": "66.66", "label": "66%"},
+            { "value": "75", "label": "75%"},
+            { "value": "80", "label": "80%"},
+            { "value": "100", "label": "100%"}
+          ],
+          "info": "Desktop only"
         }
       ]
     },
@@ -449,6 +661,16 @@
           "content": "Subscribers are added in the Customers section of your site admin."
         },
         {
+          "type": "select",
+          "id": "alignment",
+          "label": "Alignment",
+          "default": "text-left",
+          "options": [
+            { "value": "text-left", "label": "Left" },
+            { "value": "text-center", "label": "Center" }
+          ]
+        },
+        {
           "type": "text",
           "id": "title",
           "label": "Heading",
@@ -459,6 +681,57 @@
           "id": "text",
           "label": "Text",
           "default": "<p>Stay up to date with the new collections, products and exclusive offers.</p>"
+        },
+        {
+          "type": "select",
+          "id": "column_width",
+          "label": "Column width",
+          "default": "30",
+          "options": [
+            { "value": "20", "label": "20%"},
+            { "value": "25", "label": "25%"},
+            { "value": "30", "label": "30%"},
+            { "value": "33.33", "label": "33%"},
+            { "value": "50", "label": "50%"},
+            { "value": "66.66", "label": "66%"},
+            { "value": "75", "label": "75%"},
+            { "value": "80", "label": "80%"},
+            { "value": "100", "label": "100%"}
+          ],
+          "info": "Desktop only"
+        }
+      ]
+    },
+    {
+      "type": "divider",
+      "name": "Divider",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Desktop only"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_border_line",
+          "label": "Show border line",
+          "default": true
+        },
+        {
+          "type": "select",
+          "id": "column_width",
+          "label": "Column width",
+          "default": "100",
+          "options": [
+            { "value": "20", "label": "20%" },
+            { "value": "25", "label": "25%" },
+            { "value": "30", "label": "30%" },
+            { "value": "33.33", "label": "33%" },
+            { "value": "50", "label": "50%" },
+            { "value": "66.66", "label": "66%" },
+            { "value": "75", "label": "75%" },
+            { "value": "80", "label": "80%" },
+            { "value": "100", "label": "100%" }
+          ]
         }
       ]
     }

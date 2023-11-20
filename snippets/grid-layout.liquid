@@ -89,11 +89,11 @@
             assign show_price = block.settings.show_price
             assign price = ''
             assign text = block.settings.text
-            assign has_block_link = false
+            assign image_link = false
             assign button_1_link = block.settings.button_1_link
             assign button_1_text = block.settings.button_1_text
             assign button_2_text = block.settings.button_2_text
-            assign button_2_link = block.settings.button_2_link | default: '#!'
+            assign button_2_link = block.settings.button_2_link
             assign text_color = block.settings.text_color
             assign bg_color = block.settings.bg_color
             assign overlay_opacity = block.settings.overlay_opacity | times: 0.01
@@ -171,8 +171,8 @@
                 assign image = block.settings.image
             endcase
 
-            if button_1_link != blank and button_2_text == blank
-              assign has_block_link = true
+            if button_1_link != blank and button_1_text == blank and button_2_text == blank
+              assign image_link = true
             endif
 
             capture block_styles
@@ -187,13 +187,14 @@
 
           {%- style -%}
             {{ block_selector_id }} {
-              --block_width: {{ block_width }}%;
+              --block-width: {{ block_width }}%;
+              --image-ratio: {{ 1 | divided_by: image.aspect_ratio | times: 100 | round: 2 | append: '%' }};
             }
           {%- endstyle -%}
 
           {%- capture item_attributes -%}
             id="{{ block_id }}"
-            class="mosaic__item mosaic__item--{{ forloop.index }} {{ text_color }}{% if has_block_link %} mosaic__item--block-link{% endif %} {{ section_height_class }}"
+            class="mosaic__item mosaic__item--{{ forloop.index }} {{ text_color }} {{ section_height_class }}"
             data-item
             {% if animations_enabled %}
               data-aos="fade"
@@ -229,7 +230,7 @@
 
           <div {{ item_attributes }}>
             <div class="mosaic__item__inner">
-              {%- if has_block_link -%}
+              {%- if image_link -%}
                 <a href="{{ button_1_link }}" class="mosaic__item__image__link">
               {%- endif -%}
 
@@ -244,7 +245,7 @@
                 {%- endif -%}
 
                 {%- if heading != blank -%}
-                  <h3 class="mosaic__item__heading{% if has_block_link %} mosaic__item__heading--underline{% endif %} h2">{{ heading }}</h3>
+                  <h3 class="mosaic__item__heading h2">{{ heading }}</h3>
                 {%- endif -%}
 
                 {%- if text != blank -%}
@@ -261,20 +262,22 @@
 
                 {%- if button_1_text != blank or button_2_text != blank -%}
                   <div class="mosaic__item__buttons">
-                    {%- if button_1_text != blank and has_block_link == false -%}
+                    {%- if button_1_text != blank and button_1_link != blank -%}
                       <a href="{{ button_1_link }}" class="mosaic__item__btn btn {{ button_1_style }} {{ button_1_size }} {{ button_1_color }}">{{ button_1_text }}</a>
-                    {%- elsif button_1_text != blank -%}
+                    {%- else -%}
                       <span class="mosaic__item__btn btn {{ button_1_style }} {{ button_1_size }} {{ button_1_color }}">{{ button_1_text }}</span>
                     {%- endif -%}
 
-                    {%- if button_2_text != blank -%}
+                    {%- if button_2_text != blank and button_2_link != blank -%}
                       <a href="{{ button_2_link }}" class="mosaic__item__btn btn {{ button_2_style }} {{ button_2_size }} {{ button_2_color }}">{{ button_2_text }}</a>
+                    {%- else -%}
+                      <span class="mosaic__item__btn btn {{ button_2_style }} {{ button_2_size }} {{ button_2_color }}">{{ button_2_text }}</span>
                     {%- endif -%}
                   </div>
                 {%- endif -%}
               </div>
 
-              {%- if has_block_link -%}
+              {%- if image_link -%}
                 </a>
               {%- endif -%}
             </div>

@@ -1,7 +1,7 @@
 {%- if section.blocks.size > 0 -%}
   {%- liquid
     assign bar_markup = ''
-    assign is_top = true
+    assign has_progress_holder = false
     assign layout = section.settings.layout
     assign bg_color = section.settings.bg_color
     assign text_color = section.settings.color
@@ -221,13 +221,13 @@
       <span class="cart__message__success">{{ qualified_shipping_message }}</span>
     {%- endif -%}
 
-    {%- unless is_top -%}
+    {%- if has_progress_holder -%}
       <span class="cart__message__progress__holder">
         <progress class="cart__message__progress" data-cart-message-progress value="{{ percent }}" max="100" style="--progress-width: {{ percent }}%;"></progress>
         {%- comment -%}Second progress bar shows only on Firefox{%- endcomment -%}
         <progress class="cart__message__progress" data-cart-message-progress max="100" style="--progress-width: {{ percent }}%;"></progress>
       </span>
-    {%- endunless -%}
+    {%- endif -%}
   </p>
 {%- endif -%}</div>
                     </div>
@@ -301,13 +301,13 @@
       <span class="cart__message__success">{{ qualified_shipping_message }}</span>
     {%- endif -%}
 
-    {%- unless is_top -%}
+    {%- if has_progress_holder -%}
       <span class="cart__message__progress__holder">
         <progress class="cart__message__progress" data-cart-message-progress value="{{ percent }}" max="100" style="--progress-width: {{ percent }}%;"></progress>
         {%- comment -%}Second progress bar shows only on Firefox{%- endcomment -%}
         <progress class="cart__message__progress" data-cart-message-progress max="100" style="--progress-width: {{ percent }}%;"></progress>
       </span>
-    {%- endunless -%}
+    {%- endif -%}
   </p>
 {%- endif -%}</div>
               {%- endif -%}

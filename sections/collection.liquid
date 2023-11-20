@@ -174,7 +174,11 @@
 
   capture sort_param
     if collection.sort_by != collection.default_sort_by
-      echo '?sort_by=' | append: collection.sort_by
+      assign sort_parameter = '/?'
+      if collection.current_type or collection.current_vendor
+        assign sort_parameter = '&'
+      endif
+      echo sort_parameter | append: 'sort_by=' | append: collection.sort_by
     endif
   endcapture
 -%}
@@ -661,8 +665,14 @@
               data-aos-delay="{{ animation_delay }}"
               {%- assign animation_delay = animation_delay | plus: 150 -%}
             {% endif %}>
+            {% if collection.current_type %}
+              <input type="hidden" name="q" value="{{ collection.current_type }}">
+            {% endif %}
+            {% if collection.current_vendor %}
+              <input type="hidden" name="q" value="{{ collection.current_vendor }}">
+            {% endif %}
 
-            <div class="collection__filters-header">
+            <div class="collection__filters-header{% if filter_count == 0 %} hidden{% endif %}">
               <button class="collection__filters__close" type="button" data-close-filters>
                 <span class="visually-hidden">{{ 'products.general.close' | t }}</span>
                 {%- render 'icon-close' -%}
@@ -674,7 +684,7 @@
                     <span>{{- 'products.general.filters' | t -}}{% if filter_count > 0 %} ({{ filter_count }}){% endif %}</span>
                   </div>
 
-                  <a href="{{ collection.url }}/{{ sort_param }}" class="collection__filters__reset {% if current_tags != blank or filter_count > 0 %} is-visible{% endif %}" data-filter-reset-button>
+                  <a href="{{ collection.url }}{{ sort_param }}" class="collection__filters__reset {% if current_tags != blank or filter_count > 0 %} is-visible{% endif %}" data-filter-reset-button>
                     {{- 'products.general.clear_filters' | t -}}
                   </a>
                 </div>
@@ -774,6 +784,7 @@
   assign title = block.settings.title
   assign heading_highlight_type = block.settings.heading_highlight_type
   assign highlight_color = block.settings.highlight_color
+  assign highlight_text_color = block.settings.highlight_text_color
   assign promo_heading_size = block.settings.heading_size | times: 0.01
   assign promo_text_size = block.settings.text_size | times: 0.01
   assign promo_content = block.settings.content | strip_html
@@ -847,6 +858,34 @@
 {% endcomment %}
 
 {%- liquid
+  comment
+   Highlighted words count
+  endcomment
+  assign title_temp = title | split: '<em>'
+  assign em_arr = ''
+  if title_temp.size > 1
+    for text_part in title_temp offset: 1
+      assign em_text = text_part | split: '</em>' | first
+      assign em_arr = em_arr | append: '#separator#' | append: em_text
+    endfor
+  endif
+  assign em_arr = em_arr | split: '#separator#'
+  assign words_count_arr = ''
+  assign letters_count_arr = ''
+  if em_arr.size > 0
+    for words in em_arr offset: 1
+      assign word = words | split: ' '
+      assign words_count_arr = words_count_arr | append: word.size | append: ', '
+      assign letters_count_arr = letters_count_arr | append: words.size | append: ', '
+    endfor
+  endif
+
+  assign words_count_arr = words_count_arr | replace_last: ', ', '' | split: ', '
+  assign letters_count_arr = letters_count_arr | replace_last: ', ', '' | split: ', '
+
+  comment
+   Main highlight types logic
+  endcomment
   assign icon_url = ''
   assign icon_color = 'var(--text)'
 
@@ -866,7 +905,7 @@
           echo '<span class="text-highlight__icon">'
           render 'icon-circle', color: icon_color
           echo '</span>'
-        when 'stroke' or 'circle' or 'squiggle'
+        when 'stroke' or 'circle' or 'squiggle' or 'highlight' or 'highlight-color' or 'underline'
           assign has_text_highlight = true
       endcase
     endif
@@ -895,8 +934,47 @@
 
   if title != blank and title contains '<em>'
     case heading_highlight_type
-      when 'squiggle' or 'circle' or 'stroke'
+      when 'squiggle' or 'circle' or 'stroke' or 'highlight' or 'highlight-color' or 'underline'
         assign title = title | replace: '<em>', text_highlight_start | replace: '</em>', text_highlight_end
+
+      when 'circle'
+        comment
+          Update icon's holder class based on the italicised words count
+        endcomment
+        assign title = title | split: 'class="text-highlight"'
+        assign title_mod = ''
+        for title_part in title offset: 1
+          assign current_part = title_part
+
+          if title_part contains 'text-highlight__icon'
+            capture highlight_icon_classes
+              echo 'text-highlight__icon'
+              assign current_count = words_count_arr[forloop.index0] | times: 1
+              assign letters_count = letters_count_arr[forloop.index0] | times: 1
+              if current_count == 1
+                echo ' text-highlight__icon--single-word'
+              endif
+              if letters_count < 6
+                echo ' text-highlight__icon--short'
+                echo ' text-highlight__icon--l' | append: letters_count
+              endif
+              if letters_count > 15
+                echo ' text-highlight__icon--long'
+              endif
+            endcapture
+
+            assign current_part = title_part | replace: 'text-highlight__icon', highlight_icon_classes
+          endif
+
+          unless forloop.last
+            assign title_mod = title_mod | append: current_part | append: 'class="text-highlight"'
+          else
+            assign title_mod = title_mod | append: current_part
+          endunless
+        endfor
+        assign title_first_part = title | first | append: 'class="text-highlight"'
+        assign title_mod = title_mod | prepend: title_first_part
+        assign title = title_mod
     endcase
   endif
 -%}{%- style -%}
@@ -912,10 +990,16 @@
   }
 
   {{ block_selector_id }} .collection-promo__heading {
-    --highlight-color: var(--text);
+    {%- if heading_highlight_type != 'highlight' -%}
+      --highlight-color: var(--text);
+    {%- endif -%}
 
     {%- if highlight_color != 'rgba(0,0,0,0)' and highlight_color != '' -%}
       --highlight-color: {{ highlight_color }};
+    {%- endif -%}
+
+    {%- if highlight_text_color != 'rgba(0,0,0,0)' and highlight_text_color != '' -%}
+      --highlight-text-color: {{ highlight_text_color }};
     {%- endif -%}
   }
 {%- endstyle -%}
@@ -940,15 +1024,29 @@
   <div class="collection-promo__content {{ promo_layout_class }}{% if show_text_shadow and promo_image != blank %} backdrop--radial{% endif %}">
     <div class="collection-promo__body">
       {%- if title != blank -%}
-
         {%- liquid
-          assign title = title | replace: '%', '<sup>%</sup>'
-          assign title = title | replace: '<sup>%</sup> off', '<sup>%</sup> <small>off</small>'
-          assign title = title | replace: '<sup>%</sup> OFF', '<sup>%</sup> <small>OFF</small>'
-          assign title = title | replace: '<sup>%</sup> Off', '<sup>%</sup> <small>Off</small>'
+          assign numbers_string = '0%,1%,2%,3%,4%,5%,6%,7%,8%,9%' | split: ','
+          assign has_percent_off = false
+          assign has_number_percent = false
+          for num in numbers_string
+            if title contains num
+              assign has_number_percent = true
+            endif
+          endfor
+
+          if has_number_percent
+            assign title = title | replace: '%', '<sup>%</sup>'
+
+            if title contains '<sup>%</sup> off' or title contains '<sup>%</sup> OFF' or title contains '<sup>%</sup> Off'
+              assign has_percent_off = true
+              assign title = title | replace: '<sup>%</sup> off', '<sup>%</sup> <small>off</small>'
+              assign title = title | replace: '<sup>%</sup> OFF', '<sup>%</sup> <small>OFF</small>'
+              assign title = title | replace: '<sup>%</sup> Off', '<sup>%</sup> <small>Off</small>'
+            endif
+          endif
         -%}
 
-        <h3 class="collection-promo__heading{% if has_text_highlight %} {{ text_highlight_wrapper_class }}{% endif %}"
+        <h3 class="collection-promo__heading{% if has_text_highlight %} {{ text_highlight_wrapper_class }}{% endif %}{% if has_percent_off %} haspercentoff{% elsif has_number_percent %} hasnumberpercent{% endif %}"
           {% if settings.animations_enabled %}
             data-aos="fade-up"
             data-aos-anchor="{{ animation_anchor }}"
@@ -999,7 +1097,7 @@
 {%- endif -%}<div class="collection__products collection-items--{{ columns }} collection-items--{{ size_mobile }}" data-collection-products>
             {%- if collection_count > 0 -%}
               {%- if collection.products_count > 0 -%}
-                <div class="grid"{% if enable_infinity_scroll %} id="AjaxinateLoop"{% endif %}>
+                <div class="grid"{% if enable_infinity_scroll %} id="AjaxinateLoop" data-ajaxinate-id="{{ section.id }}"{% endif %}>
                   {%- assign tablet_counter = 1 -%}
                   {%- assign mobile_counter = 1 -%}
 
@@ -1152,9 +1250,12 @@
   assign items_on_row_remaining = items_on_row_remaining | minus: 1
 
   if collection
-    render 'product-grid-item', product: product, animation_delay: animation_delay, tablet_counter: tablet_counter, mobile_counter: mobile_counter, carousel: carousel
+    render 'product-grid-item', product: product, animation_delay: animation_delay, tablet_counter: tablet_counter, mobile_counter: mobile_counter, carousel: carousel, columns: columns
   else
-    render 'product-grid-item--onboarding', columns_mobile: columns_mobile, carousel: carousel, index: index, animation_delay: animation_delay
+    capture placeholder_index
+      cycle 1, 2, 3, 4, 5, 6
+    endcapture
+    render 'product-grid-item--onboarding', columns_mobile: columns_mobile, carousel: carousel, index: placeholder_index, animation_delay: animation_delay, columns: columns
   endif
 
   assign tablet_counter = tablet_counter | plus: 1
@@ -1191,7 +1292,7 @@
             {%- endif -%}
 
             {%- if enable_infinity_scroll -%}
-              <div class="pagination pagination--infinite" id="AjaxinatePagination">
+              <div class="pagination pagination--infinite" id="AjaxinatePagination" data-ajaxinate-id="{{ section.id }}">
                 {%- if paginate.next -%}
                   <div class="pagination__loading">
                     <a href="{{ paginate.next.url }}">
@@ -1378,12 +1479,19 @@
             "info": "Highlight one or two key words in your heading by italicizing them, then choose the highlight option below"
           },
           {
+            "type": "header",
+            "content": "Highlight"
+          },
+          {
             "type": "select",
             "id": "heading_highlight_type",
-            "label": "Highlight type",
+            "label": "Type",
             "default": "circle",
             "options": [
               { "value": "italics", "label": "Italics (no decoration)" },
+              { "value": "highlight", "label": "Highlight" },
+              { "value": "highlight-color", "label": "Text color" },
+              { "value": "underline", "label": "Underline" },
               { "value": "squiggle", "label": "Squiggle" },
               { "value": "circle", "label": "Circle" },
               { "value": "stroke", "label": "Stroke (outlined text)" }
@@ -1394,6 +1502,12 @@
             "id": "highlight_color",
             "label": "Highlight color",
             "default": "#D43747"
+          },
+          {
+            "type": "color",
+            "id": "highlight_text_color",
+            "label": "Text color",
+            "default": "#000"
           },
           {
             "type": "range",

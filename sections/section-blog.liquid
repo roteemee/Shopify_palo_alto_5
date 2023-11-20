@@ -69,7 +69,7 @@
 {%- endstyle -%}
 
 <div id="FeaturedBlog--{{ section.id }}"
-  class="featured-blog {{ blog_style }} {{ text_color }} section-padding"
+  class="featured-blog {{ blog_style }} {{ text_color }} section-padding{%- render 'button-fallback-classes', primary_color: button_color, bg_color_secondary: bg_color_secondary -%}"
   data-section-id="{{ section.id }}"
   data-section-type="featured-blog">
   <div class="{{ section_width }}">
