@@ -212,18 +212,15 @@
         {%- liquid
           assign image = block.settings.image
           assign image_mobile = block.settings.image_mobile
+          assign sizes = '(min-width: 768px) calc(100vw / ' | append: section.blocks.size | append: '), 100vw'
         -%}
 
         <div class="split-images__scale split-images__scale--{{ forloop.index }}" {{ block.shopify_attributes }}>
           {%- unless image_mobile == blank -%}
-            {%- render 'image-fill', is_background: true, img_object: image_mobile, classes: 'split-images__bg split-images__bg--mobile' -%}
+            {%- render 'image-fill', is_background: true, img_object: image_mobile, sizes: sizes, classes: 'split-images__bg split-images__bg--mobile' -%}
           {%- endunless -%}
 
-          {%- unless image == blank -%}
-            {%- render 'image-fill', is_background: true, img_object: image, classes: 'split-images__bg split-images__bg--desktop' -%}
-          {%- else -%}
-            {%- render 'image-fill', is_background: true, img_object: '', classes: 'split-images__bg split-images__bg--placeholder' -%}
-          {%- endunless -%}
+          {%- render 'image-fill', is_background: true, img_object: image, sizes: sizes, classes: 'split-images__bg split-images__bg--desktop' -%}
         </div>
       {%- endfor -%}
 

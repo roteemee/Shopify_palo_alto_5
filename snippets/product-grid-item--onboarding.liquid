@@ -2,6 +2,7 @@
   Logic to set the grid size
 {%- endcomment -%}
 {%- liquid
+  assign heading_style = settings.heading_style
   assign columns = columns | default: settings.products_per_row_on_desktop | plus: 0
   assign columns_mobile = columns_mobile | default: settings.products_per_row_on_mobile | plus: 0
 
@@ -60,10 +61,17 @@
         render 'icon-shopping-cart'
     endcase
   endcapture
+
+  case settings.image_size
+    when 'cover'
+      assign image_cover = true
+    when 'contain'
+      assign image_cover = false
+  endcase
 -%}
 
 {%- capture product_title -%}
-  <a class="product-grid-item__title" href="#!"{% if index > 1 %} tabindex="-1"{% endif %}>
+  <a class="product-grid-item__title {{ heading_style }}" href="#!"{% if index > 1 %} tabindex="-1"{% endif %}>
     {{- 'homepage.onboarding.product_title' | t -}}
   </a>
 {%- endcapture -%}
@@ -130,6 +138,7 @@
           {%- assign placeholder_svg = 'product-' | append: index -%}
 
           {%- render 'image-fill',
+            cover: image_cover,
             is_background: true,
             img_object: '',
             classes: 'product__media',
@@ -143,6 +152,7 @@
                 {%- assign placeholder_svg = 'collection-' | append: index -%}
 
                 {%- render 'image-fill',
+                  cover: image_cover,
                   is_background: true,
                   img_object: '',
                   classes: 'product__media',
@@ -162,6 +172,7 @@
           {%- endcapture -%}
 
           {%- render 'image-fill',
+            cover: image_cover,
             is_background: true,
             img_object: '',
             classes: image_classes,

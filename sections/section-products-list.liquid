@@ -2,7 +2,7 @@
   assign section_width = section.settings.width
   assign heading_size = section.settings.heading_size
   assign image_aspect_ratio = section.settings.image_aspect_ratio
-    assign bg_color_secondary = section.settings.bg_color_secondary
+  assign bg_color_secondary = section.settings.bg_color_secondary
   assign button_style = section.settings.button_style
   assign button_color = section.settings.button_color
   assign button_size = section.settings.button_size
@@ -14,6 +14,25 @@
   if section.blocks.size > 1
     assign single_block = false
   endif
+
+  comment
+    Images sizes
+  endcomment
+  # Desktop widths
+  if section_width == 'wrapper--full-padded'
+    assign wrapper_width_lg = '(100vw - 120px)'
+  endif
+  if section_width == 'wrapper'
+    assign wrapper_width_lg = '(1440px - 120px)'
+  endif
+  assign img_width_lg = 'calc((' | append: wrapper_width_lg | append: ' - 60px) / 2)'
+  # Tablet widths
+  assign wrapper_width_md = '(100vw - 2 * 20px)'
+  assign img_width_md = 'calc((' | append: wrapper_width_md | append: ' - 20px) / 2)'
+  # Mobile widths
+  assign img_width_sm = 'calc(' | append: wrapper_width_md | append: ')'
+
+  assign sizes = '(min-width: 1024px) ' | append: img_width_lg | append: ', (min-width: 768px) ' | append: img_width_md | append: ', ' | append: img_width_sm
 -%}
 
 {%- style -%}
@@ -129,12 +148,29 @@
             if block.type == 'product' and block.settings.product_description != blank
               assign product_description_override = true
             endif
+
+            assign image_1_sizes = sizes
+            assign image_2_sizes = sizes
+
+            if show_second_image
+              # 75%
+              assign img_1_width_lg = 'calc(((' | append: wrapper_width_lg | append: ' - 60px) / 2) * 0.75)'
+              assign img_1_width_md = 'calc(((' | append: wrapper_width_md | append: ' - 20px) / 2) * 0.75)'
+              assign img_1_width_sm = 'calc(' | append: wrapper_width_md | append: ' * 0.75)'
+              assign image_1_sizes = '(min-width: 1024px) ' | append: img_1_width_lg | append: ', (min-width: 768px) ' | append: img_1_width_md | append: ', ' | append: img_1_width_sm
+
+              # 40%
+              assign img_2_width_lg = 'calc(((' | append: wrapper_width_lg | append: ' - 60px) / 2) * 0.40)'
+              assign img_2_width_md = 'calc(((' | append: wrapper_width_md | append: ' - 20px) / 2) * 0.40)'
+              assign img_2_width_sm = 'calc(' | append: wrapper_width_md | append: ' * 0.40)'
+              assign image_2_sizes = '(min-width: 1024px) ' | append: img_2_width_lg | append: ', (min-width: 768px) ' | append: img_2_width_md | append: ', ' | append: img_2_width_sm
+            endif
           -%}
 
           {%- capture image_1 -%}
             {%- if image_1 != blank -%}
               <div class="products-list__item__image-bg">
-                {%- render 'image-fill', is_background: true, img_object: image_1 -%}
+                {%- render 'image-fill', is_background: true, img_object: image_1, sizes: image_1_sizes -%}
               </div>
             {%- endif -%}
           {%- endcapture -%}
@@ -142,7 +178,7 @@
           {%- capture image_2 -%}
             {%- if image_2 != blank -%}
               <div class="products-list__item__image-bg">
-                {%- render 'image-fill', is_background: true, img_object: image_2 -%}
+                {%- render 'image-fill', is_background: true, img_object: image_2, sizes: image_2_sizes -%}
               </div>
             {%- endif -%}
           {%- endcapture -%}
@@ -225,7 +261,7 @@
                     {%- if image_1 != blank -%}
                       {{- image_1 -}}
                     {%- else -%}
-                      <div class="products-list__item__image-bg products-list__item__image-bg--placeholder placeholder-svg--overlayed">
+                      <div class="products-list__item__image-bg placeholder-svg--overlayed">
                         {%- capture current -%}{%- cycle 1, 2, 3, 4 -%}{%- endcapture -%}
                         {{- 'product-' | append: current | placeholder_svg_tag: 'placeholder-svg-filled' -}}
                       </div>
@@ -244,7 +280,7 @@
                       {%- if image_2 != blank -%}
                         {{- image_2 -}}
                       {%- else -%}
-                        <div class="products-list__item__image-bg products-list__item__image-bg--placeholder placeholder-svg--overlayed">
+                        <div class="products-list__item__image-bg placeholder-svg--overlayed">
                           {%- capture current -%}{%- cycle 1, 2, 3, 4 -%}{%- endcapture -%}
                           {{- 'product-' | append: current | placeholder_svg_tag: 'placeholder-svg-filled' -}}
                         </div>
@@ -377,7 +413,7 @@
                             data-product-single-media-image
                             data-overflow-content
                             style="padding-top: {{ image_aspect_ratio | times: 100 | round: 1 }}%;">
-                            {%- render 'image-fill', is_background: true, img_object: product_image, placeholder_svg: 'product-1' -%}
+                            {%- render 'image-fill', is_background: true, img_object: product_image, sizes: sizes, placeholder_svg: 'product-1' -%}
                           </a>
                         </div>
                       </div>
@@ -581,7 +617,8 @@
                           </div>
                         </a>
                       {%- else -%}
-                        {%- if product_media.media_type == 'image' -%}
+
+                        {%- if product_media.media_type == 'image' or product_media == nil -%}
                           <a href="{{ product_url }}" aria-label="{{ product_title }}"
                             class="products-list__item__image products-list__item__image--main"
                             {% if animations_enabled %}
@@ -596,7 +633,14 @@
                             {% endif %}
                             data-overflow-content>
                             <div class="products-list__item__image__frame">
-                              {%- render 'media', media: product_media, featured_media: product_media, unique: section.id -%}
+                              {%- unless product_media -%}
+                                <div class="products-list__item__image-bg placeholder-svg--overlayed">
+                                  {%- capture current -%}{%- cycle 1, 2, 3, 4 -%}{%- endcapture -%}
+                                  {{- 'product-' | append: current | placeholder_svg_tag: 'placeholder-svg-filled' -}}
+                                </div>
+                              {%- else -%}
+                                {%- render 'media', media: product_media, featured_media: product_media, img_sizes: image_1_sizes, unique: section.id -%}
+                              {%- endunless -%}
                             </div>
                           </a>
                         {%- else -%}

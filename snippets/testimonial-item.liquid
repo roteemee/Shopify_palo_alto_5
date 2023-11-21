@@ -60,27 +60,19 @@
                   data-aos-delay="{{ animation_delay }}"
                 {% endif %}>
                 {%- liquid
-                  assign image_size = image_width | times: 2
-                  assign image_widths = '180, 360, 540, 720, 900, 1080, 1296, 1512, 1728, 2048, 2450, 2700, 3000, 3350, 3750, 4100'
-                  assign image_alt = image.alt | escape
                   assign animation_delay = animation_delay | plus: 150
+                  assign image_alt = image.alt | escape
+                  assign retina_size = image_width | times: 2
+                  assign image_widths = image_width | append: ', ' | append: retina_size
+                  assign sizes = 'min((100vw - 60px - 40px), ' | append: image_width | append: 'px' | append: ')'
 
                   capture styles
                     echo 'width: ' | append: image_width | append: 'px;'
                     echo 'height: ' | append: image_width | append: 'px;'
                   endcapture
-                -%}
 
-                {%- render 'image',
-                  image: image,
-                  width: image_size,
-                  height: image_size,
-                  widths: image_widths,
-                  alt: image_alt,
-                  sizes: 'auto',
-                  styles: styles,
-                  classes: 'testimonial__user__image__img',
-                  placeholder_svg: 'lifestyle-1' -%}
+                  render 'image', image: image, width: retina_size, height: retina_size, widths: image_widths, sizes: sizes, cover: false, alt: image_alt, styles: styles, classes: 'testimonial__user__image__img'
+                -%}
               </div>
             {%- endif -%}
 

@@ -3,7 +3,7 @@
     "name": "theme_info",
     "theme_name": "Palo Alto",
     "theme_author": "Presidio Creative",
-    "theme_version": "5.3.0",
+    "theme_version": "5.4.1",
     "theme_support_url": "https:\/\/presidiocreative.com\/link\/palo-alto\/contact",
     "theme_documentation_url": "https:\/\/presidiocreative.com\/link\/palo-alto\/docs"
   },
@@ -25,12 +25,6 @@
         "id": "color_body_bg_secondary",
         "label": "Secondary Background",
         "default": "#fffdea"
-      },
-      {
-        "type": "color",
-        "id": "color_bg_accent",
-        "label": "Background Accent",
-        "default": "#F6F6F7"
       },
       {
         "type": "color",
@@ -153,19 +147,13 @@
       },
       {
         "type": "range",
-        "id": "nav_letter_spacing",
-        "label": "Letter spacing",
-        "default": 0,
-        "min": -25,
-        "max": 200,
+        "id": "nav_top_level_links_size",
+        "min": 50,
+        "max": 125,
+        "step": 5,
         "unit": "%",
-        "step": 25
-      },
-      {
-        "type": "checkbox",
-        "id": "nav_caps_letter_spacing",
-        "label": "Apply letter spacing to only uppercase",
-        "default": true
+        "label": "Top-level links size",
+        "default": 70
       },
       {
         "type": "checkbox",
@@ -182,44 +170,31 @@
         "default": false
       },
       {
+        "type": "range",
+        "id": "nav_letter_spacing",
+        "label": "Letter spacing",
+        "default": 0,
+        "min": -25,
+        "max": 200,
+        "unit": "%",
+        "step": 25
+      },
+      {
+        "type": "checkbox",
+        "id": "nav_caps_letter_spacing",
+        "label": "Apply letter spacing to only uppercase",
+        "default": true
+      },
+      {
         "type": "header",
-        "content": "Subheadings"
+        "content": "Accent",
+        "info": "Includes Subheadings"
       },
       {
-        "type": "select",
-        "id": "type_subheading_font",
+        "type": "font_picker",
+        "id": "type_subheadings_font",
         "label": "Font",
-        "default": "body",
-        "options": [
-          {
-            "label": "Body",
-            "value": "body"
-          },
-          {
-            "label": "Heading",
-            "value": "heading"
-          }
-        ]
-      },
-      {
-        "type": "select",
-        "id": "subheading_font_weight",
-        "label": "Weight",
-        "options": [
-          {
-            "value": "light",
-            "label": "Light"
-          },
-          {
-            "value": "normal",
-            "label": "Normal"
-          },
-          {
-            "value": "bold",
-            "label": "Bold"
-          }
-        ],
-        "default": "bold"
+        "default": "mono"
       },
       {
         "type": "checkbox",
@@ -282,7 +257,7 @@
         "max": 125,
         "step": 5,
         "unit": "%",
-        "default": 100
+        "default": 75
       },
       {
         "type": "range",
@@ -344,6 +319,26 @@
             "value": "inline"
           }
         ]
+      },
+      {
+        "type": "select",
+        "id": "heading_style",
+        "label": "Heading style",
+        "default": "font-heading",
+        "options": [
+          { "label": "Heading", "value": "font-heading" },
+          { "label": "Body", "value": "font-body" }
+        ]
+      },
+      {
+        "type": "range",
+        "id": "product_grid_text_size",
+        "min": 50,
+        "max": 125,
+        "step": 5,
+        "unit": "%",
+        "label": "Text size",
+        "default": 90
       },
       {
         "type": "range",

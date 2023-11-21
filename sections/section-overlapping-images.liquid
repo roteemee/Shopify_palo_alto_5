@@ -56,6 +56,28 @@
   endif
 
   comment
+    Images sizes
+  endcomment
+  assign half_width = images_width | divided_by: 2
+  assign half_offset = images_offset | divided_by: 2
+  assign overlapping_images_width = half_width | plus: half_offset
+  # Desktop widths
+  assign img_width_lg = images_width | append: 'px'
+  # Tablet widths
+  assign wrapper_width_md = '(100vw - 2 * 20px)'
+  assign img_width_md = 'calc((' | append: wrapper_width_md | append: ' - 30px) / 2)'
+  # Mobile widths
+  assign img_width_sm = 'min(' | append: wrapper_width_md | append: ', ' | append: images_width | append: 'px)'
+
+  unless single_image
+    assign img_width_lg = overlapping_images_width | append: 'px'
+    assign img_width_md = 'calc(((' | append: wrapper_width_md | append: ' - 30px) / 2) * 0.5)'
+    assign img_width_sm = 'calc((' | append: wrapper_width_md | append: ' - 30px) / 2)'
+  endunless
+
+  assign sizes = '(min-width: 1024px) ' | append: img_width_lg | append: ', (min-width: 768px) ' | append: img_width_md | append: ', ' | append: img_width_sm
+
+  comment
     Video
   endcomment
   assign video_text = section.settings.video_text
@@ -65,6 +87,7 @@
     Colors
   endcomment
   assign bg_color_secondary = section.settings.bg_color_secondary
+  assign gradient = section.settings.gradient | default: 'none'
 -%}{% comment %}
   Enhanced text decorations options - Liqiud variables
 
@@ -202,7 +225,11 @@
     --PT: {{ section.settings.padding_top }}px;
     --PB: {{ section.settings.padding_bottom }}px;
     --image-offset: {{ images_offset }}px;
-    
+
+    {%- if gradient != 'none' -%}
+      --bg: {{ gradient }};
+    {%- endif %}
+
     {%- if heading_highlight_type != 'highlight' -%}
       --highlight-color: var(--text);
     {%- endif -%}
@@ -225,10 +252,10 @@
         <div class="overlapping-images__images-inner{% if single_image %} overlapping-images__images-inner--single{% endif %}">
           {%- unless image_1 == blank -%}
             {%- capture image_bg -%}
-              {%- render 'image-fill', img_object: image_1, classes: 'overlapping-images__image-bg' -%}
+              {%- render 'image-fill', img_object: image_1, sizes: sizes, classes: 'overlapping-images__image-bg' -%}
             {%- endcapture -%}
 
-            <div class="overlapping-images__image{% if image_2 != blank %} overlapping-images__image--primary{% endif %} lazy-image"
+            <div class="overlapping-images__image{% if image_2 != blank %} overlapping-images__image--primary{% endif %}"
               {% if animations_enabled %}
                 {% if single_image %}
                   data-aos="fade-up"
@@ -238,8 +265,7 @@
                 data-aos-anchor="{{ animation_anchor }}"
                 data-aos-delay="{{ animation_delay }}"
                 {%- assign animation_delay = animation_delay | plus: 150 -%}
-              {% endif %}
-              style="background-image: url({{ image_1 | img_url: '1x1' }});">
+              {% endif %}>
               {%- if image_link_1 != blank -%}
                 <a href="{{ image_link_1 }}" aria-label="{{ image_1.alt | strip_html | escape }}">
                   {{- image_bg -}}
@@ -252,10 +278,10 @@
 
           {%- unless image_2 == blank -%}
             {%- capture image_bg -%}
-              {%- render 'image-fill', img_object: image_2, classes: 'overlapping-images__image-bg' -%}
+              {%- render 'image-fill', img_object: image_2, sizes: sizes, classes: 'overlapping-images__image-bg' -%}
             {%- endcapture -%}
 
-            <div class="overlapping-images__image{% if image_1 != blank %} overlapping-images__image--secondary{% endif %} lazy-image"
+            <div class="overlapping-images__image{% if image_1 != blank %} overlapping-images__image--secondary{% endif %}"
               {% if animations_enabled %}
                 {% if single_image %}
                   data-aos="fade-up"
@@ -265,8 +291,7 @@
                 data-aos-anchor="{{ animation_anchor }}"
                 data-aos-delay="{{ animation_delay }}"
                 {%- assign animation_delay = animation_delay | plus: 150 -%}
-              {% endif %}
-              style="background-image: url({{ image_2 | img_url: '1x1' }});">
+              {% endif %}>
               {%- if image_link_2 != blank -%}
                 <a href="{{ image_link_2 }}" aria-label="{{ image_2.alt | strip_html | escape }}">
                   {{- image_bg -}}
@@ -279,9 +304,7 @@
 
           {%- if image_1 == blank and image_2 == blank -%}
             {%- capture image_placeholder -%}
-              {%- render 'image-fill',
-                img_object: '',
-                classes: 'overlapping-images__image-bg' -%}
+              {%- render 'image-fill', img_object: '', classes: 'overlapping-images__image-bg' -%}
             {%- endcapture -%}
 
             <div class="overlapping-images__image overlapping-images__image--primary"
@@ -659,6 +682,11 @@
       "label": "Background",
       "info": "Use secondary background color",
       "default": false
+    },
+    {
+      "type": "color_background",
+      "id": "gradient",
+      "label": "Overlay gradient"
     },
     {
       "type": "header",

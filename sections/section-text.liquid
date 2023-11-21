@@ -373,28 +373,13 @@
                 assign image_link = block.settings.image_link
                 assign image_alt = image.alt | strip_html | escape
                 assign image_widths = '50, 60, 80, 100, 120, 180, 200, 240, 280, 300, 360, 400, 480, 500, 560, 600, 720, 800, 960, 1000'
+                assign sizes = '(min-width: ' | append: image_width | append: 'px) ' | append: image_width | append: 'px, calc(100vw - 40px)'
                 assign animation_delay = animation_delay | plus: 150
 
                 capture styles
                   echo 'width: ' | append: image_width | append: 'px;'
                 endcapture
               -%}
-
-              {%- capture image_markup -%}
-                {%- if image != blank -%}
-                  {%- render 'image',
-                    image: image,
-                    width: retina_size,
-                    widths: image_widths,
-                    sizes: 'auto',
-                    styles: styles,
-                    classes: 'text__image' -%}
-                {%- else -%}
-                  <div class="text__image--placeholder placeholder-svg" style="{{ styles }}">
-                    {{ 'image' | placeholder_svg_tag: 'placeholder-svg-filled' }}
-                  </div>
-                {%- endif -%}
-              {%- endcapture -%}
 
               <div class="text__image-wrapper"
                 {% if animations_enabled %}
@@ -404,9 +389,19 @@
                   {%- assign animation_delay = animation_delay | plus: 150 -%}
                 {% endif %}>
                 {%- if image_link != blank -%}
-                  <a href="{{ image_link }}" aria-label="{{ image_alt }}">{{ image_markup }}</a>
-                {%- else -%}
-                  {{- image_markup -}}
+                  <a href="{{ image_link }}" aria-label="{{ image_alt }}">
+                {%- endif -%}
+                  {%- render 'image',
+                    image: image,
+                    width: retina_size,
+                    widths: image_widths,
+                    sizes: sizes,
+                    styles: styles,
+                    cover: false,
+                    classes: 'text__image',
+                    placeholder_svg: 'image' -%}
+                {%- if image_link != blank -%}
+                  </a>
                 {%- endif -%}
               </div>
 

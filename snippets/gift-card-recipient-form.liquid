@@ -21,10 +21,10 @@
 
 <div class="recipient-form-wrapper"
   {% if animations_enabled %}
-    data-aos="fade-up"
+    data-aos="hero"
     data-aos-anchor="{{ animation_anchor }}"
-    data-aos-delay="{{ animation_delay }}"
-    {%- assign animation_delay = animation_delay | plus: 150 -%}
+    data-aos-order="{{ animation_order }}"
+    {%- assign animation_order = animation_order | plus: 1 -%}
   {% endif %}>
   <recipient-form class="recipient-form checkbox">
     <input type="checkbox"

@@ -1,21 +1,28 @@
 <!-- /snippets/video.liquid -->
+{%- liquid
+  assign sizes = image_sizes | default: '100vw'
+  capture image_classes
+    echo 'video-background video-background--image'
+    if image == blank
+      echo ' placeholder-bg'
+    endif
+  endcapture
+-%}
+
+{%- capture image_attributes -%}
+  {%- if animations_enabled -%}
+    data-aos="fade"
+    data-aos-anchor="{{ animation_anchor }}"
+    data-aos-delay="{{ animation_delay }}"
+  {%- endif -%}
+{%- endcapture -%}
+
 <div class="video__container video__container--{{ unique }} {{ text_color }}" id="video-{{ unique }}-container">
-  {%- capture image_attributes -%}
-    {%- if animations_enabled -%}
-      data-aos="fade"
-      data-aos-anchor="{{ animation_anchor }}"
-      data-aos-delay="{{ animation_delay }}"
-    {%- endif -%}
-  {%- endcapture -%}
-
-  {%- capture image_classes -%}
-    video-background video-background--image {% if image == blank %}placeholder-bg{% endif %}
-  {%- endcapture -%}
-
   {%- render 'image-fill',
     is_background: true,
     img_object: image,
     image_attributes: image_attributes,
+    sizes: sizes,
     classes: image_classes,
     placeholder_svg: 'lifestyle-1' -%}
 
@@ -169,15 +176,15 @@
     {%- endif -%}
 
     {%- if text != blank -%}
-      <h2 class="main-text"
+      <div class="main-text h2"
         {% if animations_enabled %}
           data-aos="fade-up"
           data-aos-anchor="{{ animation_anchor }}"
           data-aos-delay="{{ animation_delay }}"
           {%- assign animation_delay = animation_delay | plus: 150 -%}
         {% endif %}>
-        {{- text | escape -}}
-      </h2>
+        {{- text -}}
+      </div>
     {%- endif -%}
 
     {% comment %} Button {% endcomment %}

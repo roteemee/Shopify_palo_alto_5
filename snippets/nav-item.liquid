@@ -80,7 +80,7 @@
   {% else %}
     data-hover-disclosure-toggle
   {% endif %}>
-  <a href="{{ link.url }}" data-top-link class="navlink navlink--toplevel{% if highlight_item == link_title_lowercase %} navlink--highlight{% endif %}{% if settings.nav_caps_toplevel %} caps{% endif %}">
+  <a href="{{ link.url }}" data-top-link class="navlink navlink--toplevel{% if highlight_item == link_title_lowercase %} navlink--highlight{% endif %}{% if link_hover_dot %} navlink--dot{% endif %}{% if settings.nav_caps_toplevel %} caps{% endif %}">
     <span class="navtext">{{ link_title }}</span>
   </a>
   {%- if expands -%}
@@ -132,7 +132,7 @@
             {%- for block in section.blocks -%}
               {% comment %} Render block content {% endcomment %}
               {%- if block.settings.position == index -%}
-                {%- render 'header-block', block: block -%}
+                {%- render 'header-block', block: block, child_count: child_count, image_count: image_count, index: index -%}
               {%- endif -%}
             {%- endfor -%}
 

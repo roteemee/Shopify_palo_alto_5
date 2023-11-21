@@ -7,8 +7,7 @@
   assign base_font = settings.type_base_font
   assign nav_font = settings.type_nav_font
   assign button_font = settings.type_button_font
-  assign subheading_font = settings.type_subheading_font
-  assign subheading_font_weight = settings.subheading_font_weight
+  assign subheading_font = settings.type_subheadings_font
 
   assign base_font_light = base_font | font_modify: 'weight', 'lighter'
   assign base_font_medium = base_font | font_modify: 'weight', 'bolder'
@@ -49,6 +48,22 @@
     assign heading_font_bold = heading_font_400
   endif
 
+  assign subheading_font_bold = subheading_font | font_modify: 'weight', 'bold'
+
+  assign subheading_font_100 = subheading_font | font_modify: 'weight', '+100'
+  assign subheading_font_200 = subheading_font | font_modify: 'weight', '+200'
+  assign subheading_font_300 = subheading_font | font_modify: 'weight', '+300'
+  assign subheading_font_400 = subheading_font | font_modify: 'weight', '+400'
+  if subheading_font_100 and subheading_font_100.weight > subheading_font.weight
+    assign subheading_font_bold = subheading_font_100
+  elsif subheading_font_200 and subheading_font_200.weight > subheading_font.weight
+    assign subheading_font_bold = subheading_font_200
+  elsif subheading_font_300 and subheading_font_300.weight > subheading_font.weight
+    assign subheading_font_bold = subheading_font_300
+  elsif subheading_font_400 and subheading_font_400.weight > subheading_font.weight
+    assign subheading_font_bold = subheading_font_400
+  endif
+
   if nav_font == 'heading'
     assign nav_font = heading_font
     assign nav_font_light = heading_font_light
@@ -73,20 +88,6 @@
     assign button_font_medium = base_font_medium
     assign button_font_bold = base_font_bold
     assign button_font_italic = base_font_italic
-  endif
-
-  if subheading_font == 'heading'
-    assign subheading_font = heading_font
-    assign subheading_font_light = heading_font_light
-    assign subheading_font_medium = heading_font_medium
-    assign subheading_font_bold = heading_font_bold
-    assign subheading_font_italic = heading_font_italic
-  else
-    assign subheading_font = base_font
-    assign subheading_font_light = base_font_light
-    assign subheading_font_medium = base_font_medium
-    assign subheading_font_bold = base_font_bold
-    assign subheading_font_italic = base_font_italic
   endif
 
   assign input_font_size = settings.text_size | divided_by: 100.0 | append: 'rem'
@@ -131,8 +132,6 @@
   endif
 
   assign color_body_bg_secondary = settings.color_body_bg_secondary
-
-  assign color_bg_accent = settings.color_bg_accent
 
   assign color_body_text = settings.color_body_text
   if color_body_text == 'rgba(0,0,0,0)'
@@ -182,10 +181,12 @@
   assign color_body_bg_secondary_brightness = color_body_bg_secondary | color_brightness | round
   if color_body_bg_secondary_brightness > 153
     assign color_body_bg_secondary_lighten_darken = color_body_bg_secondary | color_darken: 10
+    assign color_body_bg_secondary_lighten_darken_50 = color_body_bg_secondary_lighten_darken | color_modify: 'alpha', 0.50
     assign color_body_bg_secondary_lighten_darken_contrast = color_body_bg_secondary | color_darken: 50
 
   else
     assign color_body_bg_secondary_lighten_darken = color_body_bg_secondary | color_lighten: 10
+    assign color_body_bg_secondary_lighten_darken_50 = color_body_bg_secondary_lighten_darken | color_modify: 'alpha', 0.50
     assign color_body_bg_secondary_lighten_darken_contrast = color_body_bg_secondary | color_lighten: 50
   endif
 
@@ -356,6 +357,7 @@
 {%- comment -%} Typography {%- endcomment -%}
 {{ heading_font | font_face: font_display: 'swap' }}
 {{ base_font | font_face: font_display: 'swap' }}
+{{ subheading_font | font_face: font_display: 'swap' }}
 
 {% if heading_font_bold %}
   {{ heading_font_bold | font_face: font_display: 'swap' }}
@@ -383,6 +385,10 @@
 
 {% if base_font_bold_italic %}
   {{ base_font_bold_italic | font_face: font_display: 'swap' }}
+{% endif %}
+
+{% if subheading_font_bold %}
+  {{ subheading_font_bold | font_face: font_display: 'swap' }}
 {% endif %}
 
 {%- comment -%} CSS variables defined in Theme settings {%- endcomment -%}
@@ -491,10 +497,8 @@
 
   --COLOR-BG-SECONDARY: {{ color_body_bg_secondary }};
   --COLOR-BG-SECONDARY-LIGHTEN-DARKEN: {{ color_body_bg_secondary_lighten_darken }};
+  --COLOR-BG-SECONDARY-LIGHTEN-DARKEN-50: {{ color_body_bg_secondary_lighten_darken_50 }};
   --COLOR-BG-SECONDARY-LIGHTEN-DARKEN-CONTRAST: {{ color_body_bg_secondary_lighten_darken_contrast }};
-
-  --COLOR-BG-ACCENT: {{ color_bg_accent }};
-  --COLOR-BG-ACCENT-LIGHTEN: {{ color_bg_accent | color_lighten: 15 }};
 
   --COLOR-INPUT-BG: {{ color_body_bg }};
 
@@ -571,11 +575,14 @@
   --FONT-STYLE-NAV: {{ nav_font.style }};
   --FONT-STYLE-NAV-ITALIC: {{ nav_font_italic.style }};
   --FONT-ADJUST-NAV: {{ settings.nav_size | divided_by: 100.0 }};
+  --FONT-ADJUST-NAV-TOP-LEVEL: {{ settings.nav_top_level_links_size | divided_by: 100.0 }};
 
   --FONT-WEIGHT-NAV: {{ nav_font.weight | default: 400 }};
   --FONT-WEIGHT-NAV-LIGHT: {{ nav_font_light.weight | default: 300 }};
   --FONT-WEIGHT-NAV-MEDIUM: {{ nav_font_medium.weight | default: 500 }};
   --FONT-WEIGHT-NAV-BOLD: {{ nav_font_bold.weight | default: 600 }};
+
+  --FONT-ADJUST-PRODUCT-GRID: {{ settings.product_grid_text_size | divided_by: 100.0 }};
 
   --FONT-STACK-BUTTON: {{ button_font.family }}, {{ button_font.fallback_families }};
   --FONT-STYLE-BUTTON: {{ button_font.style }};
@@ -588,19 +595,10 @@
 
   --FONT-STACK-SUBHEADING: {{ subheading_font.family }}, {{ subheading_font.fallback_families }};
   --FONT-STYLE-SUBHEADING: {{ subheading_font.style }};
-  --FONT-STYLE-SUBHEADING-ITALIC: {{ subheading_font_italic.style }};
   --FONT-ADJUST-SUBHEADING: {{ settings.subheading_size | divided_by: 100.0 }};
 
   --FONT-WEIGHT-SUBHEADING: {{ subheading_font.weight | default: 400 }};
-  --FONT-WEIGHT-SUBHEADING-LIGHT: {{ subheading_font_light.weight | default: 300 }};
-  --FONT-WEIGHT-SUBHEADING-MEDIUM: {{ subheading_font_medium.weight | default: 500 }};
   --FONT-WEIGHT-SUBHEADING-BOLD: {{ subheading_font_bold.weight | default: 600 }};
-
-  {% if subheading_font_weight == 'light' %}
-    --FONT-WEIGHT-SUBHEADING: var(--FONT-WEIGHT-SUBHEADING-LIGHT);
-  {% elsif subheading_font_weight == 'bold' %}
-    --FONT-WEIGHT-SUBHEADING: var(--FONT-WEIGHT-SUBHEADING-BOLD);
-  {% endif %}
 
   --LETTER-SPACING-NAV: {{ settings.nav_letter_spacing | divided_by: 1000.0 | append: 'em' }};
   --LETTER-SPACING-SUBHEADING: {{ settings.subheading_letter_spacing | divided_by: 1000.0 | append: 'em' }};

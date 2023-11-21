@@ -4,6 +4,7 @@
   Accepts:
   - media: {Object} Media Liquid object (required)
   - featured_media: {Object} Media Liquid object (required) - featured media of a given product or variant
+  - img_sizes: {String} - A set of media conditions for `img` sizes attribute (Optional)
   - image_width: {Number} - Image width on desktop based on section settings
   - unique: {String} Section id
   - hide_controls: {Boolean} True or false - Hide video controls
@@ -15,8 +16,11 @@
 {%- endcomment -%}
 
 {%- liquid
+  assign img_sizes = img_sizes | default: ''
+  assign image_widths = image_widths | default: '245, 320, 365, 410, 490, 640, 753, 848, 980, 1024, 1280, 1506, 1696, 1960'
   assign image_size = '1024x1024'
   assign image_zoom_size = '2048x2048'
+  assign view_string = 'general.accessibility.view' | t
   capture media_wrapper_id
     echo 'FeaturedMedia-' | append: unique | append: '-' | append: media.id
   endcapture
@@ -45,6 +49,7 @@
     if template.name == 'product' and media == featured_media
       assign loading = 'eager'
       assign fetchpriority = 'high'
+      assign preload = true
     endif
 
     assign sizes = '(min-width: 1400px) ' | append: image_width | append: ', (min-width: 768px) calc((100vw - 40px) * 0.6 - 30px), calc(100vw - 40px)'
@@ -56,15 +61,71 @@
         when 'small'
           assign sizes = '(min-width: 768px) 163px, calc((100vw - 50px) / 2 - 17px)'
       endcase
-      assign widths = '150, 300, 315, 330, 360, 480, 540, 630, 720'
+      assign image_widths = '150, 300, 315, 330, 360, 480, 540, 630, 720'
       assign loading = 'eager'
       assign fetchpriority = 'high'
-      assign preload = 'true'
     endif
 
-    render 'image', image: media.preview_image, sizes: sizes, loading: loading, fetchpriority: fetchpriority, preload: preload, widths: widths, id: media.id, alt: image_alt, product_media: true
+    if img_sizes != ''
+      assign sizes = img_sizes
+    endif
+
+    assign image_id = media.id
+    assign is_simple_img = false
+    if media.media_type != 'image'
+      assign image_id = nil
+      assign is_simple_img = true
+    endif
+
+    render 'image', image: media.preview_image, simple: is_simple_img, widths: image_widths, sizes: sizes, loading: loading, fetchpriority: fetchpriority, preload: preload, id: image_id, alt: image_alt
+  endcapture
+
+  capture media_display
+    case media.media_type
+      when 'external_video'
+        if media.host == 'youtube'
+          echo media | external_video_url: autoplay: true, mute: true, playsinline: true, controls: controls, loop: enable_video_looping, playlist: media.external_id | external_video_tag: loading: 'lazy'
+        else
+          echo media | external_video_url: autoplay: true, muted: true, playsinline: true, controls: controls, loop: enable_video_looping | external_video_tag: loading: 'lazy'
+        endif
+      when 'video'
+        echo media | media_tag: image_size: image_size, class: 'media-video', autoplay: true, muted: true, loop: enable_video_looping, controls: controls
+      when 'model'
+        echo media | model_viewer_tag: image_size: image_size, toggleable: true, data-model-id: media.id
+      else
+        echo media | media_tag: class: 'media-item', image_size: image_size
+    endcase
+  endcapture
+
+  capture deferred_media_classes
+    echo 'product-single__media deferred-media'
+    echo ' product-single__media--' | append: media.id
+    if media.media_type == 'external_video' or media.media_type == 'video'
+      echo ' product-single__media--video'
+    endif
+    if media.media_type == 'model'
+      echo ' product-single__media--model'
+    endif
   endcapture
 -%}
+
+{%- capture interaction_markup -%}
+  <button type="button"
+    class="deferred-media__poster"
+    aria-label="{{ view_string }} {{ image_alt }}"
+    data-deferred-media-button
+  >
+    <span class="deferred-media__poster-button">
+      {%- if media.media_type == 'model' -%}
+        {%- render 'icon-media-model' -%}
+      {%- else -%}
+        {%- render 'icon-media-video' -%}
+      {%- endif -%}
+    </span>
+
+    {{ image }}
+  </button>
+{%- endcapture -%}
 
 <div id="{{ media_wrapper_id }}"
   class="product-single__media-slide{% unless featured_media == media %} media--hidden{% endunless %}"
@@ -85,7 +146,8 @@
   {% if media.media_type == 'external_video' %}
     data-youtube-id="{{ media.external_id }}"
   {% endif %}
-  data-product-single-media-wrapper>
+  data-product-single-media-wrapper
+>
   {%- if media.media_type == 'image' -%}
     <div class="product-single__media product-single__media--image">
       <div class="product-single__media--image-height" style="padding-top: {{ media_padding_top }}%;"></div>
@@ -106,85 +168,22 @@
   {%- else -%}
 
     {%- case media.media_type -%}
-      {%- when 'external_video' -%}
-        <deferred-media class="product-single__media product-single__media--video deferred-media" data-deferred-media style="padding-top: {{ media_padding_top }}%;">
-          <button type="button" class="deferred-media__poster" aria-label="{{ 'general.accessibility.view' | t }} {{ media.alt | strip_html | escape }}" data-deferred-media-button>
-            <span class="deferred-media__poster-button">
-              {%- render 'icon-media-video' -%}
-            </span>
-
-            <img
-              srcset="{% if media.preview_image.width >= 288 %}{{ media.preview_image | img_url: '288x' }} 288w,{% endif %}
-                      {% if media.preview_image.width >= 576 %}{{ media.preview_image | img_url: '576x' }} 576w,{% endif %}
-                      {% if media.preview_image.width >= 550 %}{{ media.preview_image | img_url: '550x' }} 550w,{% endif %}
-                      {% if media.preview_image.width >= 1100 %}{{ media.preview_image | img_url: '1100x' }} 1100w{% endif %}"
-              src="{{ media | img_url: '550x550' }}"
-              sizes="(min-width: 1200px) calc((1200px - 10rem) / 2), (min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw - 4rem)"
-              loading="lazy"
-              width="576"
-              height="{{ 576 | divided_by: media.preview_image.aspect_ratio }}"
-              alt="{{ media.preview_image.alt | escape }}">
-          </button>
+      {%- when 'external_video' or 'video' or 'model' -%}
+        <deferred-media class="{{ deferred_media_classes }}"
+          data-deferred-media
+          style="padding-top: {{ media_padding_top }}%;"
+          {% if media.media_type != 'external_video' %} data-loop="{{ enable_video_looping }}"{% endif %}
+        >
+          {{ interaction_markup }}
 
           <template>
-            {%- if media.host == 'youtube' -%}
-              {{ media | external_video_url: autoplay: true, mute: true, playsinline: true, controls: controls, loop: enable_video_looping, playlist: media.external_id | external_video_tag: loading: 'lazy' }}
-            {%- else -%}
-              {{ media | external_video_url: autoplay: true, muted: true, playsinline: true, controls: controls, loop: enable_video_looping | external_video_tag: loading: 'lazy' }}
-            {%- endif -%}
+            {{ media_display }}
           </template>
         </deferred-media>
-      {%- when 'video' -%}
-        <deferred-media class="product-single__media product-single__media--video product-single__media--{{ media.id }} deferred-media" data-deferred-media style="padding-top: {{ media_padding_top }}%;" data-loop="{{ enable_video_looping }}">
-          <button type="button" class="deferred-media__poster" aria-label="{{ 'general.accessibility.view' | t }} {{ media.alt | strip_html | escape }}" data-deferred-media-button>
-            <span class="deferred-media__poster-button">
-              {%- render 'icon-media-video' -%}
-            </span>
 
-            <img
-              srcset="{% if media.preview_image.width >= 288 %}{{ media.preview_image | img_url: '288x' }} 288w,{% endif %}
-                      {% if media.preview_image.width >= 576 %}{{ media.preview_image | img_url: '576x' }} 576w,{% endif %}
-                      {% if media.preview_image.width >= 550 %}{{ media.preview_image | img_url: '550x' }} 550w,{% endif %}
-                      {% if media.preview_image.width >= 1100 %}{{ media.preview_image | img_url: '1100x' }} 1100w{% endif %}"
-              src="{{ media | img_url: '550x550' }}"
-              sizes="(min-width: 1200px) calc((1200px - 10rem) / 2), (min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw - 4rem)"
-              loading="lazy"
-              width="576"
-              height="{{ 576 | divided_by: media.preview_image.aspect_ratio }}"
-              alt="{{ media.preview_image.alt | escape }}">
-          </button>
-
-          <template>
-            {{ media | media_tag: image_size: image_size, class: 'media-video', autoplay: true, muted: true, loop: enable_video_looping, controls: controls }}
-          </template>
-        </deferred-media>
-      {%- when 'model' -%}
-        <deferred-media class="product-single__media product-single__media--model product-single__media--{{ media.id }} deferred-media" data-deferred-media style="padding-top: {{ media_padding_top }}%;" data-loop="{{ enable_video_looping }}">
-          <button type="button" class="deferred-media__poster" aria-label="{{ 'general.accessibility.view' | t }} {{ media.alt | strip_html | escape }}" data-deferred-media-button>
-            <span class="deferred-media__poster-button">
-              {%- render 'icon-media-model' -%}
-            </span>
-
-            <img
-              srcset="{% if media.preview_image.width >= 288 %}{{ media.preview_image | img_url: '288x' }} 288w,{% endif %}
-                      {% if media.preview_image.width >= 576 %}{{ media.preview_image | img_url: '576x' }} 576w,{% endif %}
-                      {% if media.preview_image.width >= 550 %}{{ media.preview_image | img_url: '550x' }} 550w,{% endif %}
-                      {% if media.preview_image.width >= 1100 %}{{ media.preview_image | img_url: '1100x' }} 1100w{% endif %}"
-              src="{{ media | img_url: '550x550' }}"
-              sizes="(min-width: 1200px) calc((1200px - 10rem) / 2), (min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw - 4rem)"
-              loading="lazy"
-              width="576"
-              height="{{ 576 | divided_by: media.preview_image.aspect_ratio }}"
-              alt="{{ media.preview_image.alt | escape }}">
-          </button>
-
-          <template>
-            {{ media | model_viewer_tag: image_size: image_size, toggleable: true, data-model-id: media.id }}
-          </template>
-        </deferred-media>
       {%- else -%}
         <div class="product-single__media" style="padding-top: {{ media_padding_top }}%;">
-          {{ media | media_tag: class: 'media-item', image_size: image_size }}
+          {{ media_display }}
         </div>
     {%- endcase -%}
   {%- endif -%}

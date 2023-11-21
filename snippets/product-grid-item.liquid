@@ -9,12 +9,17 @@
     - animation_delay: {Number} Factor based on grid items per row
     - animation_anchor: {String} Hook for the AOS animation
     - image_aspect_ratio_setting: {String} image aspect ratio setting from section settings
+    - section_width: {String} Section width setting ( optional )
+    - sizes: {String} Image sizes for image render snippet ( optional )
+    - item_index: (Number) Element index in the forloop
 
     Usage:
     {% render 'product-grid-item', product: product, carousel: carousel, animation: animation, animation_delay: animation_delay, image_aspect_ratio_setting: image_aspect_ratio_setting %}
 {%- endcomment -%}
 
 {%- liquid
+  assign heading_style = settings.heading_style
+  assign enable_filters = section.settings.enable_filters
   assign columns = columns | default: settings.products_per_row_on_desktop | plus: 0
   assign columns_mobile = columns_mobile | default: settings.products_per_row_on_mobile | plus: 0
 
@@ -39,10 +44,13 @@
       assign size_desktop = 'one-whole'
     when 2
       assign size_desktop = 'one-half'
+      assign columns_tablet = 2
     when 3
       assign size_desktop = 'one-third'
+      assign columns_tablet = 3
     when 4
       assign size_desktop = 'one-quarter'
+      assign columns_tablet = 3
   endcase
 
   case columns_mobile
@@ -55,6 +63,16 @@
   if carousel
     assign size_mobile = 'mobile--one-whole'
     assign tabindex_hidden = true
+  endif
+
+  comment
+    Preload the first couple of rows of product grid items (only the featured images, no hover or variant ones)
+  endcomment
+  assign limit = settings.products_per_row_on_desktop | times: 2
+  if template.name == 'collection' and item_index < limit
+    assign loading = 'eager'
+    assign fetchpriority = 'high'
+    assign preload = true
   endif
 
   assign on_sale = false
@@ -125,6 +143,8 @@
     endfor
   endif
 
+  assign color_option = product.options_by_name[color_label].values
+
   capture cart_icon
     case settings.cart_icon
       when 'bag'
@@ -136,7 +156,7 @@
 -%}
 
 {%- capture product_title -%}
-  <a class="product-grid-item__title" href="{{ product.url | within: collection }}" aria-label="{{ product.title | strip_html | escape }}"{% if index > 1 %} tabindex="-1"{% endif %} data-grid-link>
+  <a class="product-grid-item__title {{ heading_style }}" href="{{ product.url }}" aria-label="{{ product.title | strip_html | escape }}"{% if index > 1 %} tabindex="-1"{% endif %} data-grid-link>
     {{- product.title | strip_html | escape -}}
   </a>
 {%- endcapture -%}
@@ -146,7 +166,7 @@
 {%- endcapture -%}
 
 {%- capture product_info_price -%}
-  <a class="product-grid-item__price price" href="{{ product.url | within: collection }}"{% if index > 1 %} tabindex="-1"{% endif %} data-grid-link>
+  <a class="product-grid-item__price price" href="{{ product.url }}"{% if index > 1 %} tabindex="-1"{% endif %} data-grid-link>
     {%- liquid
       if product.price == 0 and product.price_varies == false
         assign product_price = 'products.product.free' | t
@@ -219,10 +239,52 @@
           assign image_container_class = image_container_class | append: ' product__media__container--landscape'
         endif
       endif
+
+      comment
+        Images sizes
+      endcomment
+      assign gutter_space = columns | minus: 1 | times: 20 | append: 'px'
+      assign gutter_space_tablet = columns_tablet | minus: 1 | times: 20 | append: 'px'
+      assign gutter_space_mobile = 20 | append: 'px'
+
+      if columns_mobile == 1
+        assign gutter_space_mobile = 0 | append: 'px'
+      endif
+
+      assign wrapper_width_xlg = '100vw - 120px'
+      if section_width == 'wrapper'
+        assign wrapper_width_xlg = '1440px - 120px'
+      endif
+      assign wrapper_width_lg = '100vw - 120px'
+      assign wrapper_width_md = '100vw - 40px'
+      assign wrapper_width_sm = '100vw - 40px'
+
+      if enable_filters
+        assign wrapper_width_xlg = wrapper_width_xlg | append: ' - 330px'
+        assign wrapper_width_lg = wrapper_width_lg | append: ' - 270px'
+        assign wrapper_width_md = wrapper_width_md | append: ' - 240px'
+      endif
+
+      assign img_width_xlg = 'calc((' | append: wrapper_width_xlg | append: ' - ' | append: gutter_space | append: ') / ' | append: columns | append: ')'
+      assign img_width_lg = 'calc((' | append: wrapper_width_lg | append: ' - ' | append: gutter_space | append: ') / ' | append: columns | append: ')'
+      assign img_width_md = 'calc((' | append: wrapper_width_md | append: ' - ' | append: gutter_space_tablet | append: ') / ' | append: columns_tablet | append: ')'
+      assign img_width_sm = 'calc((' | append: wrapper_width_sm | append: ' - ' | append: gutter_space_mobile | append: ') / ' | append: columns_mobile | append: ')'
+
+      assign sizes_default = '(min-width: 1440px) ' | append: img_width_xlg | append: ', (min-width: 1024px) ' | append: img_width_lg | append: ', (min-width: 768px) ' | append: img_width_md | append: ', ' | append: img_width_sm
+      assign sizes = sizes | default: sizes_default
+
+      case settings.image_size
+        when 'cover'
+          assign image_cover = true
+        when 'contain'
+          assign image_cover = false
+      endcase
+
+      assign aspect_ratio = 1 | divided_by: image_aspect_ratio_setting
     -%}
     <div class="{{ image_container_class }}" style="--aspect-ratio: {{ image_aspect_ratio }};">
       <a class="product__media__holder"
-        href="{{ product.url | within: collection }}"
+        href="{{ product.url }}"
         aria-label="{{ product.title | strip_html | escape }}"
         data-grid-link
         {% if animations_enabled %}
@@ -236,36 +298,83 @@
         {% endif %}
         {% if index > 1 %} tabindex="-1"{% endif %} >
         {%- if product.media.size > 0 -%}
-          <div class="product__media__image{% if product_grid_hover %} product__media__image--hover-{{ product_grid_hover_animation }}{% endif %} lazy-image" style="background-image: url({{ image | img_url: '1x1' }});" data-product-media-featured>
+          <deferred-loading
+            class="product__media__image{% if product_grid_hover %} product__media__image--hover-{{ product_grid_hover_animation }}{% endif %}"
+            data-product-media-featured
+            {% if has_colors %} data-deferred-container="[data-product-block]"{% endif %}
+          >
             {%- capture image_attributes -%}
               data-product-image
-              data-grid-image="{{ forloop.index0 }}"
-              data-grid-image-target="{{ media.id }}"
-              data-grid-image-target-default="{{ media.id }}"
+              data-grid-image
             {%- endcapture -%}
 
             {%- render 'image-fill',
+              cover: image_cover,
               is_background: true,
               img_object: image,
               image_attributes: image_attributes,
+              sizes: sizes,
+              aspect_ratio: aspect_ratio,
+              loading: loading,
+              fetchpriority: fetchpriority,
+              preload: preload,
               classes: 'product__media product__media--featured-visible' -%}
 
             {%- if has_colors -%}
-              {%- render 'image-fill',
-                is_background: true,
-                img_object: image,
-                image_attributes: 'data-product-image-secondary',
-                classes: 'product__media product__media--featured-secondary' -%}
+              <template>
+                <div data-deferred-content>
+                  {%- for option in color_option -%}
+                    {%- liquid
+                      for variant in product.variants
+                        if variant.options contains option
+                          assign swatch_variant = variant
+                          break
+                        endif
+                      endfor
+                    -%}
+                    {%- if swatch_variant.featured_image != blank -%}
+                      {%- capture image_variant_attributes -%}
+                        data-grid-image
+                        data-variant-id="{{ swatch_variant.id }}"
+                      {%- endcapture -%}
+                      {%- capture image_secondary_variant_attributes -%}
+                        data-variant-secondary-id="{{ swatch_variant.id }}"
+                      {%- endcapture -%}
+                      {%- render 'image-fill',
+                        cover: image_cover,
+                        is_background: true,
+                        img_object: swatch_variant.featured_image,
+                        image_attributes: image_variant_attributes,
+                        sizes: sizes,
+                        aspect_ratio: aspect_ratio,
+                        classes: 'product__media' -%}
+                      {%- render 'image-fill',
+                        cover: image_cover,
+                        is_background: true,
+                        img_object: swatch_variant.featured_image,
+                        image_attributes: image_secondary_variant_attributes,
+                        sizes: sizes,
+                        aspect_ratio: aspect_ratio,
+                        classes: 'product__media product__media--featured-secondary' -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                </div>
+              </template>
             {%- endif -%}
 
             <span class="visually-hidden">{{ image.alt | default: product.title | strip_html | escape }}</span>
-          </div>
+          </deferred-loading>
         {%- else -%}
           <div class="product__media__image">
             {%- render 'image-fill',
+              cover: image_cover,
               is_background: true,
               img_object: product.featured_image,
               classes: 'product__media',
+              aspect_ratio: aspect_ratio,
+              loading: loading,
+              fetchpriority: fetchpriority,
+              preload: preload,
               placeholder_svg: 'product-1' -%}
           </div>
         {%- endif -%}
@@ -276,10 +385,13 @@
               {%- if media != featured_media -%}
                 {%- assign image = media.preview_image -%}
 
-                <div class="product__media__slide lazy-image" data-product-media-slideshow-slide style="background-image: url({{ image | img_url: '1x1' }});">
+                <div class="product__media__slide" data-product-media-slideshow-slide>
                   {%- render 'image-fill',
+                    cover: image_cover,
                     is_background: true,
                     img_object: image,
+                    sizes: sizes,
+                    aspect_ratio: aspect_ratio,
                     classes: 'product__media' -%}
                 </div>
               {%- endif -%}
@@ -293,19 +405,22 @@
           {%- endif -%}
         {%- elsif product_grid_hover == 'image' and product.media[1].preview_image != blank -%}
           {%- assign image = product.media[1].preview_image -%}
-          <div class="product__media__hover product__media__hover--{{ product_grid_hover_animation }} lazy-image"
-            style="background-image: url({{ image | img_url: '1x1' }});"
-            {% if has_colors %} data-load-hovers{% endif %}>
-
+          <deferred-loading
+            class="product__media__hover product__media__hover--{{ product_grid_hover_animation }}"
+            {% if has_colors %} data-deferred-container="[data-product-block]" data-deferred-triggers="[data-deferred-trigger-element]"{% endif %}
+          >
             {%- render 'image-fill',
+              cover: image_cover,
               is_background: true,
               img_object: image,
+              sizes: sizes,
               image_attributes: 'data-product-image-hover',
+              aspect_ratio: aspect_ratio,
               classes: 'product__media__hover-img product__media__hover-img--visible product__media' -%}
 
             {%- if has_colors -%}
               <template>
-                <div class="product__media-hovers">
+                <div data-deferred-content>
                   {%- for variant in product.variants -%}
                     {%- assign featured_image_index = variant.featured_image.position -%}
                     {%- if featured_image_index > 1 -%}
@@ -317,9 +432,13 @@
                         {%- endcapture -%}
 
                         {%- render 'image-fill',
+                          cover: image_cover,
                           is_background: true,
                           img_object: swatch_image_hover,
                           image_attributes: image_attributes,
+                          sizes: sizes,
+                          loading: 'eager',
+                          aspect_ratio: aspect_ratio,
                           classes: 'product__media product__media__hover-img' -%}
                       {%- endif -%}
                     {%- endif -%}
@@ -327,11 +446,7 @@
                 </div>
               </template>
             {%- endif -%}
-
-            <noscript>
-              <div class="product__media__hover-img product__media" style="background-image: url({{ image | img_url: '600x' }})"></div>
-            </noscript>
-          </div>
+          </deferred-loading>
         {%- endif -%}
       </a>{%- liquid
   assign show_sale_badge = settings.show_sale_badge
@@ -454,7 +569,7 @@
             {%- endform -%}
           {%- else -%}
             <a class="btn--quick {{ settings.button_style }}"
-              href="{{ product.url | within: collection }}"
+              href="{{ product.url }}"
               aria-label="{{ 'products.product.quick_view' | t }}"
               data-handle="{{ product.handle }}"
               data-button-quick-view
@@ -488,8 +603,6 @@
     {% endif %}>
 
     {%- if has_colors -%}
-      {%- assign color_option = product.options_by_name[color_label].values -%}
-
       <product-grid-item-swatch class="product-grid-item__swatch
         {%- if settings.color_swatches_product_style == 'rectangle' %} product-grid__swatch--rectangle{% endif %}"
         data-swatch-handle="{{ product.handle }}"
@@ -522,7 +635,7 @@
             </div>
             {%- assign color_variant_text = 'general.swatches.color_variant' | t -%}
             {%- assign swatch_product_title = product.title | strip_html | escape -%}
-            <a href="{{ product.url }}?variant={{ swatch_variant.id }}" data-swatch-variant="{{ swatch_variant.id }}"  class="swatch__link">{{ swatch_product_title | append: ' - ' | append: color_variant_text | append: ': ' | append: option }}</a>
+            <a href="{{ product.url }}?variant={{ swatch_variant.id }}" data-swatch-variant="{{ swatch_variant.id }}" data-deferred-trigger-element class="swatch__link">{{ swatch_product_title | append: ' - ' | append: color_variant_text | append: ': ' | append: option }}</a>
           </div>
         {%- endfor -%}
 
@@ -566,7 +679,7 @@
     {%- endunless -%}
 
     {%- if settings.show_rating and product.metafields.reviews != empty -%}
-      <a href="{{ product.url | within: collection }}" class="product-grid-item__rating"{% if index > 1 %} tabindex="-1"{% endif %} data-grid-link>
+      <a href="{{ product.url }}" class="product-grid-item__rating"{% if index > 1 %} tabindex="-1"{% endif %} data-grid-link>
         {%- render 'rating', reviews: product.metafields.reviews, show_rating_count: settings.show_rating_count, tabindex_hidden: tabindex_hidden -%}
       </a>
     {%- endif -%}

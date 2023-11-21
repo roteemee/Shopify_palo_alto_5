@@ -5,6 +5,7 @@
   - article: {Object} article (required)
   - id: {String} Unique ID
   - classes: {String} Additional classes
+  - img_sizes: {String} - A set of media conditions for `img` sizes attribute (Optional)
   - animation_delay: {Number} Factor based on grid items per row
   - animation_anchor: {String} Hook for the AOS animation
   - default_color: {Color} Applies if the blog has no image set
@@ -37,9 +38,11 @@
   assign classes = classes | prepend: ' ' | default: ''
   assign id = id | default: ''
   assign article_style = article_style | default: 'photo'
+  assign sizes = img_sizes | default: 'auto'
   assign animations_enabled = settings.animations_enabled
   assign animation_anchor = animation_anchor | default: section.id
   assign animation_delay = animation_delay | default: 150
+  assign aspect_ratio = 1 | divided_by: section.settings.image_aspect_ratio
 
   if blog
     assign blog_url = blog.url
@@ -101,16 +104,21 @@
       assign container_animation = animation_fadeup
     endif
   endif
+
+  capture image_classes
+    echo 'blog__post-image'
+    unless article_image or default_color == 'none'
+      echo ' ' | append: default_color
+    endunless
+  endcapture
 -%}
 
 {%- capture article_image -%}
   <a href="{{ article_url }}" class="blog__post-image-link">
     {%- if article_image or default_color == 'none' -%}
-      <div class="blog__post-image" {{ image_animation }}>
-        {%- render 'image-fill', is_background: true, img_object: article_image -%}
-      </div>
+      {%- render 'image-fill', is_background: true, img_object: article_image, sizes: sizes, aspect_ratio: aspect_ratio, classes: image_classes, image_attributes: image_animation -%}
     {%- else -%}
-      <div class="blog__post-image {{ default_color }}"></div>
+      <div class="{{ image_classes }} background-size-cover" {{ image_animation }}></div>
     {%- endif -%}
 
     <div class="blog__post-overlay"></div>

@@ -250,6 +250,10 @@
   @media screen and (min-width: 768px) and (max-width: 1023px) {
     {{ selector_id }} {
       --grid: repeat({{ columns_small }}, minmax(0, 1fr));
+
+      {%- if is_split -%}
+        --grid-tablet: repeat(2, minmax(0, 1fr));
+      {%- endif -%}
     }
   }
 
@@ -442,6 +446,84 @@
         echo 'collection-promo__content--stacked'
     endcase
   endcapture
+
+  comment
+    Image desktop sizes
+  endcomment
+
+  assign wrapper_width_desktop = '(100vw - 120px)'
+
+  if section.settings.width == 'wrapper'
+    assign wrapper_width_desktop = '(1440px - 120px)'
+  endif
+
+  assign img_width_lg = 'calc' | append: wrapper_width_desktop
+
+  if columns == 4
+    case promo_width
+      when 'auto'
+        assign img_width_lg = 'calc((' | append: wrapper_width_desktop | append: ' - 20px * 3) / 4)'
+      when 'half'
+        assign img_width_lg = 'calc((' | append: wrapper_width_desktop | append: ' - 20px * 2) / 2)'
+    endcase
+  elsif columns == 3
+    case promo_width
+      when 'auto'
+        assign img_width_lg = 'calc((' | append: wrapper_width_desktop | append: ' - 20px * 2) / 3)'
+      when 'half'
+        assign img_width_lg = 'calc(((' | append: wrapper_width_desktop | append: ' - 20px) / 3) * 2)'
+    endcase
+  else
+    case promo_width
+      when 'auto'
+        assign img_width_lg = 'calc((' | append: wrapper_width_desktop | append: ' - 20px) / 2)'
+    endcase
+  endif
+
+  comment
+    Image tablet sizes
+  endcomment
+
+  assign img_width_md = 'calc(100vw - 40px)'
+
+  case promo_width
+    when 'auto'
+      assign img_width_md = 'calc(((100vw - 40px) - 20px * 2) / 3)'
+    when 'half'
+      assign img_width_md = 'calc((((100vw - 40px) - 20px) / 3) * 2)'
+  endcase
+
+  comment
+    Split image desktop sizes
+  endcomment
+
+  if section.settings.products_layout == 'split-left' or section.settings.products_layout == 'split-right'
+    assign img_width_lg = 'calc((' | append: wrapper_width_desktop | append: ' - 40px) / 2)'
+    assign img_width_md = 'calc(((100vw - 40px) - 40px) / 2)'
+
+    if promo_width == 'auto'
+      assign img_width_lg = 'calc((((' | append: wrapper_width_desktop | append: ' - 40px) / 2) - 20px) / 2)'
+      assign img_width_md = 'calc(((((100vw - 40px) - 40px) / 2) - 20px) / 2)'
+    endif
+  endif
+
+  assign wrapper_width_mobile = '(100vw - 40px)'
+  assign img_width_sm = 'calc' | append: wrapper_width_mobile
+
+  if promo_width == 'auto' and columns_mobile == 2
+    assign img_width_sm = 'calc((' | append: wrapper_width_mobile | append: ' - 20px) /2)'
+  endif
+
+  if section.settings.enable_slider_mobile
+    assign wrapper_width_mobile = '(100vw - 20px)'
+    assign img_width_sm = 'calc(' | append: wrapper_width_mobile | append: ' - 40px)'
+
+    if columns_mobile == 2
+      assign img_width_sm = 'calc(((' | append: wrapper_width_mobile | append: ' * 0.9) / 2) - 20px)'
+    endif
+  endif
+
+  assign sizes = '(min-width: 1024px) ' | append: img_width_lg | append: ', (min-width: 768px) ' | append: img_width_md | append: ', ' | append: img_width_sm
 -%}{% comment %}
   Enhanced text decorations options - Liqiud variables
 
@@ -609,9 +691,7 @@
   {%- endif -%}
 
   <div class="collection-promo__bg">
-    {%- if promo_image != blank -%}
-      {%- render 'image-fill', is_background: true, img_object: promo_image, classes: 'collection-promo__image' -%}
-    {%- endif -%}
+    {%- render 'image-fill', is_background: true, img_object: promo_image, sizes: sizes, classes: 'collection-promo__image' -%}
   </div>
 
   {%- if promo_image != blank -%}
@@ -709,7 +789,6 @@
           {%- if carousel -%}
             {%- assign animation_delay = forloop.index0 -%}
           {%- else -%}
-            {%- assign columns = settings.products_per_row_on_desktop | plus: 0 -%}
             {%- assign animation_delay = forloop.index0 | modulo: columns | times: 1 -%}
           {%- endif -%}{%- for promo in promos_array -%}
   {%- liquid
@@ -852,10 +931,10 @@
   assign items_on_row_remaining = items_on_row_remaining | minus: 1
 
   if collection
-    render 'product-grid-item', product: product, animation_delay: animation_delay, tablet_counter: tablet_counter, mobile_counter: mobile_counter, carousel: carousel, columns: columns
+    render 'product-grid-item', product: product, animation_delay: animation_delay, tablet_counter: tablet_counter, mobile_counter: mobile_counter, carousel: carousel, columns: columns, section_width: section.settings.width, item_index: forloop.index0
   else
     capture placeholder_index
-      cycle 1, 2, 3, 4, 5, 6
+      cycle 1, 2, 3, 5, 6
     endcapture
     render 'product-grid-item--onboarding', columns_mobile: columns_mobile, carousel: carousel, index: placeholder_index, animation_delay: animation_delay, columns: columns
   endif
@@ -875,10 +954,9 @@
             if carousel
               assign animation_delay = forloop.index0
             else
-              assign columns = settings.products_per_row_on_desktop | plus: 0
               assign animation_delay = forloop.index0 | modulo: columns | times: 1
             endif
-              render 'product-grid-item', columns: columns, columns_mobile: columns_mobile, product: product, carousel: carousel, animation_delay: animation_delay, tablet_counter: tablet_counter, mobile_counter: mobile_counter
+              render 'product-grid-item', columns: columns, columns_mobile: columns_mobile, product: product, carousel: carousel, animation_delay: animation_delay, tablet_counter: tablet_counter, mobile_counter: mobile_counter, section_width: section_width
             unless carousel
               assign tablet_counter = tablet_counter | plus: 1
               assign mobile_counter = mobile_counter | plus: 1
@@ -904,11 +982,10 @@
       assign mobile_counter = 1
     -%}
     {%- for i in (1..number_of_products) -%}
-      {%- capture index -%}{%- cycle 1, 2, 3, 4, 5, 6 -%}{%- endcapture -%}
+      {%- capture index -%}{%- cycle 1, 2, 3, 5, 6 -%}{%- endcapture -%}
       {%- if carousel -%}
         {%- assign animation_delay = forloop.index0 -%}
       {%- else -%}
-        {%- assign columns = settings.products_per_row_on_desktop | plus: 0 -%}
         {%- assign animation_delay = forloop.index0 | modulo: columns | times: 1 -%}
       {%- endif -%}{%- for promo in promos_array -%}
   {%- liquid
@@ -1051,10 +1128,10 @@
   assign items_on_row_remaining = items_on_row_remaining | minus: 1
 
   if collection
-    render 'product-grid-item', product: product, animation_delay: animation_delay, tablet_counter: tablet_counter, mobile_counter: mobile_counter, carousel: carousel, columns: columns
+    render 'product-grid-item', product: product, animation_delay: animation_delay, tablet_counter: tablet_counter, mobile_counter: mobile_counter, carousel: carousel, columns: columns, section_width: section.settings.width, item_index: forloop.index0
   else
     capture placeholder_index
-      cycle 1, 2, 3, 4, 5, 6
+      cycle 1, 2, 3, 5, 6
     endcapture
     render 'product-grid-item--onboarding', columns_mobile: columns_mobile, carousel: carousel, index: placeholder_index, animation_delay: animation_delay, columns: columns
   endif
@@ -1070,11 +1147,10 @@
 -%}{%- endfor -%}
   {%- else -%}
     {%- for i in (1..number_of_products) -%}
-      {%- capture index -%}{%- cycle 1, 2, 3, 4, 5, 6 -%}{%- endcapture -%}
+      {%- capture index -%}{%- cycle 1, 2, 3, 5, 6 -%}{%- endcapture -%}
       {%- if carousel -%}
         {%- assign animation_delay = forloop.index0 -%}
       {%- else -%}
-        {%- assign columns = settings.products_per_row_on_desktop | plus: 0 -%}
         {%- assign animation_delay = forloop.index0 | modulo: columns | times: 1 -%}
       {%- endif -%}
 

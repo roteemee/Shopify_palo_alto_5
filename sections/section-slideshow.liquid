@@ -51,6 +51,9 @@
         assign image_mobile_aspect_ratio = image_mobile.aspect_ratio | default: 0.66
         assign subheading = block.settings.subheading
         assign title = block.settings.title
+        assign heading_highlight_type = block.settings.heading_highlight_type
+        assign highlight_color = block.settings.highlight_color
+        assign highlight_text_color = block.settings.highlight_text_color
         assign text = block.settings.text
         assign text_color = block.settings.text_color
         assign text_position = block.settings.text_position
@@ -100,14 +103,166 @@
         endcase
 
         assign image_link = false
-        if button_1_link != blank and button_1_text == blank and button_2_text == blank and video_text == blank and video_link == blank
+        if button_1_link != blank and button_1_text == blank and button_2_text == blank
           assign image_link = true
         endif
-      -%}
 
-      {%- style -%}
+        if forloop.first and section.index < 3
+          assign loading = 'eager'
+          assign fetchpriority = 'high'
+          assign preload = true
+        else
+          assign loading = 'lazy'
+          assign fetchpriority = 'auto'
+          assign preload = false
+        endif
+      -%}{% comment %}
+  Enhanced text decorations options - Liqiud variables
+
+  Dependencies:
+    - Title liquid object from settings: `assign title = section.settings.title`
+    - Highlight type from settings: `assign heading_highlight_type = section.settings.heading_highlight_type`
+    - Highlight color from settings: `assign highlight_color = section.settings.highlight_color or assign highlight_color = block.settings.highlight_color`
+    - SVG icons:
+      - icon-squiggle.svg (assets)
+      - icon-circle.liquid (snippet)
+{% endcomment %}
+
+{%- liquid
+  comment
+   Highlighted words count
+  endcomment
+  assign title_temp = title | split: '<em>'
+  assign em_arr = ''
+  if title_temp.size > 1
+    for text_part in title_temp offset: 1
+      assign em_text = text_part | split: '</em>' | first
+      assign em_arr = em_arr | append: '#separator#' | append: em_text
+    endfor
+  endif
+  assign em_arr = em_arr | split: '#separator#'
+  assign words_count_arr = ''
+  assign letters_count_arr = ''
+  if em_arr.size > 0
+    for words in em_arr offset: 1
+      assign word = words | split: ' '
+      assign words_count_arr = words_count_arr | append: word.size | append: ', '
+      assign letters_count_arr = letters_count_arr | append: words.size | append: ', '
+    endfor
+  endif
+
+  assign words_count_arr = words_count_arr | replace_last: ', ', '' | split: ', '
+  assign letters_count_arr = letters_count_arr | replace_last: ', ', '' | split: ', '
+
+  comment
+   Main highlight types logic
+  endcomment
+  assign icon_url = ''
+  assign icon_color = 'var(--text)'
+
+  if highlight_color != 'rgba(0,0,0,0)' and highlight_color != ''
+    assign icon_color = highlight_color
+  endif
+
+  capture text_highlight_icon
+    assign has_text_highlight = false
+
+    if title contains '<em>'
+      case heading_highlight_type
+        when 'squiggle'
+          assign icon_url = 'icon-squiggle.svg' | asset_url
+          echo '<span class="text-highlight__icon"></span>'
+        when 'circle'
+          echo '<span class="text-highlight__icon">'
+          render 'icon-circle', color: icon_color
+          echo '</span>'
+        when 'stroke' or 'circle' or 'squiggle' or 'highlight' or 'highlight-color' or 'underline'
+          assign has_text_highlight = true
+      endcase
+    endif
+  endcapture
+
+  capture icon_bg
+    if icon_url != ''
+      echo 'url( "' | append: icon_url | append: '" )'
+    else
+      echo 'none'
+    endif
+  endcapture
+  capture icon_styles
+    assign icon_bg = icon_bg | replace: '"', "'"
+    echo 'style="--icon-url: ' | append: icon_bg | append: ';' | append: '--icon-color: ' | append: icon_color | append: ';"'
+  endcapture
+
+  assign text_highlight_wrapper_class = 'text-highlight-wrapper' | append: ' text-highlight-wrapper--' | append: heading_highlight_type
+  capture text_highlight_start
+    echo '<span class="text-highlight" ' | append: icon_styles | append: '>'
+  endcapture
+  capture text_highlight_end
+    echo text_highlight_icon
+    echo '</span>'
+  endcapture
+
+  if title != blank and title contains '<em>'
+    case heading_highlight_type
+      when 'squiggle' or 'circle' or 'stroke' or 'highlight' or 'highlight-color' or 'underline'
+        assign title = title | replace: '<em>', text_highlight_start | replace: '</em>', text_highlight_end
+
+      when 'circle'
+        comment
+          Update icon's holder class based on the italicised words count
+        endcomment
+        assign title = title | split: 'class="text-highlight"'
+        assign title_mod = ''
+        for title_part in title offset: 1
+          assign current_part = title_part
+
+          if title_part contains 'text-highlight__icon'
+            capture highlight_icon_classes
+              echo 'text-highlight__icon'
+              assign current_count = words_count_arr[forloop.index0] | times: 1
+              assign letters_count = letters_count_arr[forloop.index0] | times: 1
+              if current_count == 1
+                echo ' text-highlight__icon--single-word'
+              endif
+              if letters_count < 6
+                echo ' text-highlight__icon--short'
+                echo ' text-highlight__icon--l' | append: letters_count
+              endif
+              if letters_count > 15
+                echo ' text-highlight__icon--long'
+              endif
+            endcapture
+
+            assign current_part = title_part | replace: 'text-highlight__icon', highlight_icon_classes
+          endif
+
+          unless forloop.last
+            assign title_mod = title_mod | append: current_part | append: 'class="text-highlight"'
+          else
+            assign title_mod = title_mod | append: current_part
+          endunless
+        endfor
+        assign title_first_part = title | first | append: 'class="text-highlight"'
+        assign title_mod = title_mod | prepend: title_first_part
+        assign title = title_mod
+    endcase
+  endif
+-%}{%- style -%}
         #Slideshow--{{ section.id }} .item--{{ block.id }} {
           --overlay-opacity: {{ overlay_opacity }};
+
+          {%- if heading_highlight_type != 'highlight' -%}
+            --highlight-color: var(--text);
+          {%- endif -%}
+
+          {%- if highlight_color != 'rgba(0,0,0,0)' and highlight_color != '' -%}
+            --highlight-color: {{ highlight_color }};
+          {%- endif -%}
+
+          {%- if highlight_text_color != 'rgba(0,0,0,0)' and highlight_text_color != '' -%}
+            --highlight-text-color: {{ highlight_text_color }};
+          {%- endif -%}
         }
         {%- if slide_height == 'original-height' and enable_mobile_height -%}
           @media screen and (min-width: 768px) {
@@ -132,14 +287,10 @@
         data-style="{{ text_color }}">
         <div class="overlay"></div>
 
-        {%- if image_link -%}
-          <a class="slide__link" href="{{ button_1_link }}" aria-label="{{ title | strip_html | escape }}"{% if forloop.index > 1 %} tabindex="-1"{% endif %}>
-        {%- endif -%}
-
         {%- if image_mobile != blank -%}
           <div class="slide__image__container slide__image__container--mobile">
             <div class="slide__image__inner">
-              {%- render 'image-fill', is_background: true, img_object: image_mobile, classes: 'slide__image' -%}
+              {%- render 'image-fill', is_background: true, img_object: image_mobile, sizes: '100vw', classes: 'slide__image', loading: loading, fetchpriority: fetchpriority, preload: preload -%}
             </div>
           </div>
         {%- endif -%}
@@ -147,7 +298,7 @@
         <div class="slide__image__container slide__image__container--desktop{% unless image %} slide__image__container--placeholder{% endunless %}">
           <div class="slide__image__inner">
             {%- if image != blank -%}
-              {%- render 'image-fill', is_background: true, img_object: image, classes: 'slide__image' -%}
+              {%- render 'image-fill', is_background: true, img_object: image, sizes: '100vw', classes: 'slide__image', loading: loading, fetchpriority: fetchpriority, preload: preload -%}
             {%- else -%}
               <div class="slide__image slide__image--desktop slide__image--placeholder background-size-cover">
                 <div class="slide__image__svg">
@@ -160,6 +311,11 @@
         </div>
 
         <div class="slide__text__container">
+
+          {%- if image_link -%}
+            <a class="slide__link" href="{{ button_1_link }}" aria-label="{{ title | strip_html | escape }}"{% if forloop.index > 1 %} tabindex="-1"{% endif %}></a>
+          {%- endif -%}
+
           <div class="slide__text__wrapper slide__text__wrapper--{{ text_width }}{% if show_text_shadow %} backdrop--radial{% endif %}">
             {%- if video_link != blank or video_text != blank -%}
               <div class="slide__buttons main-buttons main-buttons--video">{%- liquid
@@ -242,23 +398,49 @@
             {%- endif -%}
 
             {%- if title != blank -%}
-              <h1 class="slide__heading main-heading">
+              <h1 class="slide__heading main-heading{% if has_text_highlight %} {{ text_highlight_wrapper_class }}{% endif %}">
                 {%- liquid
                   if animations_enabled
-                    assign title_lines = title | escape | newline_to_br | split: '<br />'
+                    assign title_lines = title | split: '<p>'
                     for line in title_lines
-                      echo '<span class="text-reveal__cropper"><span data-aos="fade-up" data-aos-anchor="' | append: animation_anchor | append: '" data-aos-delay="' | append: animation_delay | append: '">'
-                      echo line
-                      echo '</span></span>'
+                      if line != blank
+                        echo '<span class="text-reveal__cropper"><span class="text-highlight__break" data-aos="come-up" data-aos-anchor="' | append: animation_anchor | append: '" data-aos-delay="' | append: animation_delay | append: '">'
 
-                      unless forloop.last
-                        assign animation_delay = animation_delay | plus: 150
-                      endunless
+                          assign line_with_links = line | split: '<a'
+                          assign line_mod  = ''
+
+                          if line_with_links.size > 1 and has_text_highlight
+                            for link_html_part in line_with_links
+                              if link_html_part != blank
+                                assign link_html_mod = link_html_part
+                                if link_html_part contains ' href='
+                                  assign link_html_mod = link_html_part | prepend: '<a'
+                                endif
+
+                                if link_html_part contains 'text-highlight'
+                                  assign link_html_mod = link_html_mod | replace_first: '><span class="text-highlight', ' data-has-highlight><span class="text-highlight'
+                                endif
+
+                                assign line_mod = line_mod | append: link_html_mod
+                              endif
+                            endfor
+
+                            echo line_mod | replace: '</p>', ''
+                          else
+                            echo line | replace: '</p>', ''
+                          endif
+
+                        echo '</span></span>'
+
+                        unless forloop.last
+                          assign animation_delay = animation_delay | plus: 150
+                        endunless
+                      endif
                     endfor
 
                     assign animation_delay = animation_delay | plus: 150
                   else
-                    echo title | escape
+                    render 'title-with-highlights', title: title, heading_highlight_type: heading_highlight_type, highlight_color: highlight_color, has_text_highlight: has_text_highlight
                   endif
                 -%}
               </h1>
@@ -316,10 +498,6 @@
             {%- endif -%}
           </div>
         </div>
-
-        {%- if image_link -%}
-          </a>
-        {%- endif -%}
       </div>
     {%- endfor -%}
   {%- else -%}
@@ -341,13 +519,13 @@
   "settings": [
     {
       "type": "header",
-      "content": "layout"
+      "content": "Layout"
     },
     {
       "type": "select",
       "id": "slide_height",
       "label": "Height",
-      "default": "full-height",
+      "default": "two-thirds-height",
       "options": [
         { "value": "full-height", "label": "Full screen" },
         { "value": "three-quarters-height", "label": "Three quarters of screen" },
@@ -397,7 +575,7 @@
       "type": "checkbox",
       "id": "show_nav_arrows",
       "label": "Show slide navigation arrows",
-      "default": true
+      "default": false
     },
     {
       "type": "checkbox",
@@ -455,7 +633,7 @@
       "type": "range",
       "id": "heading_size",
       "label": "Size",
-      "default": 120,
+      "default": 150,
       "min": 100,
       "max": 200,
       "step": 10,
@@ -540,10 +718,42 @@
           "label": "Subheading"
         },
         {
-          "type": "textarea",
+          "type": "richtext",
           "id": "title",
           "label": "Heading",
-          "default": "Welcome to Palo Alto"
+          "default": "<p>Welcome to Palo Alto</p>",
+          "info": "Highlight one or two key words in your heading by italicizing them, then choose the highlight option below."
+        },
+        {
+          "type": "header",
+          "content": "Highlight"
+        },
+        {
+          "type": "select",
+          "id": "heading_highlight_type",
+          "label": "Type",
+          "default": "circle",
+          "options": [
+            { "value": "italics", "label": "Italics (no decoration)" },
+            { "value": "highlight", "label": "Highlight" },
+            { "value": "highlight-color", "label": "Text color" },
+            { "value": "underline", "label": "Underline" },
+            { "value": "squiggle", "label": "Squiggle" },
+            { "value": "circle", "label": "Circle" },
+            { "value": "stroke", "label": "Stroke (outlined text)" }
+          ]
+        },
+        {
+          "type": "color",
+          "id": "highlight_color",
+          "label": "Highlight color",
+          "default": "#D43747"
+        },
+        {
+          "type": "color",
+          "id": "highlight_text_color",
+          "label": "Text color",
+          "default": "#000"
         },
         {
           "type": "textarea",

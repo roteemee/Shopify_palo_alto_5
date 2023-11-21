@@ -131,6 +131,9 @@
               assign text = block.settings.text
               assign image = block.settings.icon_image
               assign icon = block.settings.icon_name
+              assign retina_size = icons_width | times: 2
+              assign image_widths = icons_width | append: ', ' | append: retina_size
+              assign sizes = icons_width | append: 'px'
             -%}
 
             <div class="icons-row__item{{ mobile_item_class }}{% if boxes %} icons-row__item--box{% endif %}{% if has_subheading %} icons-row__item--center{% endif %}"
@@ -144,11 +147,13 @@
 
               {%- if image != blank or icon != 'none' -%}
                 <div class="icons-row__icon icon-stroke">
-                  {%- if image != blank -%}
-                    {%- render 'image-fill', img_object: image, classes: 'icons-row__image' -%}
-                  {%- else -%}
-                    {%- render 'icons', icon: icon -%}
-                  {%- endif -%}
+                  {%- liquid
+                    if image != blank
+                      render 'image-fill', img_object: image, width: retina_size, widths: image_widths, sizes: sizes, classes: 'icons-row__image'
+                    else
+                      render 'icons', icon: icon
+                    endif
+                  -%}
                 </div>
               {%- endif -%}
 
@@ -222,7 +227,7 @@
       "max": 100,
       "step": 5,
       "unit": "px",
-      "default": 30,
+      "default": 20,
       "info": "Max size on mobile is 40px"
     },
     {
