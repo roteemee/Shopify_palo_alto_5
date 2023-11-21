@@ -12,7 +12,7 @@
 *
 */
 
-(function (scrollLock, Flickity, themeCurrency, Ajaxinate, AOS) {
+(function (scrollLock, AOS, Flickity, themeCurrency, Ajaxinate) {
   'use strict';
 
   window.theme = window.theme || {};
@@ -48,47 +48,47 @@
     };
   }
 
-  const selectors$18 = {
+  const selectors$19 = {
     body: 'body',
     main: '[data-main]',
     header: '[data-site-header]',
     preventTransparentHeader: '[data-prevent-transparent-header]',
   };
-  const classes$X = {
+  const classes$Y = {
     supportsTransparentHeader: 'supports-transparent-header',
     siteHeaderTransparent: 'site-header--transparent',
     isFirstSectionTransparent: 'is-first-section-transparent',
   };
 
-  const attributes$J = {
+  const attributes$L = {
     transparent: 'data-transparent',
   };
 
   const initTransparentHeader = () => {
     // Determine what is the first
-    const body = document.querySelector(selectors$18.body);
-    const header = body.querySelector(selectors$18.header);
+    const body = document.querySelector(selectors$19.body);
+    const header = body.querySelector(selectors$19.header);
 
     if (!header) return;
 
-    const headerTransparent = header.getAttribute(attributes$J.transparent) === 'true';
-    const firstSection = body.querySelector(selectors$18.main).children[0];
+    const headerTransparent = header.getAttribute(attributes$L.transparent) === 'true';
+    const firstSection = body.querySelector(selectors$19.main).children[0];
 
     if (!firstSection) return;
 
-    const preventTransparentHeader = firstSection.querySelector(`${selectors$18.preventTransparentHeader}:first-of-type`);
-    window.isHeaderTransparent = headerTransparent && firstSection.classList.contains(classes$X.supportsTransparentHeader) && !preventTransparentHeader;
+    const preventTransparentHeader = firstSection.querySelector(`${selectors$19.preventTransparentHeader}:first-of-type`);
+    window.isHeaderTransparent = headerTransparent && firstSection.classList.contains(classes$Y.supportsTransparentHeader) && !preventTransparentHeader;
 
     const supportsHasSelector = CSS.supports('(selector(:has(*)))');
     if (!supportsHasSelector) {
-      body.classList.toggle(classes$X.isFirstSectionTransparent, window.isHeaderTransparent);
-      header.classList.toggle(classes$X.siteHeaderTransparent, window.isHeaderTransparent);
+      body.classList.toggle(classes$Y.isFirstSectionTransparent, window.isHeaderTransparent);
+      header.classList.toggle(classes$Y.siteHeaderTransparent, window.isHeaderTransparent);
     }
   };
 
   let screenOrientation = getScreenOrientation();
 
-  const selectors$17 = {
+  const selectors$18 = {
     body: 'body',
     main: '[data-main]',
     collectionFilters: '[data-collection-filters]',
@@ -100,7 +100,7 @@
     logoTextLink: '[data-logo-text-link]',
   };
 
-  const classes$W = {
+  const classes$X = {
     templateCollection: 'template-collection',
     templateSearch: 'template-search',
     supportsTransparentHeader: 'supports-transparent-header',
@@ -109,11 +109,12 @@
   function readHeights() {
     const h = {};
     h.windowHeight = Math.min(window.screen.height, window.innerHeight);
-    h.footerHeight = getHeight(selectors$17.footer);
-    h.headerHeight = getHeight(selectors$17.header);
-    h.headerInitialHeight = parseInt(document.querySelector(selectors$17.header)?.dataset.height || document.querySelector(selectors$17.header)?.offsetHeight) || 0;
-    h.announcementBarHeight = getHeight(selectors$17.announcementBar);
-    h.collectionStickyBarHeight = getHeight(selectors$17.collectionStickyBar);
+    h.footerHeight = getHeight(selectors$18.footer);
+    h.headerHeight = getHeight(selectors$18.header);
+    h.stickyHeaderHeight = isHeaderSticky() ? window.stickyHeaderHeight : 0;
+    h.headerInitialHeight = parseInt(document.querySelector(selectors$18.header)?.dataset.height || document.querySelector(selectors$18.header)?.offsetHeight) || 0;
+    h.announcementBarHeight = getHeight(selectors$18.announcementBar);
+    h.collectionStickyBarHeight = getHeight(selectors$18.collectionStickyBar);
     return h;
   }
 
@@ -133,9 +134,9 @@
   }
 
   function calcVars(checkOrientation = false) {
-    const body = document.querySelector(selectors$17.body);
-    const hasCollectionFilters = document.querySelector(selectors$17.collectionFilters);
-    const hasLogoTextLink = document.querySelector(selectors$17.logoTextLink) !== null;
+    const body = document.querySelector(selectors$18.body);
+    const hasCollectionFilters = document.querySelector(selectors$18.collectionFilters);
+    const hasLogoTextLink = document.querySelector(selectors$18.logoTextLink) !== null;
 
     let {windowHeight, headerHeight, headerInitialHeight, announcementBarHeight, footerHeight, collectionStickyBarHeight} = readHeights();
 
@@ -143,8 +144,8 @@
 
     const contentFullHeight = window.isHeaderTransparent && checkFirstSectionTransparency() ? windowHeight - announcementBarHeight : windowHeight - headerInitialHeight - announcementBarHeight;
     let fullHeight = isHeaderSticky() ? windowHeight - window.stickyHeaderHeight : windowHeight;
-    const isCollectionPage = body.classList.contains(classes$W.templateCollection);
-    const isSearchPage = body.classList.contains(classes$W.templateSearch);
+    const isCollectionPage = body.classList.contains(classes$X.templateCollection);
+    const isSearchPage = body.classList.contains(classes$X.templateSearch);
     const isPageWithFilters = (isCollectionPage && hasCollectionFilters) || (isSearchPage && hasCollectionFilters);
 
     document.documentElement.style.setProperty('--footer-height', `${footerHeight}px`);
@@ -179,12 +180,12 @@
   }
 
   function checkFirstSectionTransparency() {
-    const firstSection = document.querySelector(selectors$17.main).firstElementChild;
-    return firstSection.classList.contains(classes$W.supportsTransparentHeader);
+    const firstSection = document.querySelector(selectors$18.main).firstElementChild;
+    return firstSection.classList.contains(classes$X.supportsTransparentHeader);
   }
 
   function isHeaderSticky() {
-    return document.querySelector(selectors$17.stickyHeader);
+    return document.querySelector(selectors$18.stickyHeader);
   }
 
   function getScreenOrientation() {
@@ -202,7 +203,7 @@
     document.documentElement.style.setProperty('--header-sticky-height', 'auto');
 
     // Header is declared here to avoid `offsetHeight` returning zero when the element has not been rendered to the DOM yet in the Theme editor
-    const header = document.querySelector(selectors$17.header);
+    const header = document.querySelector(selectors$18.header);
     const resetHeight = header.offsetHeight;
 
     // requestAnimationFrame method is needed to properly update the CSS variables on resize after they have been reset
@@ -214,41 +215,7 @@
     return resetHeight;
   }
 
-  let isCompleted = false;
-  let docComplete = false;
-
-  function preloadImages() {
-    document.onreadystatechange = () => {
-      if (document.readyState === 'complete') {
-        docComplete = true;
-        initImagesPreloader();
-      }
-    };
-
-    requestIdleCallback(initImagesPreloader);
-  }
-
-  function initImagesPreloader() {
-    setTimeout(() => {
-      if (isCompleted) return;
-
-      if (!docComplete) {
-        initImagesPreloader();
-        return;
-      }
-
-      const lazyImages = document.querySelectorAll('img[loading="lazy"]');
-      if (lazyImages.length) {
-        lazyImages.forEach((image) => {
-          image.setAttribute('loading', 'eager');
-        });
-      }
-
-      isCompleted = true;
-    }, 3000);
-  }
-
-  const selectors$16 = {
+  const selectors$17 = {
     overflowBackground: '[data-overflow-background]',
     overflowFrame: '[data-overflow-frame]',
     overflowContent: '[data-overflow-content]',
@@ -264,7 +231,7 @@
     wrappers.forEach((wrap) => {
       tallest = wrap.offsetHeight > tallest ? wrap.offsetHeight : tallest;
     });
-    const images = frame.querySelectorAll(selectors$16.overflowBackground);
+    const images = frame.querySelectorAll(selectors$17.overflowBackground);
     const frames = [frame, ...images];
     frames.forEach((el) => {
       el.style.setProperty('min-height', `calc(${tallest}px + var(--header-height))`);
@@ -275,9 +242,9 @@
     if (window.innerWidth < window.theme.sizes.small) {
       // if we are below the small breakpoint, the double section acts like two independent
       // single frames
-      let singleFrames = section.querySelectorAll(selectors$16.overflowFrame);
+      let singleFrames = section.querySelectorAll(selectors$17.overflowFrame);
       singleFrames.forEach((singleframe) => {
-        const wrappers = singleframe.querySelectorAll(selectors$16.overflowContent);
+        const wrappers = singleframe.querySelectorAll(selectors$17.overflowContent);
         singles(singleframe, wrappers);
       });
       return;
@@ -285,14 +252,14 @@
 
     let tallest = 0;
 
-    const frames = section.querySelectorAll(selectors$16.overflowFrame);
-    const contentWrappers = section.querySelectorAll(selectors$16.overflowContent);
+    const frames = section.querySelectorAll(selectors$17.overflowFrame);
+    const contentWrappers = section.querySelectorAll(selectors$17.overflowContent);
     contentWrappers.forEach((content) => {
       if (content.offsetHeight > tallest) {
         tallest = content.offsetHeight;
       }
     });
-    const images = section.querySelectorAll(selectors$16.overflowBackground);
+    const images = section.querySelectorAll(selectors$17.overflowBackground);
     let applySizes = [...frames, ...images];
     applySizes.forEach((el) => {
       el.style.setProperty('min-height', `${tallest}px`);
@@ -301,10 +268,10 @@
   }
 
   function preventOverflow(container) {
-    const singleFrames = container.querySelectorAll(selectors$16.overflowContainer);
+    const singleFrames = container.querySelectorAll(selectors$17.overflowContainer);
     if (singleFrames) {
       singleFrames.forEach((frame) => {
-        const wrappers = frame.querySelectorAll(selectors$16.overflowContent);
+        const wrappers = frame.querySelectorAll(selectors$17.overflowContent);
         singles(frame, wrappers);
         document.addEventListener('theme:resize', () => {
           singles(frame, wrappers);
@@ -312,7 +279,7 @@
       });
     }
 
-    const doubleSections = container.querySelectorAll(selectors$16.overflowWrapper);
+    const doubleSections = container.querySelectorAll(selectors$17.overflowWrapper);
     if (doubleSections) {
       doubleSections.forEach((section) => {
         doubles(section);
@@ -354,7 +321,7 @@
   let wasDown = null;
   let scrollLockTimer$1 = 0;
 
-  const classes$V = {
+  const classes$W = {
     quickViewVisible: 'js-quick-view-visible',
     cartDrawerOpen: 'js-drawer-open-cart',
   };
@@ -428,7 +395,7 @@
   }
 
   function removeScrollLock() {
-    const isPopupVisible = document.body.classList.contains(classes$V.quickViewVisible) || document.body.classList.contains(classes$V.cartDrawerOpen);
+    const isPopupVisible = document.body.classList.contains(classes$W.quickViewVisible) || document.body.classList.contains(classes$W.cartDrawerOpen);
 
     if (!isPopupVisible) {
       scrollLock.clearQueueScrollLocks();
@@ -491,11 +458,11 @@
     document.documentElement.classList.add('is-loaded');
   }
 
-  const classes$U = {
+  const classes$V = {
     loading: 'is-loading',
   };
 
-  const selectors$15 = {
+  const selectors$16 = {
     img: 'img.is-loading',
   };
 
@@ -506,9 +473,9 @@
     document.addEventListener(
       'load',
       (e) => {
-        if (e.target.tagName == 'IMG' && e.target.classList.contains(classes$U.loading)) {
-          e.target.classList.remove(classes$U.loading);
-          e.target.parentNode.classList.remove(classes$U.loading);
+        if (e.target.tagName == 'IMG' && e.target.classList.contains(classes$V.loading)) {
+          e.target.classList.remove(classes$V.loading);
+          e.target.parentNode.classList.remove(classes$V.loading);
         }
       },
       true
@@ -519,12 +486,115 @@
     Remove "is-loading" class to the loaded images and their containers
   */
   function removeLoadingClassFromLoadedImages(container) {
-    container.querySelectorAll(selectors$15.img).forEach((img) => {
+    container.querySelectorAll(selectors$16.img).forEach((img) => {
       if (img.complete) {
-        img.classList.remove(classes$U.loading);
-        img.parentNode.classList.remove(classes$U.loading);
+        img.classList.remove(classes$V.loading);
+        img.parentNode.classList.remove(classes$V.loading);
       }
     });
+  }
+
+  /**
+   * This component prevents any HTML from being loaded,
+   * until user's cursor is over the component or over specific trigger referenced by the <deferred-loading> element.
+   * The main focus is for deferred loading of images.
+   * Loading is triggered by a 'mouseenter' event rendering depends on a `<template>` element that should hold all of the HTML
+   *
+   * @example
+   *  <deferred-loading data-deferred-container=".parent-container-selector" data-deferred-triggers=".button-element-selector">
+   *    <template>
+   *      <div data-deferred-content>
+   *        // Insert deferred markup or images here:
+   *        {%- render 'image', image: section.settings.image_1 -%}
+   *        {%- render 'image', image: section.settings.image_2 -%}
+   *      </div>
+   *    </template>
+   *  </deferred-loading>
+   */
+  const selectors$15 = {
+    img: 'img',
+    template: 'template',
+    shopifySection: '.shopify-section',
+    deferredContent: '[data-deferred-content]',
+    reloadSrcsetException: '[data-product-image]',
+  };
+
+  const attributes$K = {
+    srcset: 'srcset',
+    loaded: 'data-loaded',
+    deferredContainer: 'data-deferred-container',
+  };
+
+  class DeferredLoading extends HTMLElement {
+    constructor() {
+      super();
+
+      this.container = this;
+      if (this.hasAttribute(attributes$K.deferredContainer)) {
+        this.container = this.closest(this.getAttribute(attributes$K.deferredContainer)) || this.closest(selectors$15.shopifySection);
+      }
+
+      this.deferredTriggers = this.container.querySelectorAll(this.dataset.deferredTriggers);
+    }
+
+    connectedCallback() {
+      if (this.deferredTriggers.length == 0) {
+        this.container.addEventListener(
+          'mouseenter',
+          () => {
+            if (this.hasAttribute(attributes$K.loaded)) return;
+            this.loadTemplate();
+          },
+          {once: true}
+        );
+
+        return;
+      }
+
+      this.deferredTriggers.forEach((trigger) => {
+        trigger.addEventListener(
+          'mouseenter',
+          () => {
+            if (this.hasAttribute(attributes$K.loaded)) return;
+            this.loadTemplate();
+          },
+          {once: true}
+        );
+      });
+    }
+
+    loadTemplate() {
+      const content = document.createElement('div');
+      const template = this.querySelector(selectors$15.template);
+      if (!template || !template?.content?.firstElementChild) return;
+
+      content.appendChild(template.content.firstElementChild.cloneNode(true));
+
+      const deferredContent = content.querySelector(selectors$15.deferredContent);
+      if (!deferredContent) return;
+
+      this.append(deferredContent);
+      this.setAttribute(attributes$K.loaded, true);
+
+      const containsImages = deferredContent.querySelectorAll(selectors$15.img).length > 0;
+      if (containsImages) {
+        this.reloadSrcset(this);
+      }
+    }
+
+    // Reload srcset for correct image render on Safari - fixes 'object-fit: cover' issues
+    reloadSrcset(container) {
+      if (!container) return;
+      container.querySelectorAll(selectors$15.img).forEach((img) => {
+        const reloadSrcsetException = img.parentNode.matches(selectors$15.reloadSrcsetException);
+
+        if (!reloadSrcsetException) {
+          const srcset = img.getAttribute(attributes$K.srcset);
+          img.setAttribute(attributes$K.srcset, '');
+          img.setAttribute(attributes$K.srcset, srcset);
+        }
+      });
+    }
   }
 
   const selectors$14 = {
@@ -542,7 +612,7 @@
     searchForm: 'search-form',
   };
 
-  const classes$T = {
+  const classes$U = {
     isSearched: 'is-searched',
     templateSearch: 'template-search',
   };
@@ -562,7 +632,7 @@
       this.activeElement = null;
       this.searchTerm = '';
       this.currentSearchTerm = '';
-      this.isSearchPage = document.body.classList.contains(classes$T.templateSearch);
+      this.isSearchPage = document.body.classList.contains(classes$U.templateSearch);
 
       this.input.addEventListener(
         'input',
@@ -592,7 +662,7 @@
     }
 
     onChange() {
-      this.classList.toggle(classes$T.isSearched, !this.isFormCleared());
+      this.classList.toggle(classes$U.isSearched, !this.isFormCleared());
       this.searchTerm = this.getQuery();
     }
 
@@ -640,7 +710,7 @@
 
     switchOption(direction) {
       const moveUp = direction === 'up';
-      const predictiveSearchOpened = this.classList.contains(classes$T.isSearched) && this.predictiveSearchResults;
+      const predictiveSearchOpened = this.classList.contains(classes$U.isSearched) && this.predictiveSearchResults;
 
       const visibleElementsContainer = predictiveSearchOpened ? this.predictiveSearchResults : this.popularSearches;
 
@@ -710,7 +780,7 @@
     searchResultsWrapper: '[data-search-results-wrapper]',
   };
 
-  const classes$S = {
+  const classes$T = {
     reset: 'reset',
   };
 
@@ -727,7 +797,7 @@
     connectedCallback() {
       this.predictiveSearchResults.addEventListener('transitionend', (event) => {
         if (event.target === this.predictiveSearchResults && !this.getQuery().length) {
-          this.classList.remove(classes$S.reset);
+          this.classList.remove(classes$T.reset);
           requestAnimationFrame(() => this.clearResultsHTML());
         }
       });
@@ -735,10 +805,10 @@
 
     onChange() {
       super.onChange();
-      this.classList.remove(classes$S.reset);
+      this.classList.remove(classes$T.reset);
 
       if (!this.searchTerm.length) {
-        this.classList.add(classes$S.reset);
+        this.classList.add(classes$T.reset);
         return;
       }
 
@@ -855,7 +925,7 @@
       if (clearSearchTerm) {
         this.reset();
         this.removeAttribute('results');
-        this.classList.remove(classes$S.reset);
+        this.classList.remove(classes$T.reset);
       }
 
       this.removeAttribute('loading');
@@ -899,16 +969,21 @@
     initTransparentHeader();
   }, 300);
 
+  const showAnimations = document.body.dataset.animations === 'true';
+  if (showAnimations) {
+    AOS.init({
+      once: true,
+      offset: 50,
+      duration: 600,
+    });
+  }
+
   window.addEventListener('DOMContentLoaded', () => {
     setVarsOnResize();
     preventOverflow(document);
     wrapElements(document);
     removeLoadingClassFromLoadedImages(document);
     loading();
-
-    if (window.fastNetworkAndCPU) {
-      preloadImages();
-    }
   });
 
   document.addEventListener('shopify:section:load', (e) => {
@@ -930,6 +1005,10 @@
   document.addEventListener('shopify:section:unload', () => {
     headerFunctions();
   });
+
+  if (!customElements.get('deferred-loading')) {
+    customElements.define('deferred-loading', DeferredLoading);
+  }
 
   (function () {
     function n(n) {
@@ -978,7 +1057,7 @@
   const registered = window.Shopify.theme.sections.registered;
   const instances = window.Shopify.theme.sections.instances;
 
-  const attributes$I = {
+  const attributes$J = {
     id: 'data-section-id',
     type: 'data-section-type',
   };
@@ -1017,7 +1096,7 @@
   class Section {
     constructor(container, registration) {
       this.container = validateContainerElement(container);
-      this.id = container.getAttribute(attributes$I.id);
+      this.id = container.getAttribute(attributes$J.id);
       this.type = registration.type;
       this.callStack = registration.getStack();
 
@@ -1078,8 +1157,8 @@
     if (!(container instanceof Element)) {
       throw new TypeError('Theme Sections: Attempted to load section. The section container provided is not a DOM element.');
     }
-    if (container.getAttribute(attributes$I.id) === null) {
-      throw new Error('Theme Sections: The section container provided does not have an id assigned to the ' + attributes$I.id + ' attribute.');
+    if (container.getAttribute(attributes$J.id) === null) {
+      throw new Error('Theme Sections: The section container provided does not have an id assigned to the ' + attributes$J.id + ' attribute.');
     }
 
     return container;
@@ -1126,7 +1205,7 @@
     types = normalizeType(types);
 
     if (typeof containers === 'undefined') {
-      containers = document.querySelectorAll('[' + attributes$I.type + ']');
+      containers = document.querySelectorAll('[' + attributes$J.type + ']');
     }
 
     containers = normalizeContainers(containers);
@@ -1145,12 +1224,12 @@
         }
 
         // Filter from list of containers because container doesn't have data-section-type attribute
-        if (container.getAttribute(attributes$I.type) === null) {
+        if (container.getAttribute(attributes$J.type) === null) {
           return false;
         }
 
         // Keep in list of containers because current type doesn't match
-        if (container.getAttribute(attributes$I.type) !== type) {
+        if (container.getAttribute(attributes$J.type) !== type) {
           return true;
         }
 
@@ -1289,7 +1368,7 @@
   if (window.Shopify.designMode) {
     document.addEventListener('shopify:section:load', function (event) {
       var id = event.detail.sectionId;
-      var container = event.target.querySelector('[' + attributes$I.id + '="' + id + '"]');
+      var container = event.target.querySelector('[' + attributes$J.id + '="' + id + '"]');
 
       // The global variable `Shopify.visualPreviewMode` will return true if you're in the theme editor's visual preview, and `undefined` if not.
       if (window.Shopify.visualPreviewMode === true) {
@@ -1299,18 +1378,18 @@
         if (container === null) {
           // This should be done only for theme editor's visual preview so that the section's JS is loaded inside it and the preview is not broken
           // Eventually, in case we still cannot get hold of the right `container`, preview should still look decent, by rendering a section's Liquid, CSS and Web Components
-          container = event.target.querySelector(`[${attributes$I.id}]`);
+          container = event.target.querySelector(`[${attributes$J.id}]`);
         }
       }
 
       if (container !== null) {
-        load(container.getAttribute(attributes$I.type), container);
+        load(container.getAttribute(attributes$J.type), container);
       }
     });
 
     document.addEventListener('shopify:section:reorder', function (event) {
       var id = event.detail.sectionId;
-      var container = event.target.querySelector('[' + attributes$I.id + '="' + id + '"]');
+      var container = event.target.querySelector('[' + attributes$J.id + '="' + id + '"]');
       var instance = getInstances(container)[0];
 
       if (typeof instance === 'object') {
@@ -1320,7 +1399,7 @@
 
     document.addEventListener('shopify:section:unload', function (event) {
       var id = event.detail.sectionId;
-      var container = event.target.querySelector('[' + attributes$I.id + '="' + id + '"]');
+      var container = event.target.querySelector('[' + attributes$J.id + '="' + id + '"]');
       var instance = getInstances(container)[0];
 
       if (typeof instance === 'object') {
@@ -1390,22 +1469,22 @@
     content: '[data-collapsible-content]',
   };
 
-  const classes$R = {
+  const classes$S = {
     isExpanded: 'is-expanded',
   };
 
-  const attributes$H = {
+  const attributes$I = {
     expanded: 'aria-expanded',
     controls: 'aria-controls',
     triggerMobile: 'data-collapsible-trigger-mobile',
     transitionOverride: 'data-collapsible-transition-override',
   };
 
-  const settings$7 = {
+  const settings$8 = {
     animationDelay: 500,
   };
 
-  const sections$A = {};
+  const sections$B = {};
 
   class Collapsible {
     constructor(container) {
@@ -1414,7 +1493,7 @@
       this.triggers = this.container.querySelectorAll(selectors$12.trigger);
       this.resetHeightTimer = 0;
       this.isTransitioning = false;
-      this.transitionOverride = this.container.hasAttribute(attributes$H.transitionOverride);
+      this.transitionOverride = this.container.hasAttribute(attributes$I.transitionOverride);
       this.collapsibleToggleEvent = (event) => throttle(this.collapsibleToggle(event), 1250);
 
       this.init();
@@ -1431,10 +1510,10 @@
       e.preventDefault();
 
       const trigger = e.target.matches(selectors$12.trigger) ? e.target : e.target.closest(selectors$12.trigger);
-      const dropdownId = trigger.getAttribute(attributes$H.controls);
+      const dropdownId = trigger.getAttribute(attributes$I.controls);
       const dropdown = document.getElementById(dropdownId);
-      const triggerMobile = trigger.hasAttribute(attributes$H.triggerMobile);
-      const isExpanded = trigger.classList.contains(classes$R.isExpanded);
+      const triggerMobile = trigger.hasAttribute(attributes$I.triggerMobile);
+      const isExpanded = trigger.classList.contains(classes$S.isExpanded);
       const isSpace = e.code === theme.keyboardKeys.SPACE;
       const isEscape = e.code === theme.keyboardKeys.ESCAPE;
       const isMobile = window.innerWidth < theme.sizes.small;
@@ -1460,11 +1539,11 @@
       // When we want only one item expanded at the same time
       if (this.single) {
         this.triggers.forEach((otherTrigger) => {
-          const isExpanded = otherTrigger.classList.contains(classes$R.isExpanded);
+          const isExpanded = otherTrigger.classList.contains(classes$S.isExpanded);
 
           if (trigger == otherTrigger || !isExpanded) return;
 
-          const dropdownId = otherTrigger.getAttribute(attributes$H.controls);
+          const dropdownId = otherTrigger.getAttribute(attributes$I.controls);
           const dropdown = document.getElementById(dropdownId);
 
           requestAnimationFrame(() => {
@@ -1489,8 +1568,8 @@
       let dropdownHeight = dropdown.querySelector(selectors$12.content).offsetHeight;
 
       this.setDropdownHeight(dropdown, dropdownHeight, trigger, true);
-      trigger.classList.add(classes$R.isExpanded);
-      trigger.setAttribute(attributes$H.expanded, true);
+      trigger.classList.add(classes$S.isExpanded);
+      trigger.setAttribute(attributes$I.expanded, true);
 
       trigger.dispatchEvent(
         new CustomEvent('theme:form:sticky', {
@@ -1508,18 +1587,18 @@
       requestAnimationFrame(() => {
         dropdownHeight = 0;
         this.setDropdownHeight(dropdown, dropdownHeight, trigger, false);
-        trigger.classList.remove(classes$R.isExpanded);
+        trigger.classList.remove(classes$S.isExpanded);
       });
 
       this.setDropdownHeight(dropdown, dropdownHeight, trigger, false);
-      trigger.classList.remove(classes$R.isExpanded);
-      trigger.setAttribute(attributes$H.expanded, false);
+      trigger.classList.remove(classes$S.isExpanded);
+      trigger.setAttribute(attributes$I.expanded, false);
     }
 
     setDropdownHeight(dropdown, dropdownHeight, trigger, isExpanded) {
       dropdown.style.height = `${dropdownHeight}px`;
-      dropdown.setAttribute(attributes$H.expanded, isExpanded);
-      dropdown.classList.toggle(classes$R.isExpanded, isExpanded);
+      dropdown.setAttribute(attributes$I.expanded, isExpanded);
+      dropdown.classList.toggle(classes$S.isExpanded, isExpanded);
 
       if (this.resetHeightTimer) {
         clearTimeout(this.resetHeightTimer);
@@ -1528,14 +1607,14 @@
       if (dropdownHeight == 0) {
         this.resetHeightTimer = setTimeout(() => {
           dropdown.style.height = '';
-        }, settings$7.animationDelay);
+        }, settings$8.animationDelay);
       }
 
       if (isExpanded) {
         this.resetHeightTimer = setTimeout(() => {
           dropdown.style.height = 'auto';
           this.isTransitioning = false;
-        }, settings$7.animationDelay);
+        }, settings$8.animationDelay);
       } else {
         this.isTransitioning = false;
       }
@@ -1543,7 +1622,7 @@
       // Always remove trigger disabled attribute after animation completes
       setTimeout(() => {
         trigger.disabled = false;
-      }, settings$7.animationDelay);
+      }, settings$8.animationDelay);
     }
 
     onUnload() {
@@ -1556,10 +1635,10 @@
 
   const collapsible = {
     onLoad() {
-      sections$A[this.id] = new Collapsible(this.container);
+      sections$B[this.id] = new Collapsible(this.container);
     },
     onUnload() {
-      sections$A[this.id].onUnload();
+      sections$B[this.id].onUnload();
     },
   };
 
@@ -1571,7 +1650,7 @@
     quantityPlusButton: '[data-quantity-plus]',
   };
 
-  const classes$Q = {
+  const classes$R = {
     quantityReadOnly: 'read-only',
     isDisabled: 'is-disabled',
   };
@@ -1612,7 +1691,7 @@
       this.disableIncrease();
 
       // Events
-      if (!this.quantity.classList.contains(classes$Q.quantityReadOnly)) {
+      if (!this.quantity.classList.contains(classes$R.quantityReadOnly)) {
         this.changeValueOnClick();
         this.changeValueOnInput();
       }
@@ -1720,7 +1799,7 @@
      */
 
     disableIncrease() {
-      this.increaseButton.classList.toggle(classes$Q.isDisabled, this.quantityValue >= this.maxValue && this.maxValue !== null);
+      this.increaseButton.classList.toggle(classes$R.isDisabled, this.quantityValue >= this.maxValue && this.maxValue !== null);
     }
 
     updateCart() {
@@ -1962,11 +2041,11 @@
     videoIframe: '[data-video-id]',
   };
 
-  const classes$P = {
+  const classes$Q = {
     loaded: 'loaded',
   };
 
-  const attributes$G = {
+  const attributes$H = {
     dataEnableSound: 'data-enable-sound',
     dataEnableBackground: 'data-enable-background',
     dataEnableAutoplay: 'data-enable-autoplay',
@@ -1981,12 +2060,12 @@
       this.player = this.container.querySelector(selectors$10.videoIframe);
 
       if (this.player) {
-        this.videoID = this.player.getAttribute(attributes$G.dataVideoId);
-        this.videoType = this.player.getAttribute(attributes$G.dataVideoType);
-        this.enableBackground = this.player.getAttribute(attributes$G.dataEnableBackground) === 'true';
-        this.disableSound = this.player.getAttribute(attributes$G.dataEnableSound) === 'false';
-        this.enableAutoplay = this.player.getAttribute(attributes$G.dataEnableAutoplay) !== 'false';
-        this.enableLoop = this.player.getAttribute(attributes$G.dataEnableLoop) !== 'false';
+        this.videoID = this.player.getAttribute(attributes$H.dataVideoId);
+        this.videoType = this.player.getAttribute(attributes$H.dataVideoType);
+        this.enableBackground = this.player.getAttribute(attributes$H.dataEnableBackground) === 'true';
+        this.disableSound = this.player.getAttribute(attributes$H.dataEnableSound) === 'false';
+        this.enableAutoplay = this.player.getAttribute(attributes$H.dataEnableAutoplay) !== 'false';
+        this.enableLoop = this.player.getAttribute(attributes$H.dataEnableLoop) !== 'false';
 
         if (this.videoType == 'vimeo') {
           this.init();
@@ -2022,7 +2101,7 @@
           state.innerHTML = data.html;
 
           setTimeout(function () {
-            state.parentElement.classList.add(classes$P.loaded);
+            state.parentElement.classList.add(classes$Q.loaded);
           }, 1000);
         })
         .catch(function () {
@@ -2037,7 +2116,7 @@
     youtubeWrapper: '[data-youtube-wrapper]',
   };
 
-  const attributes$F = {
+  const attributes$G = {
     dataSectionId: 'data-section-id',
     dataEnableSound: 'data-enable-sound',
     dataHideOptions: 'data-hide-options',
@@ -2046,7 +2125,7 @@
     dataVideoType: 'data-video-type',
   };
 
-  const classes$O = {
+  const classes$P = {
     loaded: 'loaded',
   };
 
@@ -2059,10 +2138,10 @@
 
       if (this.player) {
         this.videoOptionsVars = {};
-        this.videoID = this.player.getAttribute(attributes$F.dataVideoId);
-        this.videoType = this.player.getAttribute(attributes$F.dataVideoType);
+        this.videoID = this.player.getAttribute(attributes$G.dataVideoId);
+        this.videoType = this.player.getAttribute(attributes$G.dataVideoType);
         if (this.videoType == 'youtube') {
-          this.checkPlayerVisibilityFlag = this.player.getAttribute(attributes$F.dataCheckPlayerVisibility) === 'true';
+          this.checkPlayerVisibilityFlag = this.player.getAttribute(attributes$G.dataCheckPlayerVisibility) === 'true';
           this.playerID = this.player.querySelector(selectors$$.youtubeWrapper) ? this.player.querySelector(selectors$$.youtubeWrapper).id : this.player.id;
           if (this.player.hasAttribute(selectors$$.dataHideOptions)) {
             this.videoOptionsVars = {
@@ -2114,7 +2193,7 @@
           onReady: (event) => {
             const eventIframe = event.target.getIframe();
             const id = eventIframe.id;
-            const enableSound = document.querySelector(`#${id}`).getAttribute(attributes$F.dataEnableSound) === 'true';
+            const enableSound = document.querySelector(`#${id}`).getAttribute(attributes$G.dataEnableSound) === 'true';
 
             eventIframe.setAttribute('tabindex', '-1');
 
@@ -2143,7 +2222,7 @@
             }
             if (event.data == 1) {
               // video is playing
-              event.target.getIframe().parentElement.classList.add(classes$O.loaded);
+              event.target.getIframe().parentElement.classList.add(classes$P.loaded);
             }
           },
         },
@@ -2190,7 +2269,7 @@
     }
 
     onUnload() {
-      const playerID = 'youtube-' + this.container.getAttribute(attributes$F.dataSectionId);
+      const playerID = 'youtube-' + this.container.getAttribute(attributes$G.dataSectionId);
       if (!players[playerID]) {
         return;
       }
@@ -2204,7 +2283,7 @@
     popupClose: '[data-popup-close]',
   };
 
-  const classes$N = {
+  const classes$O = {
     popupSuccess: 'pswp--success',
     notificationPopupVisible: 'notification-popup-visible',
   };
@@ -2234,14 +2313,14 @@
       const notificationFormSuccess = window.location.search.indexOf('?customer_posted=true') !== -1;
       this.notificationForm = this.pswpElement.querySelector(selectors$_.notificationForm);
       const closeBtn = this.pswpElement.querySelector(selectors$_.popupClose);
-      document.body.classList.add(classes$N.notificationPopupVisible);
+      document.body.classList.add(classes$O.notificationPopupVisible);
 
       this.pswpElement.addEventListener('mousedown', () => {
         this.popup.framework.unbind(window, 'pointermove pointerup pointercancel', this.popup);
       });
 
       if (notificationFormSuccess) {
-        this.pswpElement.classList.add(classes$N.popupSuccess);
+        this.pswpElement.classList.add(classes$O.popupSuccess);
       }
 
       this.notificationForm.addEventListener('submit', (e) => this.notificationSubmitEvent(e));
@@ -2256,7 +2335,7 @@
       this.popup.listen('destroy', () => {
         this.notificationRemoveStorage();
         this.pswpElement.removeEventListener('click', this.outerCloseEvent);
-        document.body.classList.remove(classes$N.notificationPopupVisible);
+        document.body.classList.remove(classes$O.notificationPopupVisible);
       });
     }
 
@@ -2317,11 +2396,11 @@
     mediaHidden: '.media--hidden',
   };
 
-  const classes$M = {
+  const classes$N = {
     mediaHidden: 'media--hidden',
   };
 
-  const attributes$E = {
+  const attributes$F = {
     loaded: 'loaded',
     sectionId: 'data-section-id',
     dataAutoplayVideo: 'data-autoplay-video',
@@ -2331,8 +2410,8 @@
   class ProductVideo {
     constructor(container) {
       this.container = container;
-      this.id = this.container.getAttribute(attributes$E.sectionId);
-      this.autoplayVideo = this.container.getAttribute(attributes$E.dataAutoplayVideo) === 'true';
+      this.id = this.container.getAttribute(attributes$F.sectionId);
+      this.autoplayVideo = this.container.getAttribute(attributes$F.dataAutoplayVideo) === 'true';
       this.players = {};
       this.pauseContainerMedia = (mediaId, container = this.container) => this.pauseOtherMedia(mediaId, container);
       this.init();
@@ -2355,7 +2434,7 @@
     }
 
     loadContent(mediaContainer) {
-      if (mediaContainer.querySelector(selectors$Z.deferredMedia).getAttribute(attributes$E.loaded)) {
+      if (mediaContainer.querySelector(selectors$Z.deferredMedia).getAttribute(attributes$F.loaded)) {
         return;
       }
 
@@ -2559,7 +2638,9 @@
       } else if (video.element && !video.element.paused) {
         // HTML5
         // If HTML5 video is playing (we used .paused because there is no 'playing' property)
-        video.element?.pause();
+        if (typeof video.element.pause === 'function') {
+          video.element?.pause();
+        }
       }
     }
 
@@ -2587,13 +2668,13 @@
     }
 
     pauseOtherMedia(mediaId, container) {
-      const currentMedia = `[${attributes$E.mediaId}="${mediaId}"]`;
+      const currentMedia = `[${attributes$F.mediaId}="${mediaId}"]`;
       const otherMedia = container.querySelectorAll(`${selectors$Z.productMediaWrapper}:not(${currentMedia})`);
 
       if (otherMedia.length) {
         otherMedia.forEach((media) => {
           media.dispatchEvent(new CustomEvent('theme:media:hidden'), {bubbles: true});
-          media.classList.add(classes$M.mediaHidden);
+          media.classList.add(classes$N.mediaHidden);
         });
       }
     }
@@ -2720,31 +2801,31 @@
     aos: '[data-aos]',
   };
 
-  const classes$L = {
+  const classes$M = {
     root: 'tooltip-default',
     isAnimating: 'is-animating',
     visible: 'is-visible',
     hiding: 'is-hiding',
   };
 
-  const attributes$D = {
+  const attributes$E = {
     tooltip: 'data-tooltip',
     tooltipContainer: 'data-tooltip-container',
     tooltipStopMouseEnter: 'data-tooltip-stop-mouseenter',
   };
 
-  const sections$z = {};
+  const sections$A = {};
 
   class Tooltip {
     constructor(el) {
       this.tooltip = el;
-      if (!this.tooltip.hasAttribute(attributes$D.tooltip)) {
+      if (!this.tooltip.hasAttribute(attributes$E.tooltip)) {
         return;
       }
 
-      this.rootClass = classes$L.root;
-      this.isAnimatingClass = classes$L.isAnimating;
-      this.label = this.tooltip.getAttribute(attributes$D.tooltip);
+      this.rootClass = classes$M.root;
+      this.isAnimatingClass = classes$M.isAnimating;
+      this.label = this.tooltip.getAttribute(attributes$E.tooltip);
       this.transitionSpeed = 200;
       this.hideTransitionTimeout = 0;
       this.animatedContainer = this.tooltip.closest(selectors$X.aos);
@@ -2760,7 +2841,7 @@
         const tooltipTemplate = `<div class="${this.rootClass}__inner"><div class="${this.rootClass}__arrow" data-tooltip-arrow></div><div class="${this.rootClass}__text"></div></div>`;
         const tooltipElement = document.createElement('div');
         tooltipElement.className = `${this.rootClass} ${this.isAnimatingClass}`;
-        tooltipElement.setAttribute(attributes$D.tooltipContainer, '');
+        tooltipElement.setAttribute(attributes$E.tooltipContainer, '');
         tooltipElement.innerHTML = tooltipTemplate;
         document.body.appendChild(tooltipElement);
       }
@@ -2776,7 +2857,7 @@
         this.animatedContainer.addEventListener('transitionend', (event) => {
           // This will fire the event when the last transition end
           if (event.propertyName === 'transform') {
-            tooltipTarget.classList.remove(classes$L.isAnimating);
+            tooltipTarget.classList.remove(classes$M.isAnimating);
           }
         });
       }
@@ -2786,7 +2867,7 @@
       const tooltipTarget = document.querySelector(selectors$X.tooltipContainer);
       const tooltipTargetArrow = tooltipTarget.querySelector(selectors$X.tooltipArrow);
 
-      if (tooltipTarget && ((stopMouseEnter && !this.tooltip.hasAttribute(attributes$D.tooltipStopMouseEnter)) || !stopMouseEnter)) {
+      if (tooltipTarget && ((stopMouseEnter && !this.tooltip.hasAttribute(attributes$E.tooltipStopMouseEnter)) || !stopMouseEnter)) {
         const tooltipTargetInner = tooltipTarget.querySelector(`.${this.rootClass}__inner`);
         const tooltipTargetText = tooltipTarget.querySelector(`.${this.rootClass}__text`);
         tooltipTargetText.textContent = this.label;
@@ -2813,8 +2894,8 @@
 
         tooltipTargetArrow.style.left = tooltipArrowPositionLeft;
         tooltipTarget.style.transform = `translate(${tooltipTargetPositionLeft}px, ${tooltipTargetPositionTop}px)`;
-        tooltipTarget.classList.remove(classes$L.hiding);
-        tooltipTarget.classList.add(classes$L.visible);
+        tooltipTarget.classList.remove(classes$M.hiding);
+        tooltipTarget.classList.add(classes$M.visible);
 
         document.addEventListener('theme:scroll', this.removePinEvent);
       }
@@ -2822,22 +2903,22 @@
 
     removePin(event, stopMouseEnter = false, hideTransition = false) {
       const tooltipTarget = document.querySelector(selectors$X.tooltipContainer);
-      const tooltipVisible = tooltipTarget.classList.contains(classes$L.visible);
+      const tooltipVisible = tooltipTarget.classList.contains(classes$M.visible);
 
-      if (tooltipTarget && ((stopMouseEnter && !this.tooltip.hasAttribute(attributes$D.tooltipStopMouseEnter)) || !stopMouseEnter)) {
+      if (tooltipTarget && ((stopMouseEnter && !this.tooltip.hasAttribute(attributes$E.tooltipStopMouseEnter)) || !stopMouseEnter)) {
         if (tooltipVisible && (hideTransition || event.detail.hideTransition)) {
-          tooltipTarget.classList.add(classes$L.hiding);
+          tooltipTarget.classList.add(classes$M.hiding);
 
           if (this.hideTransitionTimeout) {
             clearTimeout(this.hideTransitionTimeout);
           }
 
           this.hideTransitionTimeout = setTimeout(() => {
-            tooltipTarget.classList.remove(classes$L.hiding);
+            tooltipTarget.classList.remove(classes$M.hiding);
           }, this.transitionSpeed);
         }
 
-        tooltipTarget.classList.remove(classes$L.visible);
+        tooltipTarget.classList.remove(classes$M.visible);
 
         document.removeEventListener('theme:scroll', this.removePinEvent);
       }
@@ -2854,14 +2935,14 @@
 
   const tooltip = {
     onLoad() {
-      sections$z[this.id] = [];
+      sections$A[this.id] = [];
       const tooltips = this.container.querySelectorAll(selectors$X.tooltip);
       tooltips.forEach((tooltip) => {
-        sections$z[this.id].push(new Tooltip(tooltip));
+        sections$A[this.id].push(new Tooltip(tooltip));
       });
     },
     onUnload() {
-      sections$z[this.id].forEach((tooltip) => {
+      sections$A[this.id].forEach((tooltip) => {
         if (typeof tooltip.unload === 'function') {
           tooltip.unload();
         }
@@ -2885,7 +2966,7 @@
     priceMax: '[data-field-price-max]',
   };
 
-  const classes$K = {
+  const classes$L = {
     isInitialized: 'is-initialized',
   };
 
@@ -2975,7 +3056,7 @@
       this.touchRight.addEventListener('touchstart', this.onStartEvent, {passive: true});
 
       // initialize
-      this.slider.classList.add(classes$K.isInitialized);
+      this.slider.classList.add(classes$L.isInitialized);
     }
 
     reset() {
@@ -3134,49 +3215,6 @@
       document.removeEventListener('theme:filters:init', this.initListener);
       window.removeEventListener('theme:resize', this.resizeFilters);
     }
-  }
-
-  /**
-   * Image Helper Functions
-   * -----------------------------------------------------------------------------
-   * https://github.com/Shopify/slate.git.
-   *
-   */
-
-  /**
-   * Adds a Shopify size attribute to a URL
-   *
-   * @param src
-   * @param size
-   * @returns {*}
-   */
-  function getSizedImageUrl(src, size) {
-    if (size === null) {
-      return src;
-    }
-
-    if (typeof src === 'undefined' || src === null) {
-      src = window.theme.assets.noImage;
-    }
-
-    if (size === 'master') {
-      return removeProtocol(src);
-    }
-
-    const match = src.match(/\.(jpg|jpeg|gif|png|bmp|bitmap|tiff|tif|webp)(\?v=\d+)?$/i);
-
-    if (match) {
-      const prefix = src.split(match[0]);
-      const suffix = match[0];
-
-      return removeProtocol(`${prefix[0]}_${size}${suffix}`);
-    } else {
-      return null;
-    }
-  }
-
-  function removeProtocol(path) {
-    return path.replace(/http(s)?:/, '');
   }
 
   function Listeners() {
@@ -3577,7 +3615,6 @@
     quickView: '[data-button-quick-view]',
     gridImage: '[data-grid-image]',
     link: '[data-grid-link]',
-    loadHovers: '[data-load-hovers]',
     swatchesMore: '[data-swatches-more]',
     sectionType: '[data-section-type]',
     swatchesContainer: '[data-swatches-container]',
@@ -3587,7 +3624,7 @@
     slider: '[data-slider]',
   };
 
-  const classes$J = {
+  const classes$K = {
     mediaVisible: 'product__media--featured-visible',
     mediaHoverVisible: 'product__media__hover-img--visible',
     noImage: 'swatch__link--no-image',
@@ -3596,29 +3633,21 @@
     selectorLarge: 'selector-wrapper--large',
   };
 
-  const attributes$C = {
+  const attributes$D = {
     swatch: 'data-swatch',
     handle: 'data-swatch-handle',
     label: 'data-swatch-label',
     image: 'data-swatch-image',
     imageId: 'data-swatch-image-id',
     variant: 'data-swatch-variant',
-    index: 'data-swatch-index',
-    swatchVariant: 'data-swatch-variant',
-    variandId: 'data-variant-id',
+    variantId: 'data-variant-id',
+    variantSecondaryId: 'data-variant-secondary-id',
     loaded: 'data-loaded',
     href: 'href',
-    bgSet: 'data-bgset',
-    aspectRatio: 'data-aspectratio',
-    dataFetchedImage: 'data-fetched-image',
-    dataFetchedImageIndex: 'data-fetched-image-index',
-    dataGridImageDefault: 'data-grid-image-default',
-    dataGridImageTarget: 'data-grid-image-target',
-    dataGridImageTargetDefault: 'data-grid-image-target-default',
   };
 
   let swatches = {};
-  const sections$y = {};
+  const sections$z = {};
 
   class ColorMatch {
     constructor(options = {}) {
@@ -3689,15 +3718,12 @@
     constructor(element) {
       this.element = element;
       this.swatchLink = this.element.nextElementSibling;
-      this.colorString = element.getAttribute(attributes$C.swatch);
-      this.image = this.element.getAttribute(attributes$C.image);
-      this.imageId = this.element.getAttribute(attributes$C.imageId);
-      this.variant = this.element.getAttribute(attributes$C.variant);
+      this.colorString = element.getAttribute(attributes$D.swatch);
+      this.image = this.element.getAttribute(attributes$D.image);
+      this.imageId = this.element.getAttribute(attributes$D.imageId);
+      this.variant = this.element.getAttribute(attributes$D.variant);
       this.outer = this.element.closest(selectors$U.productBlock);
-      this.gridImage = null;
-      this.imageDefault = null;
       this.hoverImages = [];
-      this.loadHovers = null;
 
       const matcher = new ColorMatch({color: this.colorString});
       matcher.getColor().then((result) => {
@@ -3710,12 +3736,11 @@
       this.setStyles();
 
       if (this.variant && this.outer) {
-        this.handleHovers();
         this.handleClicks();
       }
 
       if (!this.image && this.swatchLink) {
-        this.swatchLink.classList.add(classes$J.noImage);
+        this.swatchLink.classList.add(classes$K.noImage);
       }
     }
 
@@ -3729,88 +3754,21 @@
       }
     }
 
-    handleHovers() {
-      // Load images on PGI swatch hover
-      this.swatchLink.addEventListener('mouseenter', () => {
-        this.imageReplace = null;
-
-        if (this.imageId) {
-          const target = this.outer.querySelector(`[${attributes$C.dataGridImageTarget}="${this.imageId}"]`);
-          if (!target) {
-            this.gridImage = this.outer.querySelector(selectors$U.gridImage);
-
-            if (this.image && this.gridImage) {
-              // Container width rounded to the nearest 180 pixels
-              // Increses likelihood that the image will be cached
-              const ratio = window.devicePixelRatio || 1;
-              const pixels = this.gridImage.offsetWidth * ratio;
-              const widthRounded = Math.ceil(pixels / 180) * 180;
-              const defaultImageId = this.gridImage.hasAttribute(attributes$C.dataGridImageTargetDefault) ? this.gridImage.getAttribute(attributes$C.dataGridImageTargetDefault) : '';
-              if (defaultImageId === this.imageId && this.gridImage.hasAttribute(attributes$C.dataGridImageDefault)) {
-                // Get default loaded image
-                this.imageReplace = this.gridImage.getAttribute(attributes$C.dataGridImageDefault);
-                return;
-              }
-
-              if (this.element.hasAttribute(attributes$C.dataFetchedImage)) {
-                // Get already loaded image
-                this.imageReplace = this.element.getAttribute(attributes$C.dataFetchedImage);
-              } else {
-                // Fetch new image
-                const sizedImage = getSizedImageUrl(this.image, `${widthRounded}x`);
-
-                window
-                  .fetch(sizedImage)
-                  .then((response) => {
-                    return response.blob();
-                  })
-                  .then((blob) => {
-                    const objectURL = URL.createObjectURL(blob);
-                    this.imageReplace = `url("${objectURL}")`;
-                    this.element.setAttribute(attributes$C.dataFetchedImage, this.imageReplace);
-
-                    if (
-                      this.element.hasAttribute(attributes$C.index) &&
-                      this.outer.hasAttribute(attributes$C.dataFetchedImageIndex) &&
-                      parseInt(this.element.getAttribute(attributes$C.index)) === parseInt(this.outer.getAttribute(attributes$C.dataFetchedImageIndex))
-                    ) {
-                      this.replaceImages();
-
-                      this.outer.removeAttribute(attributes$C.dataFetchedImageIndex);
-                    }
-                  })
-                  .catch((error) => {
-                    console.log(`Error: ${error}`);
-                  });
-              }
-            }
-          }
-        }
-
-        this.loadHovers = this.outer.querySelector(selectors$U.loadHovers);
-
-        if (this.loadHovers && !this.loadHovers?.hasAttribute(attributes$C.loaded)) {
-          const content = document.createElement('div');
-          content.appendChild(this.loadHovers.querySelector('template').content.firstElementChild.cloneNode(true));
-          this.loadHovers.appendChild(content);
-          this.loadHovers.setAttribute(attributes$C.loaded, true);
-        }
-      });
-    }
-
     handleClicks() {
       // Change PGI featured image on swatch click
       this.swatchLink.addEventListener('click', (event) => {
-        const isFocusEnabled = !document.body.classList.contains(classes$J.noOutline);
+        const isFocusEnabled = !document.body.classList.contains(classes$K.noOutline);
+        const variantId = this.swatchLink.getAttribute(attributes$D.variant);
 
         if (!isFocusEnabled) {
           event.preventDefault();
-          this.updateImagesAndLinksOnEvent();
+          this.updateImagesAndLinksOnEvent(variantId);
         }
       });
 
       this.swatchLink.addEventListener('keyup', (event) => {
-        const isFocusEnabled = !document.body.classList.contains(classes$J.noOutline);
+        const isFocusEnabled = !document.body.classList.contains(classes$K.noOutline);
+        const variantId = this.swatchLink.getAttribute(attributes$D.variant);
 
         if (event.code !== theme.keyboardKeys.ENTER && event.code !== theme.keyboardKeys.NUMPADENTER) {
           return;
@@ -3819,14 +3777,14 @@
         if (!isFocusEnabled) {
           event.preventDefault();
           this.swatchLink.dispatchEvent(new Event('mouseenter', {bubbles: true}));
-          this.updateImagesAndLinksOnEvent();
+          this.updateImagesAndLinksOnEvent(variantId);
         }
       });
     }
 
-    updateImagesAndLinksOnEvent() {
+    updateImagesAndLinksOnEvent(variantId) {
       this.updateLinks();
-      this.replaceImages();
+      this.replaceImages(variantId);
     }
 
     updateLinks() {
@@ -3843,44 +3801,38 @@
 
       // Change quickview variant with swatch one
       if (this.quickView && theme.settings.quickBuy === 'quick_buy') {
-        this.quickView.setAttribute(attributes$C.variandId, this.variant);
+        this.quickView.setAttribute(attributes$D.variantId, this.variant);
       }
     }
 
-    replaceImages() {
-      this.imageSecondary = this.outer.querySelector(selectors$U.productImageSecondary);
-      this.outer.removeAttribute(attributes$C.dataFetchedImageIndex);
-
-      if (!this.imageReplace && this.element.hasAttribute(attributes$C.index)) {
-        this.outer.setAttribute(attributes$C.dataFetchedImageIndex, parseInt(this.element.getAttribute(attributes$C.index)));
-      }
+    replaceImages(id) {
+      const imageSecondary = this.outer.querySelector(`[${attributes$D.variantSecondaryId}="${id}"]`);
+      const gridImage = this.outer.querySelector(`[${attributes$D.variantId}="${id}"]`);
+      const gridImages = this.outer.querySelectorAll(selectors$U.gridImage);
+      const currentGridImage = [...gridImages].find((image) => image.classList.contains(classes$K.mediaVisible));
 
       // Add new loaded image and sync with the secondary image for smooth animation
-      if (this.imageReplace && this.gridImage && this.imageId) {
-        this.gridImage.setAttribute(attributes$C.dataGridImageTarget, this.imageId);
-
-        if (!this.gridImage.hasAttribute(attributes$C.dataGridImageDefault)) {
-          this.gridImage.setAttribute(attributes$C.dataGridImageDefault, window.getComputedStyle(this.gridImage).backgroundImage);
-        }
+      if (gridImage && this.imageId) {
+        if (!imageSecondary || !currentGridImage) return;
 
         const onAnimationEnd = () => {
           requestAnimationFrame(() => {
-            this.gridImage.style.setProperty('background-image', this.imageReplace);
+            currentGridImage.classList.remove(classes$K.mediaVisible);
+            gridImage.classList.add(classes$K.mediaVisible);
 
             requestAnimationFrame(() => {
-              this.imageSecondary.classList.remove(classes$J.mediaVisible);
+              imageSecondary.classList.remove(classes$K.mediaVisible);
             });
           });
 
-          this.imageSecondary.removeEventListener('animationend', onAnimationEnd);
+          imageSecondary.removeEventListener('animationend', onAnimationEnd);
         };
 
         requestAnimationFrame(() => {
-          this.imageSecondary.classList.add(classes$J.mediaVisible);
-          this.imageSecondary.style.setProperty('background-image', this.imageReplace);
+          imageSecondary.classList.add(classes$K.mediaVisible);
         });
 
-        this.imageSecondary.addEventListener('animationend', onAnimationEnd);
+        imageSecondary.addEventListener('animationend', onAnimationEnd);
       }
 
       // Change all hover images classes
@@ -3890,12 +3842,12 @@
 
       if (this.hoverImages.length > 1) {
         this.hoverImages.forEach((hoverImage) => {
-          hoverImage.classList.remove(classes$J.mediaHoverVisible);
+          hoverImage.classList.remove(classes$K.mediaHoverVisible);
 
-          if (hoverImage.getAttribute(attributes$C.variandId) === this.variant) {
-            hoverImage.classList.add(classes$J.mediaHoverVisible);
+          if (hoverImage.getAttribute(attributes$D.variantId) === this.variant) {
+            hoverImage.classList.add(classes$K.mediaHoverVisible);
           } else {
-            this.hoverImages[0].classList.add(classes$J.mediaHoverVisible);
+            this.hoverImages[0].classList.add(classes$K.mediaHoverVisible);
           }
         });
       }
@@ -3906,8 +3858,8 @@
     constructor() {
       super();
 
-      this.handle = this.getAttribute(attributes$C.handle);
-      this.label = this.getAttribute(attributes$C.label).trim().toLowerCase();
+      this.handle = this.getAttribute(attributes$D.handle);
+      this.label = this.getAttribute(attributes$D.label).trim().toLowerCase();
 
       fetchProduct(this.handle).then((product) => {
         this.product = product;
@@ -3941,12 +3893,12 @@
       if (!moreLink) return;
 
       moreLink?.addEventListener('click', () => {
-        this.classList.add(classes$J.isVisible);
+        this.classList.add(classes$K.isVisible);
       });
 
       section?.addEventListener('touchstart', (e) => {
         if (!this.contains(e.target)) {
-          this.classList.remove(classes$J.isVisible);
+          this.classList.remove(classes$K.isVisible);
           this.dispatchEvent(new Event('mouseleave', {bubbles: true}));
         }
       });
@@ -4003,11 +3955,11 @@
       const labelMargin = parseInt(window.getComputedStyle(label).getPropertyValue('margin-bottom'));
       const swatchMargin = parseInt(window.getComputedStyle(swatch).getPropertyValue('margin-bottom'));
       const selectorWrapper = swatchesContainer.closest(selectors$U.selectorWrapper);
-      selectorWrapper.classList.remove(classes$J.selectorLarge);
+      selectorWrapper.classList.remove(classes$K.selectorLarge);
 
       if (swatchesContainer.offsetHeight - containerPaddingTop > label.offsetHeight + labelMargin + swatch.offsetHeight * 2 + swatchMargin * 2) {
         swatchesContainer.style.setProperty('--swatches-max-height', `${swatchesContainer.offsetHeight}px`);
-        selectorWrapper.classList.add(classes$J.selectorLarge);
+        selectorWrapper.classList.add(classes$K.selectorLarge);
       }
     }
 
@@ -4034,10 +3986,10 @@
 
   const swatchesContainer = {
     onLoad() {
-      sections$y[this.id] = new SwatchesContainer(this.container);
+      sections$z[this.id] = new SwatchesContainer(this.container);
     },
     onUnload() {
-      sections$y[this.id].onUnload();
+      sections$z[this.id].onUnload();
     },
   };
 
@@ -4052,12 +4004,12 @@
     popupClose: '[data-popup-close]',
   };
 
-  const classes$I = {
+  const classes$J = {
     fill: 'fill',
     quickViewVisible: 'js-quick-view-visible',
   };
 
-  const sections$x = {};
+  const sections$y = {};
 
   class ProductGrid {
     constructor(container) {
@@ -4086,6 +4038,7 @@
           const draggable = !this.sliders.length; // Enable dragging if only layout is not Carousel
           let flkty = new Flickity.data(slider);
           let timer = 0;
+
           let cellSelector = selectors$T.productMediaSlide;
 
           if (!flkty.isActive && countImages > 1) {
@@ -4095,7 +4048,6 @@
               contain: true,
               wrapAround: true,
               imagesLoaded: true,
-              lazyLoad: true,
               pageDots: false,
               prevNextButtons: false,
               adaptiveHeight: false,
@@ -4111,14 +4063,15 @@
                     clearTimeout(timer);
                   }
 
-                  progressBar.classList.remove(classes$I.fill);
+                  progressBar.classList.remove(classes$J.fill);
+                  progressBar.offsetWidth; // Force a reflow to ensure the remove class takes effect immediately
 
                   requestAnimationFrame(() => {
-                    progressBar.classList.add(classes$I.fill);
+                    progressBar.classList.add(classes$J.fill);
                   });
 
                   timer = setTimeout(() => {
-                    progressBar.classList.remove(classes$I.fill);
+                    progressBar.classList.remove(classes$J.fill);
                   }, autoplaySpeed);
                 },
                 dragEnd: () => {
@@ -4129,14 +4082,14 @@
 
             if (!window.theme.touch) {
               mediaContainer.addEventListener('mouseenter', () => {
-                progressBar.classList.add(classes$I.fill);
+                progressBar.classList.add(classes$J.fill);
 
                 if (timer) {
                   clearTimeout(timer);
                 }
 
                 timer = setTimeout(() => {
-                  progressBar.classList.remove(classes$I.fill);
+                  progressBar.classList.remove(classes$J.fill);
                 }, autoplaySpeed);
 
                 flkty.options.autoPlay = autoplaySpeed;
@@ -4147,7 +4100,7 @@
                 if (timer) {
                   clearTimeout(timer);
                 }
-                progressBar.classList.remove(classes$I.fill);
+                progressBar.classList.remove(classes$J.fill);
               });
             }
           }
@@ -4181,7 +4134,7 @@
      * Event callback for Theme Editor `section:block:select` event
      */
     onBlockSelect() {
-      if (this.body.classList.contains(classes$I.quickViewVisible)) {
+      if (this.body.classList.contains(classes$J.quickViewVisible)) {
         this.popupClose();
       }
     }
@@ -4190,7 +4143,7 @@
      * Event callback for Theme Editor `section:deselect` event
      */
     onDeselect() {
-      if (this.body.classList.contains(classes$I.quickViewVisible)) {
+      if (this.body.classList.contains(classes$J.quickViewVisible)) {
         this.popupClose();
       }
     }
@@ -4199,7 +4152,7 @@
      * Event callback for Theme Editor `section:unload` event
      */
     onUnload() {
-      if (this.body.classList.contains(classes$I.quickViewVisible)) {
+      if (this.body.classList.contains(classes$J.quickViewVisible)) {
         this.popupClose();
       }
     }
@@ -4207,16 +4160,16 @@
 
   const productGrid = {
     onLoad() {
-      sections$x[this.id] = new ProductGrid(this.container);
+      sections$y[this.id] = new ProductGrid(this.container);
     },
     onBlockSelect() {
-      sections$x[this.id].onBlockSelect();
+      sections$y[this.id].onBlockSelect();
     },
     onDeselect() {
-      sections$x[this.id].onDeselect();
+      sections$y[this.id].onDeselect();
     },
     onUnload() {
-      sections$x[this.id].onUnload();
+      sections$y[this.id].onUnload();
     },
   };
 
@@ -4225,15 +4178,15 @@
     ajaxinatePagination: '#AjaxinatePagination',
   };
 
-  const attributes$B = {
+  const attributes$C = {
     ajaxinateId: 'data-ajaxinate-id',
   };
 
-  const classes$H = {
+  const classes$I = {
     isLoaded: 'is-loaded',
   };
 
-  let sections$w = {};
+  let sections$x = {};
 
   class Ajaxify {
     constructor(container) {
@@ -4251,8 +4204,8 @@
       this.ajaxinateContainer = this.container.querySelectorAll(selectors$S.ajaxinateContainer);
 
       this.ajaxinateContainer.forEach((element) => {
-        const ajaxinateContainer = `${selectors$S.ajaxinateContainer}[${attributes$B.ajaxinateId}="${element.dataset.ajaxinateId}"]`;
-        const ajaxinatePagination = `${selectors$S.ajaxinatePagination}[${attributes$B.ajaxinateId}="${element.dataset.ajaxinateId}"]`;
+        const ajaxinateContainer = `${selectors$S.ajaxinateContainer}[${attributes$C.ajaxinateId}="${element.dataset.ajaxinateId}"]`;
+        const ajaxinatePagination = `${selectors$S.ajaxinatePagination}[${attributes$C.ajaxinateId}="${element.dataset.ajaxinateId}"]`;
         const hasChildren = element.children.length > 0;
 
         if (hasChildren) {
@@ -4262,7 +4215,7 @@
             method: 'scroll',
           });
 
-          element.classList.add(classes$H.isLoaded);
+          element.classList.add(classes$I.isLoaded);
 
           this.endlessScroll.push(endlessScroll);
         }
@@ -4274,7 +4227,7 @@
       this.ajaxinateContainer = this.container.querySelectorAll(selectors$S.ajaxinateContainer);
 
       const instanceIDMatch = (instance) => instance.settings.container === id;
-      const elementIDMatch = (element) => `${selectors$S.ajaxinateContainer}[${attributes$B.ajaxinateId}="${element.dataset.ajaxinateId}"]` === id;
+      const elementIDMatch = (element) => `${selectors$S.ajaxinateContainer}[${attributes$C.ajaxinateId}="${element.dataset.ajaxinateId}"]` === id;
 
       // Compare `Ajaxinate` instances, destroy already initialised ones and remove them from `this.endlessScroll` array
       const instanceExists = this.endlessScroll.find(instanceIDMatch);
@@ -4291,8 +4244,8 @@
 
       if (!element) return;
 
-      const ajaxinateContainer = `${selectors$S.ajaxinateContainer}[${attributes$B.ajaxinateId}="${element.dataset.ajaxinateId}"]`;
-      const ajaxinatePagination = `${selectors$S.ajaxinatePagination}[${attributes$B.ajaxinateId}="${element.dataset.ajaxinateId}"]`;
+      const ajaxinateContainer = `${selectors$S.ajaxinateContainer}[${attributes$C.ajaxinateId}="${element.dataset.ajaxinateId}"]`;
+      const ajaxinatePagination = `${selectors$S.ajaxinatePagination}[${attributes$C.ajaxinateId}="${element.dataset.ajaxinateId}"]`;
       const hasChildren = element.children.length > 0;
 
       if (!hasChildren) return;
@@ -4303,7 +4256,7 @@
         method: 'scroll',
       });
 
-      element.classList.add(classes$H.isLoaded);
+      element.classList.add(classes$I.isLoaded);
       this.endlessScroll.push(endlessScroll);
     }
 
@@ -4350,23 +4303,23 @@
           instance.settings.method = 'scroll';
           instance.destroy();
         });
-        this.ajaxinateContainer.forEach((element) => element.classList.remove(classes$H.isLoaded));
+        this.ajaxinateContainer.forEach((element) => element.classList.remove(classes$I.isLoaded));
       }
     }
   }
 
   const ajaxify = {
     onLoad() {
-      sections$w = new Ajaxify(this.container);
+      sections$x = new Ajaxify(this.container);
     },
     onUnload: function () {
-      if (typeof sections$w.unload === 'function') {
-        sections$w.unload();
+      if (typeof sections$x.unload === 'function') {
+        sections$x.unload();
       }
     },
   };
 
-  const settings$6 = {
+  const settings$7 = {
     loadingTimeout: 300,
   };
 
@@ -4413,7 +4366,7 @@
     scrollable: '[data-custom-scrollbar]',
   };
 
-  const classes$G = {
+  const classes$H = {
     isActive: 'is-active',
     isExpanded: 'is-expanded',
     isVisible: 'is-visible',
@@ -4424,7 +4377,7 @@
     hidden: 'is-hidden',
   };
 
-  const attributes$A = {
+  const attributes$B = {
     filterActive: 'data-filter-active',
     preventScrollLock: 'data-prevent-scroll-lock',
     filtersDefaultState: 'data-filters-default-state',
@@ -4433,7 +4386,7 @@
     currentType: 'data-current-type',
   };
 
-  const sections$v = {};
+  const sections$w = {};
 
   class Filters {
     constructor(container) {
@@ -4537,8 +4490,8 @@
     handleVisibleTooltips() {
       if (this.tooltips.length > 0) {
         const tooltipTarget = document.querySelector(selectors$R.tooltipContainer);
-        if (tooltipTarget.classList.contains(classes$G.isVisible)) {
-          tooltipTarget.classList.remove(classes$G.isVisible);
+        if (tooltipTarget.classList.contains(classes$H.isVisible)) {
+          tooltipTarget.classList.remove(classes$H.isVisible);
         }
       }
     }
@@ -4579,7 +4532,7 @@
 
       if (this.isSearchPage) {
         this.searchForm = this.container.querySelector(selectors$R.searchForm);
-        this.currentType = this.container.getAttribute(attributes$A.currentType);
+        this.currentType = this.container.getAttribute(attributes$B.currentType);
       }
 
       // if submitted price equal to price range min and max remove price parameters
@@ -4837,7 +4790,7 @@
       event.preventDefault();
       setVars(); // Update css variables for correct filters drawer height
 
-      const filtersVisible = this.filters.classList.contains(classes$G.collectionFiltersVisible);
+      const filtersVisible = this.filters.classList.contains(classes$H.collectionFiltersVisible);
 
       filtersVisible ? this.hideFiltersDrawer() : this.showFiltersDrawer();
     }
@@ -4845,7 +4798,7 @@
     sortDropdownToggle() {
       if (!this.collectionSortOptions) return;
 
-      this.collectionSortOptions.classList.toggle(classes$G.collectionSortOptionWrapperVisible);
+      this.collectionSortOptions.classList.toggle(classes$H.collectionSortOptionWrapperVisible);
     }
 
     /*
@@ -4855,7 +4808,7 @@
       if (!this.collectionSortOptions) return;
 
       const isSortBar = this.sortToggle.contains(event.target);
-      const isVisible = this.collectionSortOptions.classList.contains(classes$G.collectionSortOptionWrapperVisible);
+      const isVisible = this.collectionSortOptions.classList.contains(classes$H.collectionSortOptionWrapperVisible);
 
       if (isVisible && !isSortBar) {
         this.sortDropdownToggle();
@@ -4902,8 +4855,8 @@
       if (window.innerWidth < theme.sizes.small) {
         const scrollableElement = document.querySelector(selectors$R.filtersList);
 
-        if (!this.filters.classList.contains(classes$G.collectionFiltersVisible)) {
-          this.filters.classList.add(classes$G.collectionFiltersVisible);
+        if (!this.filters.classList.contains(classes$H.collectionFiltersVisible)) {
+          this.filters.classList.add(classes$H.collectionFiltersVisible);
         }
 
         document.dispatchEvent(new CustomEvent('theme:scroll:lock', {bubbles: true, detail: scrollableElement}));
@@ -4919,9 +4872,9 @@
       if (window.innerWidth < theme.sizes.small) {
         requestAnimationFrame(() => {
           filterTriggers.forEach((element) => {
-            const isFilterActive = element.getAttribute(attributes$A.filterActive) === 'true';
+            const isFilterActive = element.getAttribute(attributes$B.filterActive) === 'true';
 
-            if (element.classList.contains(classes$G.isExpanded) && !isFilterActive) {
+            if (element.classList.contains(classes$H.isExpanded) && !isFilterActive) {
               element.dispatchEvent(new Event('click'));
             }
           });
@@ -4936,7 +4889,7 @@
       const filterTriggers = this.container.querySelectorAll(`${selectors$R.collapsibleTrigger}:not(${selectors$R.showMoreTrigger})`);
 
       // "Default filter layout" states
-      const filtersDefaultState = this.container.getAttribute(attributes$A.filtersDefaultState);
+      const filtersDefaultState = this.container.getAttribute(attributes$B.filtersDefaultState);
       const openFirstFilterOnly = filtersDefaultState === 'first-open';
       const openAllFilters = filtersDefaultState === 'open';
       const closeAllFilters = filtersDefaultState === 'closed';
@@ -4944,8 +4897,8 @@
       const firstTriggerIndex = this.enableSorting ? 1 : 0;
 
       filterTriggers.forEach((element, index) => {
-        const isCurrentFilterExpanded = element.classList.contains(classes$G.isExpanded);
-        const isCurrentFilterActive = element.getAttribute(attributes$A.filterActive) === 'true';
+        const isCurrentFilterExpanded = element.classList.contains(classes$H.isExpanded);
+        const isCurrentFilterActive = element.getAttribute(attributes$B.filterActive) === 'true';
         // 'first-open' state conditions
         const isFirstClosed = !isCurrentFilterExpanded && index === firstTriggerIndex;
         const allElseExpanded = isCurrentFilterExpanded && index !== firstTriggerIndex;
@@ -4969,17 +4922,17 @@
      * Hide filters drawer
      */
     hideFiltersDrawer() {
-      let filtersVisible = this.filters.classList.contains(classes$G.collectionFiltersVisible);
-      let loading = this.container.classList.contains(classes$G.isLoading);
+      let filtersVisible = this.filters.classList.contains(classes$H.collectionFiltersVisible);
+      let loading = this.container.classList.contains(classes$H.isLoading);
 
       if (filtersVisible) {
-        this.filters.classList.remove(classes$G.collectionFiltersVisible);
+        this.filters.classList.remove(classes$H.collectionFiltersVisible);
         this.a11y.removeTrapFocus();
       }
 
       // Enable page scroll if no loading state
       if (!loading) {
-        document.dispatchEvent(new CustomEvent('theme:scroll:unlock', {bubbles: true, detail: settings$6.loadingTimeout}));
+        document.dispatchEvent(new CustomEvent('theme:scroll:unlock', {bubbles: true, detail: settings$7.loadingTimeout}));
       }
     }
 
@@ -5011,11 +4964,11 @@
         const showMoreTrigger = showMoreActions.querySelector(selectors$R.showMoreTrigger);
         const showMoreContainer = showMoreActions.querySelector(selectors$R.showMoreContainer);
         const focusable = showMoreContainer.querySelectorAll(window.theme.focusable);
-        const isShowMoreContainerExpanded = showMoreContainer.getAttribute(attributes$A.ariaExpanded) === 'true';
+        const isShowMoreContainerExpanded = showMoreContainer.getAttribute(attributes$B.ariaExpanded) === 'true';
 
         if (!isShowMoreContainerExpanded) {
           focusable.forEach((item) => {
-            item.setAttribute(attributes$A.tabIndex, '-1');
+            item.setAttribute(attributes$B.tabIndex, '-1');
           });
         }
 
@@ -5047,16 +5000,16 @@
      */
     updateCollapsedContainerFocusableElements(filterCollapsibleTrigger, showMoreTrigger, focusable) {
       requestAnimationFrame(() => {
-        const isFilterExpanded = filterCollapsibleTrigger.getAttribute(attributes$A.ariaExpanded) === 'true';
-        const isShowMoreExpanded = showMoreTrigger.getAttribute(attributes$A.ariaExpanded) === 'true';
+        const isFilterExpanded = filterCollapsibleTrigger.getAttribute(attributes$B.ariaExpanded) === 'true';
+        const isShowMoreExpanded = showMoreTrigger.getAttribute(attributes$B.ariaExpanded) === 'true';
 
         focusable.forEach((item) => {
           if (!isFilterExpanded && isShowMoreExpanded) {
-            item.setAttribute(attributes$A.tabIndex, '-1');
+            item.setAttribute(attributes$B.tabIndex, '-1');
           }
 
           if (isFilterExpanded && isShowMoreExpanded) {
-            item.removeAttribute(attributes$A.tabIndex);
+            item.removeAttribute(attributes$B.tabIndex);
           }
         });
       });
@@ -5069,16 +5022,16 @@
     updateShowMoreFocusableElements(event, focusable) {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          const isExpanded = event.target.getAttribute(attributes$A.ariaExpanded) === 'true';
+          const isExpanded = event.target.getAttribute(attributes$B.ariaExpanded) === 'true';
 
           focusable.forEach((item, index) => {
             if (isExpanded) {
-              item.removeAttribute(attributes$A.tabIndex);
+              item.removeAttribute(attributes$B.tabIndex);
 
               if (index === 0) item.focus();
               return;
             }
-            item.setAttribute(attributes$A.tabIndex, '-1');
+            item.setAttribute(attributes$B.tabIndex, '-1');
           });
         });
       });
@@ -5182,18 +5135,18 @@
       this.alreadyClicked = true;
       const button = event.currentTarget;
       const selectedTag = button.dataset.tag;
-      let isTagSelected = button.parentNode.classList.contains(classes$G.isActive);
+      let isTagSelected = button.parentNode.classList.contains(classes$H.isActive);
 
       if (isTagSelected) {
         let tagIndex = this.tags.indexOf(selectedTag);
 
-        button.parentNode.classList.remove(classes$G.isActive);
+        button.parentNode.classList.remove(classes$H.isActive);
 
         if (tagIndex > -1) {
           this.tags.splice(tagIndex, 1);
         }
       } else {
-        button.parentNode.classList.add(classes$G.isActive);
+        button.parentNode.classList.add(classes$H.isActive);
 
         this.tags.push(selectedTag);
       }
@@ -5201,8 +5154,8 @@
       let url = this.collectionHandle + '/' + this.tags.join('+') + '?sort_by=' + this.getSortValue();
 
       // Close filters dropdown on tag select
-      this.container.querySelector(selectors$R.filter).classList.remove(classes$G.isExpanded);
-      this.container.querySelector(selectors$R.filter).setAttribute(attributes$A.ariaExpanded, false);
+      this.container.querySelector(selectors$R.filter).classList.remove(classes$H.isExpanded);
+      this.container.querySelector(selectors$R.filter).setAttribute(attributes$B.ariaExpanded, false);
       this.container.setAttribute('data-tags', '[' + this.tags + ']');
       this.renderTagFiltersProducts(url);
     }
@@ -5264,12 +5217,12 @@
       this.alreadyClicked = true;
 
       this.container.querySelectorAll(selectors$R.filterTag).forEach((element) => {
-        element.classList.remove(classes$G.isActive);
+        element.classList.remove(classes$H.isActive);
       });
 
       this.container.querySelectorAll(selectors$R.filter).forEach((element) => {
-        element.classList.remove(classes$G.isExpanded);
-        element.setAttribute(attributes$A.ariaExpanded, false);
+        element.classList.remove(classes$H.isExpanded);
+        element.setAttribute(attributes$B.ariaExpanded, false);
       });
 
       // Reset saved tags
@@ -5312,7 +5265,7 @@
       // Stop loading animation
       setTimeout(() => {
         this.finishLoading();
-      }, settings$6.loadingTimeout * 1.5);
+      }, settings$7.loadingTimeout * 1.5);
     }
 
     /*
@@ -5348,7 +5301,7 @@
      * Show loading animation and lock body scroll
      */
     startLoading() {
-      this.container.classList.add(classes$G.isLoading);
+      this.container.classList.add(classes$H.isLoading);
 
       if (window.innerWidth >= theme.sizes.small) {
         document.dispatchEvent(new CustomEvent('theme:scroll:lock', {bubbles: true}));
@@ -5367,25 +5320,25 @@
      * Hide loading animation and unlock body scroll
      */
     finishLoading() {
-      const popups = document.querySelectorAll(`${selectors$R.popupsSection} .${classes$G.popupVisible}`);
+      const popups = document.querySelectorAll(`${selectors$R.popupsSection} .${classes$H.popupVisible}`);
       const isPopupActive = popups.length > 0;
 
-      this.container.classList.remove(classes$G.isLoading);
+      this.container.classList.remove(classes$H.isLoading);
 
       // Unlock the scroll unless there is a visible popup or there are only popups of types 'bar' and 'cookie'
       if (isPopupActive) {
         let preventScrollPopupsCount = 0;
         [...popups].forEach((popup) => {
-          if (popup.hasAttribute(attributes$A.preventScrollLock)) {
+          if (popup.hasAttribute(attributes$B.preventScrollLock)) {
             preventScrollPopupsCount += 1;
           }
         });
 
         if (preventScrollPopupsCount === popups.length) {
-          document.dispatchEvent(new CustomEvent('theme:scroll:unlock', {bubbles: true, detail: settings$6.loadingTimeout}));
+          document.dispatchEvent(new CustomEvent('theme:scroll:unlock', {bubbles: true, detail: settings$7.loadingTimeout}));
         }
       } else if (window.innerWidth >= theme.sizes.small) {
-        document.dispatchEvent(new CustomEvent('theme:scroll:unlock', {bubbles: true, detail: settings$6.loadingTimeout}));
+        document.dispatchEvent(new CustomEvent('theme:scroll:unlock', {bubbles: true, detail: settings$7.loadingTimeout}));
       }
     }
 
@@ -5433,13 +5386,13 @@
 
   const filters = {
     onLoad() {
-      sections$v[this.id] = new Filters(this.container);
+      sections$w[this.id] = new Filters(this.container);
     },
     onDeselect() {
-      sections$v[this.id].onDeselect();
+      sections$w[this.id].onDeselect();
     },
     onUnload() {
-      sections$v[this.id].onUnload();
+      sections$w[this.id].onUnload();
     },
   };
 
@@ -5461,7 +5414,7 @@
     ajaxinatePagination: '#AjaxinatePagination',
   };
 
-  const classes$F = {
+  const classes$G = {
     current: 'current',
     hide: 'hide',
     alt: 'alt',
@@ -5470,7 +5423,7 @@
     isLoaded: 'is-loaded',
   };
 
-  const attributes$z = {
+  const attributes$A = {
     tabsLink: 'data-tabs-link',
     tab: 'data-tab',
     tabRef: 'data-tab-ref',
@@ -5483,14 +5436,14 @@
     ajaxinateId: 'data-ajaxinate-id',
   };
 
-  const sections$u = {};
+  const sections$v = {};
 
   class Tabs {
     constructor(container) {
       this.container = container;
       this.tabsContents = container.querySelector(selectors$Q.tabsContents);
       this.animateElementsTimer = null;
-      this.isSearchPage = container.closest(`[${attributes$z.searchPerformed}="true"]`) != null;
+      this.isSearchPage = container.closest(`[${attributes$A.searchPerformed}="true"]`) != null;
 
       if (this.container) {
         this.scrollable = this.container.querySelector(selectors$Q.scrollable);
@@ -5514,9 +5467,9 @@
       this.searchForm = this.container.querySelector(selectors$Q.searchForm);
       this.searchFormData = new FormData(this.searchForm);
       this.searchTerm = encodeURIComponent(this.searchFormData.get('q'));
-      this.currentType = this.container.getAttribute(attributes$z.currentType);
+      this.currentType = this.container.getAttribute(attributes$A.currentType);
       this.sectionId = this.container.dataset.sectionId;
-      this.searchForAllTypes = this.container.getAttribute(attributes$z.allTypes) === 'true';
+      this.searchForAllTypes = this.container.getAttribute(attributes$A.allTypes) === 'true';
       this.fetchURL = '';
       this.searchParams = '';
       this.cachedResults = {};
@@ -5533,12 +5486,12 @@
     init() {
       const tabsNavList = this.container.querySelectorAll(selectors$Q.tabsLink);
       const firstTabsLink = this.container.querySelector(
-        `[${attributes$z.tabsLink}="${this.container.hasAttribute(attributes$z.tabStartIndex) ? this.container.getAttribute(attributes$z.tabStartIndex) : 0}"]`
+        `[${attributes$A.tabsLink}="${this.container.hasAttribute(attributes$A.tabStartIndex) ? this.container.getAttribute(attributes$A.tabStartIndex) : 0}"]`
       );
-      const firstTab = this.container.querySelector(`[${attributes$z.tab}="${this.container.hasAttribute(attributes$z.tabStartIndex) ? this.container.getAttribute(attributes$z.tabStartIndex) : 0}"]`);
+      const firstTab = this.container.querySelector(`[${attributes$A.tab}="${this.container.hasAttribute(attributes$A.tabStartIndex) ? this.container.getAttribute(attributes$A.tabStartIndex) : 0}"]`);
 
-      firstTab?.classList.add(classes$F.current);
-      firstTabsLink?.classList.add(classes$F.current);
+      firstTab?.classList.add(classes$G.current);
+      firstTabsLink?.classList.add(classes$G.current);
 
       this.checkVisibleTabsLinks();
 
@@ -5564,8 +5517,8 @@
      * Handle tabs navigations listeners
      */
     handleTabsNavListeners(element) {
-      const tabId = element.getAttribute(attributes$z.tabsLink);
-      const tab = this.container.querySelector(`[${attributes$z.tab}="${tabId}"]`);
+      const tabId = element.getAttribute(attributes$A.tabsLink);
+      const tab = this.container.querySelector(`[${attributes$A.tab}="${tabId}"]`);
 
       if (!tab) return;
 
@@ -5588,8 +5541,8 @@
     openTabFromHistory(event) {
       const target = event.target;
       const element = this.container.querySelector(event.detail.element);
-      const tabId = element.getAttribute(attributes$z.tabsLink);
-      const tab = this.container.querySelector(`[${attributes$z.tab}="${tabId}"]`);
+      const tabId = element.getAttribute(attributes$A.tabsLink);
+      const tab = this.container.querySelector(`[${attributes$A.tab}="${tabId}"]`);
 
       if (!tab) return;
 
@@ -5602,12 +5555,12 @@
      */
     handleURLSearchParams(event, updateHistory = true) {
       const target = event.target.matches(selectors$Q.tabsLink) ? event.target : event.target.closest(selectors$Q.tabsLink);
-      const type = target.getAttribute(attributes$z.type);
-      const tabId = target.getAttribute(attributes$z.tabsLink);
-      const tab = this.container.querySelector(`[${attributes$z.tab}="${tabId}"]`);
+      const type = target.getAttribute(attributes$A.type);
+      const tabId = target.getAttribute(attributes$A.tabsLink);
+      const tab = this.container.querySelector(`[${attributes$A.tab}="${tabId}"]`);
       const currentPage = tab.querySelector(selectors$Q.currentPage);
       const filtersForm = document.querySelector(selectors$Q.filtersForm);
-      let currentPageStr = currentPage ? `&page=${currentPage.getAttribute(attributes$z.currentPage)}` : '';
+      let currentPageStr = currentPage ? `&page=${currentPage.getAttribute(attributes$A.currentPage)}` : '';
 
       this.searchParams = getSearchParams(this.searchForm, filtersForm, [], type);
       if (type === 'product') {
@@ -5637,9 +5590,9 @@
      * Fetch tab content and handle tab change events
      */
     tabChangeFetchContent(element, tab) {
-      const type = element.getAttribute(attributes$z.type);
-      const tabId = element.getAttribute(attributes$z.tabsLink);
-      const tabContainer = this.container.querySelector(`[${attributes$z.tab}="${tabId}"]`);
+      const type = element.getAttribute(attributes$A.type);
+      const tabId = element.getAttribute(attributes$A.tabsLink);
+      const tabContainer = this.container.querySelector(`[${attributes$A.tab}="${tabId}"]`);
       const typeRendered = this.currentType === type;
 
       if (this.cachedResults[tabId] || typeRendered) {
@@ -5669,7 +5622,7 @@
         })
         .then((text) => {
           const parsed = new DOMParser().parseFromString(text, 'text/html');
-          const resultsMarkup = parsed.querySelector(`[${attributes$z.tab}="${tabId}"]`).innerHTML;
+          const resultsMarkup = parsed.querySelector(`[${attributes$A.tab}="${tabId}"]`).innerHTML;
 
           // Remove the container with search results with all search types
           if (this.searchForAllTypes) {
@@ -5707,9 +5660,9 @@
       const articleResults = searchParams.indexOf('type=article') > -1;
       const pageResults = searchParams.indexOf('type=page') > -1;
       const shouldOpenTab = productResults || articleResults || pageResults;
-      const typeProduct = this.container.querySelector(`${selectors$Q.tabsLink}[${attributes$z.type}="product"]`);
-      const typeArticle = this.container.querySelector(`${selectors$Q.tabsLink}[${attributes$z.type}="article"]`);
-      const typePage = this.container.querySelector(`${selectors$Q.tabsLink}[${attributes$z.type}="page"]`);
+      const typeProduct = this.container.querySelector(`${selectors$Q.tabsLink}[${attributes$A.type}="product"]`);
+      const typeArticle = this.container.querySelector(`${selectors$Q.tabsLink}[${attributes$A.type}="article"]`);
+      const typePage = this.container.querySelector(`${selectors$Q.tabsLink}[${attributes$A.type}="page"]`);
 
       if (!shouldOpenTab) {
         // Go to initial search page results if the 'all-search-types' container is removed
@@ -5722,7 +5675,7 @@
           new CustomEvent('theme:tab:open-from-history', {
             bubbles: true,
             detail: {
-              element: `[${attributes$z.type}="product"]`,
+              element: `[${attributes$A.type}="product"]`,
             },
           })
         );
@@ -5733,7 +5686,7 @@
           new CustomEvent('theme:tab:open-from-history', {
             bubbles: true,
             detail: {
-              element: `[${attributes$z.type}="article"]`,
+              element: `[${attributes$A.type}="article"]`,
             },
           })
         );
@@ -5744,7 +5697,7 @@
           new CustomEvent('theme:tab:open-from-history', {
             bubbles: true,
             detail: {
-              element: `[${attributes$z.type}="page"]`,
+              element: `[${attributes$A.type}="page"]`,
             },
           })
         );
@@ -5789,9 +5742,9 @@
       if (ajaxinateContainer.length === 0) return;
 
       // Find the current active tab's ajaxinate container
-      const activeTab = this.container.querySelector(`${selectors$Q.tab}.${classes$F.current}`);
+      const activeTab = this.container.querySelector(`${selectors$Q.tab}.${classes$G.current}`);
       const tabAjaxinateContainer = activeTab?.querySelector(selectors$Q.ajaxinateContainer);
-      const isLoaded = tabAjaxinateContainer?.classList.contains(classes$F.isLoaded);
+      const isLoaded = tabAjaxinateContainer?.classList.contains(classes$G.isLoaded);
 
       // Whenever the search page with all types is loaded, there is no active tab
       if (!activeTab) {
@@ -5820,8 +5773,8 @@
         // Update method to 'click' instead of 'scroll' to prevent Ajaxinate loading on other closed tabs with more results
         [...this.endlessCollection.endlessScroll].forEach((instance) => {
           const containerElement = instance.containerElement;
-          const activeTabPresent = [...this.tab].find((tab) => tab.classList.contains(classes$F.current));
-          const isInActiveTab = containerElement.closest(`${selectors$Q.tab}.${classes$F.current}`) !== null;
+          const activeTabPresent = [...this.tab].find((tab) => tab.classList.contains(classes$G.current));
+          const isInActiveTab = containerElement.closest(`${selectors$Q.tab}.${classes$G.current}`) !== null;
 
           if (!isInActiveTab && activeTabPresent) instance.settings.method = 'click';
         });
@@ -5867,7 +5820,7 @@
       if (this.endlessCollection?.endlessScroll.length === 0) return;
 
       const ajaxinateContainer = tab.querySelector(selectors$Q.ajaxinateContainer);
-      const id = `${selectors$Q.ajaxinateContainer}[${attributes$z.ajaxinateId}="${ajaxinateContainer?.dataset.ajaxinateId}"]`;
+      const id = `${selectors$Q.ajaxinateContainer}[${attributes$A.ajaxinateId}="${ajaxinateContainer?.dataset.ajaxinateId}"]`;
 
       if (!ajaxinateContainer) return;
 
@@ -5903,7 +5856,7 @@
      * Tab change event
      */
     tabChange(element, tab) {
-      if (element.classList.contains(classes$F.current)) return;
+      if (element.classList.contains(classes$G.current)) return;
 
       if (this.isSearchPage) {
         this.tabChangeFetchContent(element, tab);
@@ -5921,25 +5874,25 @@
      * Handle active tab classes
      */
     handleActiveTabClasses(element, tab) {
-      const lastActiveTab = this.container.querySelector(`${selectors$Q.tab}.${classes$F.current}`);
-      const lastActiveTabsLink = this.container.querySelector(`${selectors$Q.tabsLink}.${classes$F.current}`);
+      const lastActiveTab = this.container.querySelector(`${selectors$Q.tab}.${classes$G.current}`);
+      const lastActiveTabsLink = this.container.querySelector(`${selectors$Q.tabsLink}.${classes$G.current}`);
 
       // Update active tab's classes
-      lastActiveTab?.classList.remove(classes$F.current);
-      lastActiveTabsLink?.classList.remove(classes$F.current);
-      element.classList.add(classes$F.current);
-      tab.classList.add(classes$F.current);
+      lastActiveTab?.classList.remove(classes$G.current);
+      lastActiveTabsLink?.classList.remove(classes$G.current);
+      element.classList.add(classes$G.current);
+      tab.classList.add(classes$G.current);
 
-      if (element.classList.contains(classes$F.hide)) {
-        tab.classList.add(classes$F.hide);
+      if (element.classList.contains(classes$G.hide)) {
+        tab.classList.add(classes$G.hide);
       }
 
       // Update tab's referenced elements' classes
       this.tabRef?.forEach((refElement) => {
-        const isActive = refElement.classList.contains(classes$F.current);
-        const shouldBeActive = refElement.getAttribute(attributes$z.tabRef) === tab.getAttribute(attributes$z.tab);
+        const isActive = refElement.classList.contains(classes$G.current);
+        const shouldBeActive = refElement.getAttribute(attributes$A.tabRef) === tab.getAttribute(attributes$A.tab);
 
-        refElement.classList.toggle(classes$F.current, !isActive && shouldBeActive);
+        refElement.classList.toggle(classes$G.current, !isActive && shouldBeActive);
       });
     }
 
@@ -5972,8 +5925,8 @@
     triggerTabAnimations(tab) {
       if (theme.settings.animations == 'false') return;
 
-      this.tabsContents.querySelectorAll(`.${classes$F.aosInit}`).forEach((element) => {
-        element.classList.remove(classes$F.aosAnimate);
+      this.tabsContents.querySelectorAll(`.${classes$G.aosInit}`).forEach((element) => {
+        element.classList.remove(classes$G.aosAnimate);
       });
 
       if (this.animateElementsTimer) {
@@ -5981,8 +5934,8 @@
       }
 
       this.animateElementsTimer = setTimeout(() => {
-        tab.querySelectorAll(`.${classes$F.aosInit}`).forEach((element) => {
-          element.classList.add(classes$F.aosAnimate);
+        tab.querySelectorAll(`.${classes$G.aosInit}`).forEach((element) => {
+          element.classList.add(classes$G.aosAnimate);
         });
       }, 150);
     }
@@ -6000,13 +5953,13 @@
      */
     checkVisibleTabsLinks() {
       const tabsNavList = this.container.querySelectorAll(selectors$Q.tabsLink);
-      const tabsNavListHidden = this.container.querySelectorAll(`${selectors$Q.tabsLink}.${classes$F.hide}`);
+      const tabsNavListHidden = this.container.querySelectorAll(`${selectors$Q.tabsLink}.${classes$G.hide}`);
       const difference = tabsNavList.length - tabsNavListHidden.length;
 
       if (difference < 2) {
-        this.container.classList.add(classes$F.alt);
+        this.container.classList.add(classes$G.alt);
       } else {
-        this.container.classList.remove(classes$F.alt);
+        this.container.classList.remove(classes$G.alt);
       }
     }
 
@@ -6042,13 +5995,13 @@
 
   const tabs = {
     onLoad() {
-      sections$u[this.id] = new Tabs(this.container);
+      sections$v[this.id] = new Tabs(this.container);
     },
     onBlockSelect(e) {
-      sections$u[this.id].onBlockSelect(e);
+      sections$v[this.id].onBlockSelect(e);
     },
     onUnload() {
-      sections$u[this.id].onUnload();
+      sections$v[this.id].onUnload();
     },
   };
 
@@ -6059,18 +6012,18 @@
     quickviewItem: '[data-quick-view-item]',
     tabsLink: '[data-tabs-link]',
   };
-  const classes$E = {
+  const classes$F = {
     open: 'is-open',
     drawerOpen: 'js-drawer-open',
     contentVisibilityHidden: 'cv-h',
     header: 'site-header',
   };
-  const attributes$y = {
+  const attributes$z = {
     ariaExpanded: 'aria-expanded',
     ariaControls: 'aria-controls',
   };
 
-  let sections$t = {};
+  let sections$u = {};
 
   class Drawer {
     constructor(container) {
@@ -6091,7 +6044,7 @@
 
       // Define drawer close event
       this.drawerCloseEvent = (event) => {
-        const activeDrawer = document.querySelector(`${selectors$P.drawer}.${classes$E.open}`);
+        const activeDrawer = document.querySelector(`${selectors$P.drawer}.${classes$F.open}`);
         let isDrawerToggle = false;
 
         if (!activeDrawer) {
@@ -6137,12 +6090,12 @@
 
     toggle(e) {
       e.preventDefault();
-      const drawer = document.querySelector(`#${e.target.getAttribute(attributes$y.ariaControls)}`);
+      const drawer = document.querySelector(`#${e.target.getAttribute(attributes$z.ariaControls)}`);
       if (!drawer) {
         return;
       }
 
-      const isDrawerOpen = drawer.classList.contains(classes$E.open);
+      const isDrawerOpen = drawer.classList.contains(classes$F.open);
 
       if (isDrawerOpen) {
         this.close();
@@ -6153,7 +6106,7 @@
 
     open(e) {
       const drawerOpenButton = e.target;
-      const drawer = document.querySelector(`#${e.target.getAttribute(attributes$y.ariaControls)}`);
+      const drawer = document.querySelector(`#${e.target.getAttribute(attributes$z.ariaControls)}`);
 
       if (!drawer) {
         return;
@@ -6163,11 +6116,11 @@
       // Disable page scroll right away
       document.dispatchEvent(new CustomEvent('theme:scroll:lock', {bubbles: true, detail: drawerScroller}));
       document.dispatchEvent(new CustomEvent('theme:drawer:open'), {bubbles: true});
-      document.body.classList.add(classes$E.drawerOpen);
+      document.body.classList.add(classes$F.drawerOpen);
 
-      drawer.classList.add(classes$E.open);
-      drawer.classList.remove(classes$E.contentVisibilityHidden);
-      drawerOpenButton.setAttribute(attributes$y.ariaExpanded, true);
+      drawer.classList.add(classes$F.open);
+      drawer.classList.remove(classes$F.contentVisibilityHidden);
+      drawerOpenButton.setAttribute(attributes$z.ariaExpanded, true);
 
       setTimeout(() => {
         this.a11y.state.trigger = drawerOpenButton;
@@ -6178,27 +6131,27 @@
     }
 
     close() {
-      if (!document.body.classList.contains(classes$E.drawerOpen)) {
+      if (!document.body.classList.contains(classes$F.drawerOpen)) {
         return;
       }
 
-      const drawer = document.querySelector(`${selectors$P.drawer}.${classes$E.open}`);
+      const drawer = document.querySelector(`${selectors$P.drawer}.${classes$F.open}`);
 
       this.drawerToggleButtons.forEach((button) => {
-        button.setAttribute(attributes$y.ariaExpanded, false);
+        button.setAttribute(attributes$z.ariaExpanded, false);
       });
 
       this.a11y.removeTrapFocus({
         container: drawer,
       });
 
-      drawer.classList.remove(classes$E.open);
+      drawer.classList.remove(classes$F.open);
 
       const onDrawerTransitionEnd = (event) => {
         if (event.target !== drawer) return;
 
         requestAnimationFrame(() => {
-          drawer.classList.add(classes$E.contentVisibilityHidden);
+          drawer.classList.add(classes$F.contentVisibilityHidden);
           document.dispatchEvent(new CustomEvent('theme:drawer:close'), {bubbles: true});
           document.dispatchEvent(new CustomEvent('theme:scroll:unlock', {bubbles: true}));
         });
@@ -6208,7 +6161,7 @@
 
       drawer.addEventListener('transitionend', onDrawerTransitionEnd);
 
-      document.body.classList.remove(classes$E.drawerOpen);
+      document.body.classList.remove(classes$F.drawerOpen);
     }
 
     onUnload() {
@@ -6237,14 +6190,14 @@
 
   const drawer = {
     onLoad() {
-      if (this.container.classList.contains(classes$E.header)) {
+      if (this.container.classList.contains(classes$F.header)) {
         this.container = this.container.parentNode;
       }
 
-      sections$t[this.id] = new Drawer(this.container);
+      sections$u[this.id] = new Drawer(this.container);
     },
     onUnload() {
-      sections$t[this.id].onUnload();
+      sections$u[this.id].onUnload();
     },
   };
 
@@ -6264,24 +6217,17 @@
     }
   };
 
-  const selectors$O = {
-    headerSticky: '[data-header-sticky]',
-    headerHeight: '[data-header-height]',
-  };
-
   const scrollTo = (elementTop) => {
-    /* Sticky header check */
-    const headerHeight =
-      document.querySelector(selectors$O.headerSticky) && document.querySelector(selectors$O.headerHeight) ? document.querySelector(selectors$O.headerHeight).getBoundingClientRect().height : 0;
+    const {stickyHeaderHeight} = readHeights();
 
     window.scrollTo({
-      top: elementTop + window.scrollY - headerHeight,
+      top: elementTop + Math.round(window.scrollY) - stickyHeaderHeight,
       left: 0,
       behavior: 'smooth',
     });
   };
 
-  const selectors$N = {
+  const selectors$O = {
     list: '[data-store-availability-list]',
   };
 
@@ -6338,7 +6284,7 @@
       });
       this.modalIsOpen = true;
 
-      const scrollableElement = document.querySelector(selectors$N.list);
+      const scrollableElement = document.querySelector(selectors$O.list);
       document.dispatchEvent(new CustomEvent('theme:scroll:lock', {bubbles: true, detail: scrollableElement}));
 
       if (this.config.scrollIntoView) {
@@ -6403,7 +6349,7 @@
     }
   }
 
-  const selectors$M = {
+  const selectors$N = {
     body: 'body',
     storeAvailabilityModal: '[data-store-availability-modal]',
     storeAvailabilityModalOpen: '[data-store-availability-modal-open]',
@@ -6411,7 +6357,7 @@
     storeAvailabilityModalProductTitle: '[data-store-availability-modal-product__title]',
   };
 
-  const classes$D = {
+  const classes$E = {
     openClass: 'store-availabilities-modal--active',
   };
 
@@ -6430,10 +6376,10 @@
 
     _initModal() {
       return new Modals('StoreAvailabilityModal', {
-        close: selectors$M.storeAvailabilityModalClose,
-        open: selectors$M.storeAvailabilityModalOpen,
+        close: selectors$N.storeAvailabilityModalClose,
+        open: selectors$N.storeAvailabilityModalOpen,
         closeModalOnClick: true,
-        openClass: classes$D.openClass,
+        openClass: classes$E.openClass,
         scrollIntoView: false,
       });
     }
@@ -6448,8 +6394,8 @@
           return response.text();
         })
         .then(function (storeAvailabilityHTML) {
-          const body = document.querySelector(selectors$M.body);
-          let storeAvailabilityModal = body.querySelector(selectors$M.storeAvailabilityModal);
+          const body = document.querySelector(selectors$N.body);
+          let storeAvailabilityModal = body.querySelector(selectors$N.storeAvailabilityModal);
           if (storeAvailabilityModal) {
             storeAvailabilityModal.remove();
           }
@@ -6462,7 +6408,7 @@
             return;
           }
 
-          const storeAvailabilityModalOpen = self.container.querySelector(selectors$M.storeAvailabilityModalOpen);
+          const storeAvailabilityModalOpen = self.container.querySelector(selectors$N.storeAvailabilityModalOpen);
           // Only create modal if open modal element exists
           if (!storeAvailabilityModalOpen) {
             return;
@@ -6471,7 +6417,7 @@
           self.modal = self._initModal();
           self._updateProductTitle(productTitle);
 
-          storeAvailabilityModal = self.container.querySelector(selectors$M.storeAvailabilityModal);
+          storeAvailabilityModal = self.container.querySelector(selectors$N.storeAvailabilityModal);
           if (storeAvailabilityModal) {
             body.appendChild(storeAvailabilityModal);
           }
@@ -6479,7 +6425,7 @@
     }
 
     _updateProductTitle(productTitle) {
-      const storeAvailabilityModalProductTitle = this.container.querySelector(selectors$M.storeAvailabilityModalProductTitle);
+      const storeAvailabilityModalProductTitle = this.container.querySelector(selectors$N.storeAvailabilityModalProductTitle);
       storeAvailabilityModalProductTitle.textContent = productTitle;
     }
   }
@@ -6499,18 +6445,18 @@
    * to keep a complex map of keys and values.
    */
 
-  const selectors$L = {
+  const selectors$M = {
     form: '[data-product-form]',
     optionPosition: '[data-option-position]',
     optionInput: '[name^="options"], [data-popout-option]',
   };
 
-  const classes$C = {
+  const classes$D = {
     soldOut: 'sold-out',
     unavailable: 'unavailable',
   };
 
-  const attributes$x = {
+  const attributes$y = {
     optionPosition: 'data-option-position',
     selectOptionValue: 'data-value',
   };
@@ -6519,9 +6465,9 @@
     constructor(container, productJSON) {
       this.container = container;
       this.productJSON = productJSON;
-      this.form = this.container.querySelector(selectors$L.form);
+      this.form = this.container.querySelector(selectors$M.form);
       this.formData = new FormData(this.form);
-      this.optionElements = this.container.querySelectorAll(selectors$L.optionInput);
+      this.optionElements = this.container.querySelectorAll(selectors$M.optionInput);
 
       if (this.productJSON && this.form) {
         this.init();
@@ -6536,14 +6482,14 @@
       this.getCurrentState();
 
       this.optionElements.forEach((el) => {
-        const val = el.value || el.getAttribute(attributes$x.selectOptionValue);
-        const optionSelector = el.closest(selectors$L.optionPosition);
+        const val = el.value || el.getAttribute(attributes$y.selectOptionValue);
+        const optionSelector = el.closest(selectors$M.optionPosition);
 
         if (!optionSelector) {
           return;
         }
 
-        const positionString = optionSelector.getAttribute(attributes$x.optionPosition);
+        const positionString = optionSelector.getAttribute(attributes$y.optionPosition);
         // subtract one because option.position in liquid does not count form zero, but JS arrays do
         const position = parseInt(positionString, 10) - 1;
 
@@ -6561,11 +6507,11 @@
           return perfectMatch;
         });
 
-        el.parentElement.classList.remove(classes$C.soldOut, classes$C.unavailable);
+        el.parentElement.classList.remove(classes$D.soldOut, classes$D.unavailable);
         if (typeof found === 'undefined') {
-          el.parentElement.classList.add(classes$C.unavailable);
+          el.parentElement.classList.add(classes$D.unavailable);
         } else if (found?.available === false) {
-          el.parentElement.classList.add(classes$C.soldOut);
+          el.parentElement.classList.add(classes$D.soldOut);
         }
       });
     }
@@ -6593,22 +6539,22 @@
 
   */
 
-  const settings$5 = {
+  const settings$6 = {
     templateIndex: 1,
   };
 
-  const classes$B = {
+  const classes$C = {
     popupNotification: 'pswp--notification pswp--not-close-btn',
   };
 
-  const attributes$w = {
+  const attributes$x = {
     notificationPopup: 'data-notification-popup',
   };
 
   const options$1 = {
     history: false,
     focus: false,
-    mainClass: classes$B.popupNotification,
+    mainClass: classes$C.popupNotification,
     closeOnVerticalDrag: false,
   };
 
@@ -6616,7 +6562,7 @@
     constructor(button) {
       this.button = button;
       this.a11y = a11y;
-      this.notificationPopupHtml = this.button.getAttribute(attributes$w.notificationPopup);
+      this.notificationPopupHtml = this.button.getAttribute(attributes$x.notificationPopup);
 
       if (this.notificationPopupHtml.trim() !== '') {
         this.init();
@@ -6632,11 +6578,11 @@
 
       this.a11y.state.trigger = this.button;
 
-      new LoadPhotoswipe(items, options$1, settings$5.templateIndex);
+      new LoadPhotoswipe(items, options$1, settings$6.templateIndex);
     }
   }
 
-  const selectors$K = {
+  const selectors$L = {
     product: '[data-product]',
     productForm: '[data-product-form]',
     addToCart: '[data-add-to-cart]',
@@ -6678,7 +6624,7 @@
     selectorWrapper: '[data-option-position]',
   };
 
-  const classes$A = {
+  const classes$B = {
     hidden: 'hidden',
     variantSoldOut: 'variant--soldout',
     variantUnavailable: 'variant--unavailabe',
@@ -6691,7 +6637,7 @@
     selectorVisible: 'selector-wrapper--visible',
   };
 
-  const attributes$v = {
+  const attributes$w = {
     productImageId: 'data-image-id',
     tallLayout: 'data-tall-layout',
     dataEnableHistoryState: 'data-enable-history-state',
@@ -6702,9 +6648,9 @@
   class ProductAddForm {
     constructor(container) {
       this.container = container;
-      this.product = this.container.querySelector(selectors$K.product);
-      this.productForm = this.container.querySelector(selectors$K.productForm);
-      this.tallLayout = this.container.getAttribute(attributes$v.tallLayout) === 'true';
+      this.product = this.container.querySelector(selectors$L.product);
+      this.productForm = this.container.querySelector(selectors$L.productForm);
+      this.tallLayout = this.container.getAttribute(attributes$w.tallLayout) === 'true';
 
       // Stop parsing if we don't have the product
       if (!this.product || !this.productForm) {
@@ -6713,28 +6659,28 @@
         return;
       }
 
-      this.storeAvailabilityContainer = this.container.querySelector(selectors$K.storeAvailabilityContainer);
-      this.enableHistoryState = this.container.getAttribute(attributes$v.dataEnableHistoryState) === 'true';
-      this.hasUnitPricing = this.container.querySelector(selectors$K.unitWrapper);
-      this.subSelectors = this.container.querySelector(selectors$K.subSelectors);
-      this.subPrices = this.container.querySelector(selectors$K.subPrices);
-      this.priceOffWrap = this.container.querySelector(selectors$K.priceOffWrap);
-      this.priceOffAmount = this.container.querySelector(selectors$K.priceOffAmount);
-      this.priceOffType = this.container.querySelector(selectors$K.priceOffType);
-      this.planDecription = this.container.querySelector(selectors$K.subDescription);
-      this.swatchesContainer = this.container.querySelector(selectors$K.swatchesContainer);
+      this.storeAvailabilityContainer = this.container.querySelector(selectors$L.storeAvailabilityContainer);
+      this.enableHistoryState = this.container.getAttribute(attributes$w.dataEnableHistoryState) === 'true';
+      this.hasUnitPricing = this.container.querySelector(selectors$L.unitWrapper);
+      this.subSelectors = this.container.querySelector(selectors$L.subSelectors);
+      this.subPrices = this.container.querySelector(selectors$L.subPrices);
+      this.priceOffWrap = this.container.querySelector(selectors$L.priceOffWrap);
+      this.priceOffAmount = this.container.querySelector(selectors$L.priceOffAmount);
+      this.priceOffType = this.container.querySelector(selectors$L.priceOffType);
+      this.planDecription = this.container.querySelector(selectors$L.subDescription);
+      this.swatchesContainer = this.container.querySelector(selectors$L.swatchesContainer);
       this.latestVariantId = '';
       this.latestVariantTitle = '';
       this.sellout = null;
 
       this.sessionStorage = window.sessionStorage;
 
-      this.remainingWrapper = this.container.querySelector(selectors$K.remainingWrapper);
+      this.remainingWrapper = this.container.querySelector(selectors$L.remainingWrapper);
 
       if (this.remainingWrapper) {
         this.remainingMaxInt = parseInt(this.remainingWrapper.dataset.remainingMax, 10);
-        this.remainingCount = this.container.querySelector(selectors$K.remainingCount);
-        this.remainingJSONWrapper = this.container.querySelector(selectors$K.remainingJSON);
+        this.remainingCount = this.container.querySelector(selectors$L.remainingCount);
+        this.remainingJSONWrapper = this.container.querySelector(selectors$L.remainingJSON);
         this.remainingJSON = null;
 
         if (this.remainingJSONWrapper && this.remainingJSONWrapper.innerHTML !== '') {
@@ -6754,7 +6700,7 @@
 
     init() {
       let productJSON = null;
-      const productElemJSON = this.container.querySelector(selectors$K.productJson);
+      const productElemJSON = this.container.querySelector(selectors$L.productJson);
 
       if (productElemJSON) {
         productJSON = productElemJSON.innerHTML;
@@ -6785,14 +6731,14 @@
       if (this.swatchesContainer) {
         this.observeSwatch(formState);
 
-        const selectorWrapper = this.swatchesContainer.closest(selectors$K.selectorWrapper);
-        const moreLink = selectorWrapper.querySelector(selectors$K.swatchesMore);
+        const selectorWrapper = this.swatchesContainer.closest(selectors$L.selectorWrapper);
+        const moreLink = selectorWrapper.querySelector(selectors$L.swatchesMore);
         moreLink?.addEventListener('click', (event) => {
           event.preventDefault();
-          if (selectorWrapper.classList.contains(classes$A.selectorVisible)) {
-            selectorWrapper.classList.remove(classes$A.selectorVisible);
+          if (selectorWrapper.classList.contains(classes$B.selectorVisible)) {
+            selectorWrapper.classList.remove(classes$B.selectorVisible);
           } else {
-            selectorWrapper.classList.add(classes$A.selectorVisible);
+            selectorWrapper.classList.add(classes$B.selectorVisible);
           }
         });
       }
@@ -6834,30 +6780,30 @@
 
     updateAddToCartState(formState) {
       const variant = formState.variant;
-      const priceWrapper = this.container.querySelectorAll(selectors$K.priceWrapper);
-      const addToCart = this.container.querySelectorAll(selectors$K.addToCart);
-      const addToCartText = this.container.querySelectorAll(selectors$K.addToCartText);
-      const formWrapper = this.container.querySelectorAll(selectors$K.formWrapper);
-      const buyItNow = this.container.querySelector(selectors$K.buyItNow);
+      const priceWrapper = this.container.querySelectorAll(selectors$L.priceWrapper);
+      const addToCart = this.container.querySelectorAll(selectors$L.addToCart);
+      const addToCartText = this.container.querySelectorAll(selectors$L.addToCartText);
+      const formWrapper = this.container.querySelectorAll(selectors$L.formWrapper);
+      const buyItNow = this.container.querySelector(selectors$L.buyItNow);
       let addText = theme.strings.add_to_cart;
 
-      if (this.productJSON.tags.includes(selectors$K.preOrderTag)) {
+      if (this.productJSON.tags.includes(selectors$L.preOrderTag)) {
         addText = theme.strings.preorder;
       }
 
       // Price wrapper elements
       priceWrapper?.forEach((element) => {
         // Hide price if there is no variant
-        element.classList.toggle(classes$A.priceWrapperHidden, !variant);
+        element.classList.toggle(classes$B.priceWrapperHidden, !variant);
       });
 
       // ATC Button elements
       addToCart?.forEach((element) => {
         // Skip the upsell "add to cart" button
-        if (element.matches(selectors$K.upsellButton)) return;
+        if (element.matches(selectors$L.upsellButton)) return;
 
         element.disabled = true;
-        buyItNow?.classList.add(classes$A.hidden);
+        buyItNow?.classList.add(classes$B.hidden);
 
         // No variant
         if (!variant) return;
@@ -6865,11 +6811,11 @@
         // Available variant
         element.disabled = false;
         if (variant.available) {
-          buyItNow?.classList.remove(classes$A.hidden);
+          buyItNow?.classList.remove(classes$B.hidden);
         }
 
         // Notification popup
-        if (!element.hasAttribute(attributes$v.notificationPopup)) return;
+        if (!element.hasAttribute(attributes$w.notificationPopup)) return;
 
         const notificationFormId = element.id.replace('AddToCart', 'NotificationForm');
         const formID = this.sessionStorage.getItem('notification_form_id');
@@ -6895,22 +6841,22 @@
           }
         }
 
-        let notificationPopupHtml = element.getAttribute(attributes$v.notificationPopup);
-        const notificationButtonText = new DOMParser().parseFromString(notificationPopupHtml, 'text/html').querySelector(selectors$K.notificationButtonText)?.innerHTML;
+        let notificationPopupHtml = element.getAttribute(attributes$w.notificationPopup);
+        const notificationButtonText = new DOMParser().parseFromString(notificationPopupHtml, 'text/html').querySelector(selectors$L.notificationButtonText)?.innerHTML;
 
         if (this.latestVariantId != '' && this.latestVariantTitle != '') {
           notificationPopupHtml = notificationPopupHtml.replaceAll(this.latestVariantId, variantId);
           notificationPopupHtml = notificationPopupHtml.replaceAll(this.latestVariantTitle, variantTitle);
 
           // Prevent updating of the "Notify me" button's text if the variant title matches part of it
-          const updatedNotificationButtonText = new DOMParser().parseFromString(notificationPopupHtml, 'text/html').querySelector(selectors$K.notificationButtonText)?.innerHTML;
+          const updatedNotificationButtonText = new DOMParser().parseFromString(notificationPopupHtml, 'text/html').querySelector(selectors$L.notificationButtonText)?.innerHTML;
           notificationPopupHtml = notificationPopupHtml.replace(updatedNotificationButtonText, notificationButtonText);
         }
 
-        element.setAttribute(attributes$v.notificationPopup, notificationPopupHtml);
+        element.setAttribute(attributes$w.notificationPopup, notificationPopupHtml);
 
         if (notificationFormSubmitted) {
-          this.scrollToForm(this.product.closest(selectors$K.sectionNode));
+          this.scrollToForm(this.product.closest(selectors$L.sectionNode));
           new NotificationPopup(element);
         }
 
@@ -6930,8 +6876,8 @@
         if (!variant.available) {
           element.innerHTML = theme.strings.sold_out;
 
-          if (element.parentNode.hasAttribute(attributes$v.notificationPopup)) {
-            if (element.closest(selectors$K.quickViewItem)) return; // Disable 'notify me' text change for Quickview
+          if (element.parentNode.hasAttribute(attributes$w.notificationPopup)) {
+            if (element.closest(selectors$L.quickViewItem)) return; // Disable 'notify me' text change for Quickview
 
             element.innerHTML = `${theme.strings.sold_out} - ${theme.strings.newsletter_product_availability}`;
           }
@@ -6947,25 +6893,25 @@
       formWrapper?.forEach((element) => {
         // No variant
         if (!variant) {
-          element.classList.add(classes$A.variantUnavailable);
-          element.classList.remove(classes$A.variantSoldOut);
+          element.classList.add(classes$B.variantUnavailable);
+          element.classList.remove(classes$B.variantSoldOut);
           return;
         }
 
-        const formSelect = element.querySelector(selectors$K.originalSelectorId);
+        const formSelect = element.querySelector(selectors$L.originalSelectorId);
         if (formSelect) {
           formSelect.value = variant.id;
         }
 
         // Unavailable variant
         if (!variant.available) {
-          element.classList.add(classes$A.variantSoldOut);
-          element.classList.remove(classes$A.variantUnavailable);
+          element.classList.add(classes$B.variantSoldOut);
+          element.classList.remove(classes$B.variantUnavailable);
           return;
         }
 
         // Available variant
-        element.classList.remove(classes$A.variantSoldOut, classes$A.variantUnavailable);
+        element.classList.remove(classes$B.variantSoldOut, classes$B.variantUnavailable);
       });
     }
 
@@ -6990,24 +6936,24 @@
 
     updateRemaining(formState) {
       const variant = formState.variant;
-      const remainingClasses = [classes$A.remainingIn, classes$A.remainingOut, classes$A.remainingUnavailable, classes$A.remainingLow];
+      const remainingClasses = [classes$B.remainingIn, classes$B.remainingOut, classes$B.remainingUnavailable, classes$B.remainingLow];
 
       if (variant && this.remainingWrapper && this.remainingJSON) {
         const remaining = this.remainingJSON[variant.id];
 
         if (remaining === 'out' || remaining < 1) {
           this.remainingWrapper.classList.remove(...remainingClasses);
-          this.remainingWrapper.classList.add(classes$A.remainingOut);
+          this.remainingWrapper.classList.add(classes$B.remainingOut);
         }
 
         if (remaining === 'in' || remaining >= this.remainingMaxInt) {
           this.remainingWrapper.classList.remove(...remainingClasses);
-          this.remainingWrapper.classList.add(classes$A.remainingIn);
+          this.remainingWrapper.classList.add(classes$B.remainingIn);
         }
 
         if (remaining === 'low' || (remaining > 0 && remaining < this.remainingMaxInt)) {
           this.remainingWrapper.classList.remove(...remainingClasses);
-          this.remainingWrapper.classList.add(classes$A.remainingLow);
+          this.remainingWrapper.classList.add(classes$B.remainingLow);
 
           if (this.remainingCount) {
             this.remainingCount.innerHTML = remaining;
@@ -7015,7 +6961,7 @@
         }
       } else if (!variant && this.remainingWrapper) {
         this.remainingWrapper.classList.remove(...remainingClasses);
-        this.remainingWrapper.classList.add(classes$A.remainingUnavailable);
+        this.remainingWrapper.classList.add(classes$B.remainingUnavailable);
       }
     }
 
@@ -7026,24 +6972,24 @@
     }
 
     subsToggleListeners() {
-      const toggles = this.container.querySelectorAll(selectors$K.subsToggle);
+      const toggles = this.container.querySelectorAll(selectors$L.subsToggle);
 
       toggles.forEach((toggle) => {
         toggle.addEventListener(
           'change',
           function (e) {
             const val = e.target.value.toString();
-            const selected = this.container.querySelector(`[${selectors$K.subsChild}="${val}"]`);
-            const groups = this.container.querySelectorAll(`[${selectors$K.subsChild}]`);
+            const selected = this.container.querySelector(`[${selectors$L.subsChild}="${val}"]`);
+            const groups = this.container.querySelectorAll(`[${selectors$L.subsChild}]`);
             if (selected) {
-              selected.classList.remove(classes$A.hidden);
+              selected.classList.remove(classes$B.hidden);
               const first = selected.querySelector('[name="selling_plan"]');
               first.checked = true;
               first.dispatchEvent(new Event('change'));
             }
             groups.forEach((group) => {
               if (group !== selected) {
-                group.classList.add(classes$A.hidden);
+                group.classList.add(classes$B.hidden);
                 const plans = group.querySelectorAll('[name="selling_plan"]');
                 plans.forEach((plan) => {
                   plan.checked = false;
@@ -7062,7 +7008,7 @@
       } else if (this.productState.onSale) {
         this.updateSaleTextStandard(formState);
       } else if (this.priceOffWrap) {
-        this.priceOffWrap.classList.add(classes$A.hidden);
+        this.priceOffWrap.classList.add(classes$B.hidden);
       }
     }
 
@@ -7080,7 +7026,7 @@
         const discount = variant.compare_at_price - variant.price;
         this.priceOffAmount.innerHTML = themeCurrency.formatMoney(discount, theme.moneyFormat);
       }
-      this.priceOffWrap.classList.remove(classes$A.hidden);
+      this.priceOffWrap.classList.remove(classes$B.hidden);
     }
 
     updateSaleTextSubscription(formState) {
@@ -7092,26 +7038,26 @@
 
       this.priceOffType.innerHTML = window.theme.strings.subscription || 'subscripton';
       this.priceOffAmount.innerHTML = saleText;
-      this.priceOffWrap.classList.remove(classes$A.hidden);
+      this.priceOffWrap.classList.remove(classes$B.hidden);
     }
 
     updateSubscriptionText(formState) {
       if (formState.plan && this.planDecription && formState.plan.detail.description !== null) {
         this.planDecription.innerHTML = formState.plan.detail.description;
-        this.planDecription.classList.remove(classes$A.hidden);
+        this.planDecription.classList.remove(classes$B.hidden);
       } else if (this.planDecription) {
-        this.planDecription.classList.add(classes$A.hidden);
+        this.planDecription.classList.add(classes$B.hidden);
       }
     }
 
     updateProductPrices(formState) {
       const variant = formState.variant;
       const plan = formState.plan;
-      const priceWrappers = this.container.querySelectorAll(selectors$K.priceWrapper);
+      const priceWrappers = this.container.querySelectorAll(selectors$L.priceWrapper);
 
       priceWrappers.forEach((wrap) => {
-        const comparePriceEl = wrap.querySelector(selectors$K.comparePrice);
-        const productPriceEl = wrap.querySelector(selectors$K.productPrice);
+        const comparePriceEl = wrap.querySelector(selectors$L.comparePrice);
+        const productPriceEl = wrap.querySelector(selectors$L.productPrice);
 
         let comparePrice = '';
         let price = '';
@@ -7135,11 +7081,11 @@
 
         if (comparePriceEl) {
           if (this.productState.onSale || this.productState.planSale) {
-            comparePriceEl.classList.remove(classes$A.hidden);
-            productPriceEl.classList.add(classes$A.productPriceSale);
+            comparePriceEl.classList.remove(classes$B.hidden);
+            productPriceEl.classList.add(classes$B.productPriceSale);
           } else {
-            comparePriceEl.classList.add(classes$A.hidden);
-            productPriceEl.classList.remove(classes$A.productPriceSale);
+            comparePriceEl.classList.add(classes$B.hidden);
+            productPriceEl.classList.remove(classes$B.productPriceSale);
           }
           comparePriceEl.innerHTML = theme.settings.currency_code_enable ? themeCurrency.formatMoney(comparePrice, theme.moneyWithCurrencyFormat) : themeCurrency.formatMoney(comparePrice, theme.moneyFormat);
         }
@@ -7177,11 +7123,11 @@
       if (unitPrice) {
         const base = this.getBaseUnit(variant);
         const formattedPrice = unitPrice === 0 ? window.theme.strings.free : themeCurrency.formatMoney(unitPrice, theme.moneyFormat);
-        this.container.querySelector(selectors$K.unitPrice).innerHTML = formattedPrice;
-        this.container.querySelector(selectors$K.unitBase).innerHTML = base;
-        showElement(this.container.querySelector(selectors$K.unitWrapper));
+        this.container.querySelector(selectors$L.unitPrice).innerHTML = formattedPrice;
+        this.container.querySelector(selectors$L.unitBase).innerHTML = base;
+        showElement(this.container.querySelector(selectors$L.unitWrapper));
       } else {
-        hideElement(this.container.querySelector(selectors$K.unitWrapper));
+        hideElement(this.container.querySelector(selectors$L.unitWrapper));
       }
     }
 
@@ -7279,12 +7225,12 @@
       }
 
       // Update variant image, if one is set
-      const newImg = this.container.querySelector(`${selectors$K.productImage}[${attributes$v.productImageId}="${variant.featured_media.id}"]`);
-      const newImageParent = newImg?.closest(selectors$K.productSlide);
+      const newImg = this.container.querySelector(`${selectors$L.productImage}[${attributes$w.productImageId}="${variant.featured_media.id}"]`);
+      const newImageParent = newImg?.closest(selectors$L.productSlide);
 
       if (newImageParent) {
         const newImagePos = parseInt([...newImageParent.parentElement.children].indexOf(newImageParent));
-        const imgSlider = this.container.querySelector(selectors$K.productMediaSlider);
+        const imgSlider = this.container.querySelector(selectors$L.productMediaSlider);
         const flkty = Flickity.data(imgSlider);
 
         // Activate image slide in mobile view
@@ -7322,8 +7268,8 @@
     }
 
     observeSwatch(formState) {
-      const swatch = this.swatchesContainer.querySelector(`[${attributes$v.swatchVariant}*="${formState.variant.id}"]`);
-      this.swatchesContainer.closest(selectors$K.selectorWrapper).classList.remove(classes$A.selectorVisible);
+      const swatch = this.swatchesContainer.querySelector(`[${attributes$w.swatchVariant}*="${formState.variant.id}"]`);
+      this.swatchesContainer.closest(selectors$L.selectorWrapper).classList.remove(classes$B.selectorVisible);
 
       let observer = new IntersectionObserver(
         (entries, observer) => {
@@ -7331,7 +7277,7 @@
             const notVisible = entry.intersectionRatio == 0;
 
             if (notVisible) {
-              this.swatchesContainer.closest(selectors$K.selectorWrapper).classList.add(classes$A.selectorVisible);
+              this.swatchesContainer.closest(selectors$L.selectorWrapper).classList.add(classes$B.selectorVisible);
             }
           });
         },
@@ -7347,7 +7293,7 @@
      * Scroll to the last submitted notification form
      */
     scrollToForm(section) {
-      const headerHeight = document.querySelector(selectors$K.header)?.dataset.height;
+      const headerHeight = document.querySelector(selectors$L.header)?.dataset.height;
       const isVisible = visibilityHelper.isElementPartiallyVisible(section) || visibilityHelper.isElementTotallyVisible(section);
 
       if (!isVisible) {
@@ -7371,7 +7317,7 @@
     },
   };
 
-  const selectors$J = {
+  const selectors$K = {
     form: 'form',
     popoutWrapper: '[data-popout]',
     popoutList: '[data-popout-list]',
@@ -7384,14 +7330,14 @@
     productGrid: '[data-product-grid-item]',
   };
 
-  const classes$z = {
+  const classes$A = {
     listVisible: 'select-popout__list--visible',
     popoutAlternative: 'select-popout--alt',
     currentSuffix: '--current',
     visible: 'is-visible',
   };
 
-  const attributes$u = {
+  const attributes$v = {
     ariaCurrent: 'aria-current',
     ariaExpanded: 'aria-expanded',
     dataValue: 'data-value',
@@ -7400,17 +7346,17 @@
     quickViewItem: 'data-quick-view-item',
   };
 
-  let sections$s = {};
+  let sections$t = {};
 
   class Popout {
     constructor(popout) {
       this.popout = popout;
-      this.popoutList = this.popout.querySelector(selectors$J.popoutList);
-      this.popoutToggle = this.popout.querySelector(selectors$J.popoutToggle);
-      this.popoutText = this.popout.querySelector(selectors$J.popoutText);
-      this.popoutInput = this.popout.querySelector(selectors$J.popoutInput);
-      this.popoutOptions = this.popout.querySelectorAll(selectors$J.popoutOptions);
-      this.popoutPrevent = this.popout.getAttribute(attributes$u.popoutPrevent) === 'true';
+      this.popoutList = this.popout.querySelector(selectors$K.popoutList);
+      this.popoutToggle = this.popout.querySelector(selectors$K.popoutToggle);
+      this.popoutText = this.popout.querySelector(selectors$K.popoutText);
+      this.popoutInput = this.popout.querySelector(selectors$K.popoutInput);
+      this.popoutOptions = this.popout.querySelectorAll(selectors$K.popoutOptions);
+      this.popoutPrevent = this.popout.getAttribute(attributes$v.popoutPrevent) === 'true';
       this.popupToggleFocusoutEvent = (evt) => this.popupToggleFocusout(evt);
       this.popupListFocusoutEvent = (evt) => this.popupListFocusout(evt);
       this.popupToggleClickEvent = (evt) => this.popupToggleClick(evt);
@@ -7424,7 +7370,7 @@
       this._connectToggle();
       this._onFocusOut();
 
-      if (this.popoutInput && this.popoutInput.hasAttribute(attributes$u.popoutQuantity)) {
+      if (this.popoutInput && this.popoutInput.hasAttribute(attributes$v.popoutQuantity)) {
         document.addEventListener('theme:cart:update', this.updatePopout);
       }
     }
@@ -7446,18 +7392,18 @@
     }
 
     popupToggleClick(evt) {
-      const ariaExpanded = evt.currentTarget.getAttribute(attributes$u.ariaExpanded) === 'true';
+      const ariaExpanded = evt.currentTarget.getAttribute(attributes$v.ariaExpanded) === 'true';
 
-      if (this.popoutList.closest(selectors$J.productGrid)) {
-        const productGridItemImage = this.popoutList.closest(selectors$J.productGrid).querySelector(selectors$J.productGridImage);
+      if (this.popoutList.closest(selectors$K.productGrid)) {
+        const productGridItemImage = this.popoutList.closest(selectors$K.productGrid).querySelector(selectors$K.productGridImage);
 
         if (productGridItemImage) {
-          productGridItemImage.classList.toggle(classes$z.visible, !ariaExpanded);
+          productGridItemImage.classList.toggle(classes$A.visible, !ariaExpanded);
         }
       }
 
-      evt.currentTarget.setAttribute(attributes$u.ariaExpanded, !ariaExpanded);
-      this.popoutList.classList.toggle(classes$z.listVisible);
+      evt.currentTarget.setAttribute(attributes$v.ariaExpanded, !ariaExpanded);
+      this.popoutList.classList.toggle(classes$A.listVisible);
     }
 
     popupToggleFocusout(evt) {
@@ -7466,7 +7412,7 @@
       }
 
       const popoutLostFocus = this.popout.contains(evt.relatedTarget);
-      const popoutFromQuickView = evt.relatedTarget.hasAttribute(attributes$u.quickViewItem);
+      const popoutFromQuickView = evt.relatedTarget.hasAttribute(attributes$v.quickViewItem);
 
       if (!popoutLostFocus && !popoutFromQuickView) {
         this._hideList();
@@ -7475,7 +7421,7 @@
 
     popupListFocusout(evt) {
       const childInFocus = evt.currentTarget.contains(evt.relatedTarget);
-      const isVisible = this.popoutList.classList.contains(classes$z.listVisible);
+      const isVisible = this.popoutList.classList.contains(classes$A.listVisible);
 
       if (isVisible && !childInFocus) {
         this._hideList();
@@ -7483,14 +7429,14 @@
     }
 
     popupOptionsClick(evt) {
-      const link = evt.target.closest(selectors$J.popoutOptions);
+      const link = evt.target.closest(selectors$K.popoutOptions);
       if (link.attributes.href.value === '#') {
         evt.preventDefault();
 
         let attrValue = '';
 
-        if (evt.currentTarget.getAttribute(attributes$u.dataValue)) {
-          attrValue = evt.currentTarget.getAttribute(attributes$u.dataValue);
+        if (evt.currentTarget.getAttribute(attributes$v.dataValue)) {
+          attrValue = evt.currentTarget.getAttribute(attributes$v.dataValue);
         }
 
         this.popoutInput.value = attrValue;
@@ -7498,16 +7444,16 @@
         if (this.popoutPrevent) {
           this.popoutInput.dispatchEvent(new Event('change'));
 
-          if (!evt.detail.preventTrigger && this.popoutInput.hasAttribute(attributes$u.popoutQuantity)) {
+          if (!evt.detail.preventTrigger && this.popoutInput.hasAttribute(attributes$v.popoutQuantity)) {
             this.popoutInput.dispatchEvent(new Event('input'));
           }
 
-          const currentElement = this.popoutList.querySelector(`[class*="${classes$z.currentSuffix}"]`);
-          let targetClass = classes$z.currentSuffix;
+          const currentElement = this.popoutList.querySelector(`[class*="${classes$A.currentSuffix}"]`);
+          let targetClass = classes$A.currentSuffix;
 
           if (currentElement && currentElement.classList.length) {
             for (const currentElementClass of currentElement.classList) {
-              if (currentElementClass.includes(classes$z.currentSuffix)) {
+              if (currentElementClass.includes(classes$A.currentSuffix)) {
                 targetClass = currentElementClass;
                 break;
               }
@@ -7521,11 +7467,11 @@
             evt.currentTarget.parentElement.classList.add(`${targetClass}`);
           }
 
-          const targetAttribute = this.popoutList.querySelector(selectors$J.ariaCurrent);
+          const targetAttribute = this.popoutList.querySelector(selectors$K.ariaCurrent);
 
           if (targetAttribute) {
-            targetAttribute.removeAttribute(attributes$u.ariaCurrent);
-            evt.currentTarget.setAttribute(attributes$u.ariaCurrent, 'true');
+            targetAttribute.removeAttribute(attributes$v.ariaCurrent);
+            evt.currentTarget.setAttribute(attributes$v.ariaCurrent, 'true');
           }
 
           if (attrValue !== '') {
@@ -7541,7 +7487,7 @@
     }
 
     updatePopout() {
-      const targetElement = this.popoutList.querySelector(`[${attributes$u.dataValue}="${this.popoutInput.value}"]`);
+      const targetElement = this.popoutList.querySelector(`[${attributes$v.dataValue}="${this.popoutInput.value}"]`);
       if (targetElement) {
         targetElement.dispatchEvent(
           new CustomEvent('theme:popout:click', {
@@ -7554,10 +7500,10 @@
         );
 
         if (!targetElement.parentElement.nextSibling) {
-          this.popout.classList.add(classes$z.popoutAlternative);
+          this.popout.classList.add(classes$A.popoutAlternative);
         }
       } else {
-        this.popout.classList.add(classes$z.popoutAlternative);
+        this.popout.classList.add(classes$A.popoutAlternative);
       }
     }
 
@@ -7571,7 +7517,7 @@
 
     bodyClick(event) {
       const isOption = this.popout.contains(event.target);
-      const isVisible = this.popoutList.classList.contains(classes$z.listVisible);
+      const isVisible = this.popoutList.classList.contains(classes$A.listVisible);
 
       if (isVisible && !isOption) {
         this._hideList();
@@ -7614,28 +7560,28 @@
     }
 
     _submitForm() {
-      const form = this.popout.closest(selectors$J.form);
+      const form = this.popout.closest(selectors$K.form);
       if (form) {
         form.submit();
       }
     }
 
     _hideList() {
-      this.popoutList.classList.remove(classes$z.listVisible);
-      this.popoutToggle.setAttribute(attributes$u.ariaExpanded, false);
+      this.popoutList.classList.remove(classes$A.listVisible);
+      this.popoutToggle.setAttribute(attributes$v.ariaExpanded, false);
     }
   }
 
   const popoutSection = {
     onLoad() {
-      sections$s[this.id] = [];
-      const wrappers = this.container.querySelectorAll(selectors$J.popoutWrapper);
+      sections$t[this.id] = [];
+      const wrappers = this.container.querySelectorAll(selectors$K.popoutWrapper);
       wrappers.forEach((wrapper) => {
-        sections$s[this.id].push(new Popout(wrapper));
+        sections$t[this.id].push(new Popout(wrapper));
       });
     },
     onUnload() {
-      sections$s[this.id].forEach((popout) => {
+      sections$t[this.id].forEach((popout) => {
         if (typeof popout.unload === 'function') {
           popout.unload();
         }
@@ -7643,7 +7589,7 @@
     },
   };
 
-  const selectors$I = {
+  const selectors$J = {
     addToCart: '[data-add-to-cart]',
     deferredMedia: '[data-deferred-media]',
     deferredMediaButton: '[data-deferred-media-button]',
@@ -7663,7 +7609,7 @@
     drawerToggle: '[data-drawer-toggle]',
   };
 
-  const classes$y = {
+  const classes$z = {
     hasMediaActive: 'has-media-active',
     isActive: 'is-active',
     isLoading: 'is-loading',
@@ -7679,7 +7625,7 @@
     drawerOpen: 'js-drawer-open',
   };
 
-  const attributes$t = {
+  const attributes$u = {
     id: 'id',
     mediaId: 'data-media-id',
     sectionId: 'data-section-id',
@@ -7700,16 +7646,16 @@
     constructor(popup, pswpElement) {
       this.popup = popup;
       this.pswpElement = pswpElement;
-      this.quickViewFoot = this.pswpElement.querySelector(selectors$I.quickViewFootInner);
-      this.quickViewInner = this.pswpElement.querySelector(selectors$I.quickViewInner);
-      this.product = this.pswpElement.querySelectorAll(selectors$I.product);
+      this.quickViewFoot = this.pswpElement.querySelector(selectors$J.quickViewFootInner);
+      this.quickViewInner = this.pswpElement.querySelector(selectors$J.quickViewInner);
+      this.product = this.pswpElement.querySelectorAll(selectors$J.product);
       this.flkty = [];
       this.videos = [];
       this.productForms = [];
-      this.deferredMedias = this.pswpElement.querySelectorAll(selectors$I.deferredMedia);
-      this.buttonsShopTheLookThumb = this.pswpElement.querySelectorAll(selectors$I.shopTheLookThumb);
-      this.quickViewItemHolders = this.pswpElement.querySelectorAll(selectors$I.quickViewItemHolder);
-      this.popupCloseButtons = this.quickViewInner.querySelectorAll(selectors$I.popupClose);
+      this.deferredMedias = this.pswpElement.querySelectorAll(selectors$J.deferredMedia);
+      this.buttonsShopTheLookThumb = this.pswpElement.querySelectorAll(selectors$J.shopTheLookThumb);
+      this.quickViewItemHolders = this.pswpElement.querySelectorAll(selectors$J.quickViewItemHolder);
+      this.popupCloseButtons = this.quickViewInner.querySelectorAll(selectors$J.popupClose);
       this.a11y = a11y;
 
       this.prevent3dModelSubmitEvent = (event) => this.prevent3dModelSubmit(event);
@@ -7727,7 +7673,7 @@
       };
 
       this.product.forEach((item, index) => {
-        const isQuickViewOnboarding = item.hasAttribute(attributes$t.quickViewOnboarding);
+        const isQuickViewOnboarding = item.hasAttribute(attributes$u.quickViewOnboarding);
 
         if (!isQuickViewOnboarding) {
           this.initItems(item, index);
@@ -7746,7 +7692,7 @@
      * Init tooltips for swatches
      */
     initTooltips() {
-      this.tooltips = this.pswpElement.querySelectorAll(selectors$I.tooltip);
+      this.tooltips = this.pswpElement.querySelectorAll(selectors$J.tooltip);
       this.tooltips.forEach((tooltip) => {
         new Tooltip(tooltip);
       });
@@ -7756,7 +7702,7 @@
      * Init popouts
      */
     initPopouts() {
-      this.popoutElements = this.pswpElement.querySelectorAll(selectors$I.popout);
+      this.popoutElements = this.pswpElement.querySelectorAll(selectors$J.popout);
       this.popouts = {};
 
       this.popoutElements?.forEach((popout, index) => {
@@ -7782,7 +7728,7 @@
       makeSwatches(item);
 
       // Init drawer
-      const drawerToggles = this.pswpElement.querySelectorAll(selectors$I.drawerToggle);
+      const drawerToggles = this.pswpElement.querySelectorAll(selectors$J.drawerToggle);
       if (drawerToggles.length) {
         new Drawer(item);
       }
@@ -7797,7 +7743,7 @@
         Shopify.PaymentButton.init();
       }
 
-      item.classList.remove(classes$y.isLoading);
+      item.classList.remove(classes$z.isLoading);
     }
 
     init() {
@@ -7831,7 +7777,7 @@
 
       // Opening event
       this.popup.listen('initialZoomInEnd', () => {
-        document.body.classList.add(classes$y.jsQuickViewVisible);
+        document.body.classList.add(classes$z.jsQuickViewVisible);
 
         this.a11y.trapFocus({
           container: this.quickViewInner,
@@ -7846,7 +7792,7 @@
             this.flkty.forEach((slider) => slider.pausePlayer());
           });
         }
-        document.body.classList.remove(classes$y.jsQuickViewVisible);
+        document.body.classList.remove(classes$z.jsQuickViewVisible);
         document.removeEventListener('keyup', this.closeOnEscapeEvent);
         document.addEventListener('keyup', this.closeOnEscapeEvent);
         this.pswpElement.removeEventListener('click', this.outerCloseEvent);
@@ -7855,14 +7801,19 @@
 
         this.deferredMedias.forEach((deferredMedia) => {
           // Remove the 'loaded' attribute so the videos will can load properly when we reopening the quickview
-          deferredMedia.removeAttribute(attributes$t.loaded);
+          deferredMedia.removeAttribute(attributes$u.loaded);
+
+          // Pause videos on closing the popup
+          const media = deferredMedia.closest(selectors$J.productMediaWrapper);
+          media.dispatchEvent(new CustomEvent('theme:media:hidden'), {bubbles: true});
+          media.classList.add(classes$z.mediaHidden);
         });
       });
 
       document.addEventListener('keyup', this.closeOnEscapeEvent);
       document.addEventListener('theme:cart:added', () => {
-        if (this.pswpElement.classList.contains(classes$y.popupQuickView)) {
-          this.pswpElement.classList.add(classes$y.popupQuickViewAnimateOut);
+        if (this.pswpElement.classList.contains(classes$z.popupQuickView)) {
+          this.pswpElement.classList.add(classes$z.popupQuickViewAnimateOut);
         }
       });
 
@@ -7877,10 +7828,10 @@
         button.addEventListener('click', (event) => {
           event.preventDefault();
 
-          const thumb = event.target.matches(selectors$I.shopTheLookThumb) ? event.target : event.target.closest(selectors$I.shopTheLookThumb);
-          const holder = this.pswpElement.querySelector(`[${attributes$t.hotspot}="${thumb.getAttribute(attributes$t.hotspotRef)}"]`);
+          const thumb = event.target.matches(selectors$J.shopTheLookThumb) ? event.target : event.target.closest(selectors$J.shopTheLookThumb);
+          const holder = this.pswpElement.querySelector(`[${attributes$u.hotspot}="${thumb.getAttribute(attributes$u.hotspotRef)}"]`);
 
-          if (thumb.classList.contains(classes$y.isActive) || !holder) return;
+          if (thumb.classList.contains(classes$z.isActive) || !holder) return;
 
           // Handle sliders
           if (this.flkty.length > 0) {
@@ -7888,13 +7839,13 @@
               this.flkty.forEach((slider) => {
                 slider.resize();
 
-                const allMediaItems = this.quickViewInner.querySelectorAll(selectors$I.productMediaWrapper);
+                const allMediaItems = this.quickViewInner.querySelectorAll(selectors$J.productMediaWrapper);
 
                 // Pause all media
                 if (allMediaItems.length) {
                   allMediaItems.forEach((media) => {
                     media.dispatchEvent(new CustomEvent('theme:media:hidden'), {bubbles: true});
-                    media.classList.add(classes$y.mediaHidden);
+                    media.classList.add(classes$z.mediaHidden);
                   });
                 }
               });
@@ -7902,11 +7853,11 @@
           }
 
           // Active Quick View item class toggle
-          holder.classList.add(classes$y.isActive);
+          holder.classList.add(classes$z.isActive);
 
           this.quickViewItemHolders.forEach((element) => {
             if (element !== holder) {
-              element.classList.remove(classes$y.isActive);
+              element.classList.remove(classes$z.isActive);
             }
           });
         });
@@ -7915,19 +7866,19 @@
 
     // Prevents the 3d model buttons submitting the form
     prevent3dModelSubmit(event) {
-      if (event.submitter.closest(selectors$I.deferredMedia) && event.submitter.closest(selectors$I.productForm)) {
+      if (event.submitter.closest(selectors$J.deferredMedia) && event.submitter.closest(selectors$J.productForm)) {
         event.preventDefault();
       }
     }
 
     closeQuickviewOnMobile() {
-      if (window.innerWidth < window.theme.sizes.large && document.body.classList.contains(classes$y.jsQuickViewVisible)) {
+      if (window.innerWidth < window.theme.sizes.large && document.body.classList.contains(classes$z.jsQuickViewVisible)) {
         this.popup.close();
       }
     }
 
     animateInQuickview() {
-      this.pswpElement.classList.add(classes$y.popupQuickViewAnimateIn);
+      this.pswpElement.classList.add(classes$z.popupQuickViewAnimateIn);
 
       this.quickViewFoot.addEventListener('animationend', (event) => {
         this.handleAnimatedState(event);
@@ -7946,9 +7897,9 @@
           return;
         }
 
-        this.pswpElement.classList.add(classes$y.popupQuickViewAnimated);
-        this.pswpElement.classList.remove(classes$y.popupQuickViewAnimateIn);
-        document.body.classList.remove(classes$y.jsQuickViewFromCart); // Clear the class that we are adding in quick-view-popup.js when the animation ends
+        this.pswpElement.classList.add(classes$z.popupQuickViewAnimated);
+        this.pswpElement.classList.remove(classes$z.popupQuickViewAnimateIn);
+        document.body.classList.remove(classes$z.jsQuickViewFromCart); // Clear the class that we are adding in quick-view-popup.js when the animation ends
 
         removeLoadingClassFromLoadedImages(this.pswpElement); // Remove loading class from images
       }
@@ -7956,13 +7907,13 @@
 
     closePopup(event) {
       event?.preventDefault();
-      const isNavDrawerOpen = document.body.classList.contains(classes$y.drawerOpen);
+      const isNavDrawerOpen = document.body.classList.contains(classes$z.drawerOpen);
 
       if (isNavDrawerOpen) {
         document.dispatchEvent(new CustomEvent('theme:drawer:closing', {bubbles: true}));
       }
 
-      this.pswpElement.classList.add(classes$y.popupQuickViewAnimateOut); // Adding this class triggers the 'animationend' event which calls closeOnAnimationEndEvent()
+      this.pswpElement.classList.add(classes$z.popupQuickViewAnimateOut); // Adding this class triggers the 'animationend' event which calls closeOnAnimationEndEvent()
 
       if (this.productForms.length > 0) {
         this.productForms.forEach((form) => {
@@ -7975,14 +7926,14 @@
 
     closeOnAnimationEnd(event) {
       if (event.animationName == 'quickViewAnimateOutRight' || event.animationName == 'quickViewAnimateOutDown') {
-        this.popup.template.classList.remove(classes$y.popupQuickViewAnimateOut, classes$y.popupQuickViewAnimated);
+        this.popup.template.classList.remove(classes$z.popupQuickViewAnimateOut, classes$z.popupQuickViewAnimated);
         this.popup.close();
       }
     }
 
     closeOnEscape(event) {
-      const isQuickViewVisible = document.body.classList.contains(classes$y.jsQuickViewVisible);
-      const isNotificationVisible = document.body.classList.contains(classes$y.notificationPopupVisible);
+      const isQuickViewVisible = document.body.classList.contains(classes$z.jsQuickViewVisible);
+      const isNotificationVisible = document.body.classList.contains(classes$z.notificationPopupVisible);
 
       if (event.code === theme.keyboardKeys.ESCAPE && isQuickViewVisible && !isNotificationVisible) {
         this.closePopup(event);
@@ -7990,8 +7941,8 @@
     }
 
     initProductSlider(item, index) {
-      const slider = item.querySelector(selectors$I.productMediaSlider);
-      const mediaItems = item.querySelectorAll(selectors$I.productMediaWrapper);
+      const slider = item.querySelector(selectors$J.productMediaSlider);
+      const mediaItems = item.querySelectorAll(selectors$J.productMediaWrapper);
 
       if (mediaItems.length > 1) {
         const itemSlider = new Flickity(slider, {
@@ -8006,7 +7957,7 @@
           autoPlay: false,
           on: {
             ready: () => {
-              slider.setAttribute(attributes$t.tabindex, '-1');
+              slider.setAttribute(attributes$u.tabindex, '-1');
 
               // This resize should happen when the show animation of the PhotoSwipe starts and after PhotoSwipe adds the custom 'popup--quickview' class with the mainClass option.
               // This class is changing the slider width with CSS and looks like this is happening after the slider loads which is breaking it. That's why we need to call the resize() method here.
@@ -8016,16 +7967,16 @@
             },
             settle: () => {
               const currentSlide = itemSlider.selectedElement;
-              const mediaId = currentSlide.getAttribute(attributes$t.mediaId);
+              const mediaId = currentSlide.getAttribute(attributes$u.mediaId);
 
-              currentSlide.setAttribute(attributes$t.tabindex, '0');
+              currentSlide.setAttribute(attributes$u.tabindex, '0');
 
               itemSlider.cells.forEach((slide) => {
                 if (slide.element === currentSlide) {
                   return;
                 }
 
-                slide.element.setAttribute(attributes$t.tabindex, '-1');
+                slide.element.setAttribute(attributes$u.tabindex, '-1');
               });
 
               this.switchMedia(item, mediaId);
@@ -8040,12 +7991,12 @@
           mediaItems.forEach((element) => {
             element.addEventListener('theme:media:play', () => {
               this.handleDraggable(this.flkty[index], false);
-              element.closest(selectors$I.productMediaSlider).classList.add(classes$y.hasMediaActive);
+              element.closest(selectors$J.productMediaSlider).classList.add(classes$z.hasMediaActive);
             });
 
             element.addEventListener('theme:media:pause', () => {
               this.handleDraggable(this.flkty[index], true);
-              element.closest(selectors$I.productMediaSlider).classList.remove(classes$y.hasMediaActive);
+              element.closest(selectors$J.productMediaSlider).classList.remove(classes$z.hasMediaActive);
             });
           });
         }
@@ -8056,15 +8007,15 @@
     }
 
     switchMedia(item, mediaId) {
-      const allMediaItems = this.quickViewInner.querySelectorAll(selectors$I.productMediaWrapper);
-      const selectedMedia = item.querySelector(`${selectors$I.productMediaWrapper}[${attributes$t.mediaId}="${mediaId}"]`);
-      const isFocusEnabled = !document.body.classList.contains(classes$y.noOutline);
+      const allMediaItems = this.quickViewInner.querySelectorAll(selectors$J.productMediaWrapper);
+      const selectedMedia = item.querySelector(`${selectors$J.productMediaWrapper}[${attributes$u.mediaId}="${mediaId}"]`);
+      const isFocusEnabled = !document.body.classList.contains(classes$z.noOutline);
 
       // Pause other media
       if (allMediaItems.length) {
         allMediaItems.forEach((media) => {
           media.dispatchEvent(new CustomEvent('theme:media:hidden'), {bubbles: true});
-          media.classList.add(classes$y.mediaHidden);
+          media.classList.add(classes$z.mediaHidden);
         });
       }
 
@@ -8072,14 +8023,14 @@
         selectedMedia.focus();
       }
 
-      selectedMedia.closest(selectors$I.productMediaSlider).classList.remove(classes$y.hasMediaActive);
-      selectedMedia.classList.remove(classes$y.mediaHidden);
+      selectedMedia.closest(selectors$J.productMediaSlider).classList.remove(classes$z.hasMediaActive);
+      selectedMedia.classList.remove(classes$z.mediaHidden);
       selectedMedia.dispatchEvent(new CustomEvent('theme:media:visible'), {bubbles: true});
 
       // If media is not loaded, trigger poster button click to load it
-      const deferredMedia = selectedMedia.querySelector(selectors$I.deferredMedia);
-      if (deferredMedia && deferredMedia.getAttribute(attributes$t.loaded) !== 'true') {
-        selectedMedia.querySelector(selectors$I.deferredMediaButton).dispatchEvent(new Event('click'));
+      const deferredMedia = selectedMedia.querySelector(selectors$J.deferredMedia);
+      if (deferredMedia && deferredMedia.getAttribute(attributes$u.loaded) !== 'true') {
+        selectedMedia.querySelector(selectors$J.deferredMediaButton).dispatchEvent(new Event('click'));
       }
     }
 
@@ -8090,8 +8041,8 @@
     }
 
     initProductModel(item) {
-      const sectionId = item.getAttribute(attributes$t.sectionId);
-      const modelItems = item.querySelectorAll(selectors$I.productModel);
+      const sectionId = item.getAttribute(attributes$u.sectionId);
+      const modelItems = item.querySelectorAll(selectors$J.productModel);
 
       if (modelItems.length) {
         modelItems.forEach((element) => {
@@ -8102,29 +8053,29 @@
 
     initShopifyXrLaunch(item) {
       document.addEventListener('shopify_xr_launch', () => {
-        const currentMedia = item.querySelector(`${selectors$I.productModel}:not(.${classes$y.mediaHidden})`);
+        const currentMedia = item.querySelector(`${selectors$J.productModel}:not(.${classes$z.mediaHidden})`);
         currentMedia.dispatchEvent(new CustomEvent('xrLaunch'));
       });
     }
 
     addFormSuffix(item) {
-      const sectionId = item.getAttribute(attributes$t.sectionId);
-      const productObject = JSON.parse(item.querySelector(selectors$I.productJSON).innerHTML);
+      const sectionId = item.getAttribute(attributes$u.sectionId);
+      const productObject = JSON.parse(item.querySelector(selectors$J.productJSON).innerHTML);
 
       const formSuffix = `${sectionId}-${productObject.handle}`;
-      const productForm = item.querySelector(selectors$I.productForm);
-      const addToCart = item.querySelector(selectors$I.addToCart);
+      const productForm = item.querySelector(selectors$J.productForm);
+      const addToCart = item.querySelector(selectors$J.addToCart);
 
-      productForm.setAttribute(attributes$t.id, ids.addToCartFormId + formSuffix);
-      addToCart.setAttribute(attributes$t.id, ids.addToCartId + formSuffix);
+      productForm.setAttribute(attributes$u.id, ids.addToCartFormId + formSuffix);
+      addToCart.setAttribute(attributes$u.id, ids.addToCartId + formSuffix);
     }
   }
 
-  const settings$4 = {
+  const settings$5 = {
     unlockScrollDelay: 400,
   };
 
-  const selectors$H = {
+  const selectors$I = {
     popupContainer: '.pswp',
     popupCloseBtn: '.pswp__custom-close',
     popupIframe: 'iframe, video',
@@ -8135,7 +8086,7 @@
     productJSON: '[data-product-json]',
   };
 
-  const classes$x = {
+  const classes$y = {
     current: 'is-current',
     customLoader: 'pswp--custom-loader',
     customOpen: 'pswp--custom-opening',
@@ -8148,23 +8099,23 @@
     quickViewAnimateOut: 'popup-quick-view--animate-out',
   };
 
-  const attributes$s = {
+  const attributes$t = {
     dataOptionClasses: 'data-pswp-option-classes',
     dataVideoType: 'data-video-type',
   };
 
-  const loaderHTML = `<div class="${classes$x.loader}"><div class="loader loader--image"><div class="loader__image"></div></div></div>`;
+  const loaderHTML = `<div class="${classes$y.loader}"><div class="loader loader--image"><div class="loader__image"></div></div></div>`;
 
   class LoadPhotoswipe {
     constructor(items, options = '', templateIndex = 0, triggerButton = null) {
       this.items = items;
       this.triggerBtn = triggerButton;
-      this.pswpElements = document.querySelectorAll(selectors$H.popupContainer);
+      this.pswpElements = document.querySelectorAll(selectors$I.popupContainer);
       this.pswpElement = this.pswpElements[templateIndex];
       this.popup = null;
       this.popupThumbs = null;
-      this.popupThumbsContainer = this.pswpElement.querySelector(selectors$H.popupThumbs);
-      this.closeBtn = this.pswpElement.querySelector(selectors$H.popupCloseBtn);
+      this.popupThumbsContainer = this.pswpElement.querySelector(selectors$I.popupThumbs);
+      this.closeBtn = this.pswpElement.querySelector(selectors$I.popupCloseBtn);
       const defaultOptions = {
         history: false,
         focus: false,
@@ -8182,7 +8133,7 @@
     init() {
       document.dispatchEvent(new CustomEvent('theme:scroll:lock', {bubbles: true}));
 
-      this.pswpElement.classList.add(classes$x.customOpen);
+      this.pswpElement.classList.add(classes$y.customOpen);
 
       this.initLoader();
 
@@ -8192,14 +8143,14 @@
     }
 
     initLoader() {
-      if (this.pswpElement.classList.contains(classes$x.customLoader) && this.options !== '' && this.options.mainClass) {
-        this.pswpElement.setAttribute(attributes$s.dataOptionClasses, this.options.mainClass);
+      if (this.pswpElement.classList.contains(classes$y.customLoader) && this.options !== '' && this.options.mainClass) {
+        this.pswpElement.setAttribute(attributes$t.dataOptionClasses, this.options.mainClass);
         let loaderElem = document.createElement('div');
         loaderElem.innerHTML = loaderHTML;
         loaderElem = loaderElem.firstChild;
         this.pswpElement.appendChild(loaderElem);
       } else {
-        this.pswpElement.setAttribute(attributes$s.dataOptionClasses, '');
+        this.pswpElement.setAttribute(attributes$t.dataOptionClasses, '');
       }
     }
 
@@ -8207,11 +8158,11 @@
       const PhotoSwipe = window.themePhotoswipe.PhotoSwipe.default;
       const PhotoSwipeUI = window.themePhotoswipe.PhotoSwipeUI.default;
 
-      if (this.pswpElement.classList.contains(classes$x.customLoader)) {
-        this.pswpElement.classList.remove(classes$x.customLoader);
+      if (this.pswpElement.classList.contains(classes$y.customLoader)) {
+        this.pswpElement.classList.remove(classes$y.customLoader);
       }
 
-      this.pswpElement.classList.remove(classes$x.customOpen);
+      this.pswpElement.classList.remove(classes$y.customOpen);
 
       this.popup = new PhotoSwipe(this.pswpElement, PhotoSwipeUI, this.items, this.options);
 
@@ -8237,17 +8188,17 @@
         container: this.pswpElement,
       });
 
-      if (this.pswpElement.classList.contains(classes$x.quickviewPopup)) {
+      if (this.pswpElement.classList.contains(classes$y.quickviewPopup)) {
         new LoadQuickview(this.popup, this.pswpElement);
       }
 
-      if (this.pswpElement.classList.contains(classes$x.notificationPopup)) {
+      if (this.pswpElement.classList.contains(classes$y.notificationPopup)) {
         new LoadNotification(this.popup, this.pswpElement);
       }
 
       this.closePopup = () => {
-        if (this.pswpElement.classList.contains(classes$x.quickviewPopup)) {
-          this.pswpElement.classList.add(classes$x.quickViewAnimateOut); // Close the Quickview popup accordingly
+        if (this.pswpElement.classList.contains(classes$y.quickviewPopup)) {
+          this.pswpElement.classList.add(classes$y.quickViewAnimateOut); // Close the Quickview popup accordingly
         } else {
           this.popup.close();
         }
@@ -8268,9 +8219,9 @@
     }
 
     initVideo() {
-      const videoContainer = this.pswpElement.querySelector(selectors$H.popupCustomIframe);
+      const videoContainer = this.pswpElement.querySelector(selectors$I.popupCustomIframe);
       if (videoContainer) {
-        const videoType = videoContainer.getAttribute(attributes$s.dataVideoType);
+        const videoType = videoContainer.getAttribute(attributes$t.dataVideoType);
         this.isVideo = true;
 
         if (videoType == 'youtube') {
@@ -8287,12 +8238,12 @@
         this.popupThumbsContainer.addEventListener('mousewheel', (e) => this.stopDisabledScroll(e));
         this.popupThumbsContainer.addEventListener('DOMMouseScroll', (e) => this.stopDisabledScroll(e));
 
-        this.popupThumbs = this.pswpElement.querySelectorAll(`${selectors$H.popupThumbs} > *`);
+        this.popupThumbs = this.pswpElement.querySelectorAll(`${selectors$I.popupThumbs} > *`);
         this.popupThumbs.forEach((element, i) => {
           element.addEventListener('click', (e) => {
             e.preventDefault();
-            element.parentElement.querySelector(`.${classes$x.current}`).classList.remove(classes$x.current);
-            element.classList.add(classes$x.current);
+            element.parentElement.querySelector(`.${classes$y.current}`).classList.remove(classes$y.current);
+            element.classList.add(classes$y.current);
             this.popup.goTo(i);
           });
         });
@@ -8300,9 +8251,9 @@
     }
 
     hideUnusedButtons() {
-      const buttons = this.pswpElement.querySelectorAll(selectors$H.popupButtons);
+      const buttons = this.pswpElement.querySelectorAll(selectors$I.popupButtons);
       buttons.forEach((element) => {
-        if (!element.classList.contains(classes$x.popupCloseButton)) {
+        if (!element.classList.contains(classes$y.popupCloseButton)) {
           element.style.display = 'none';
         }
       });
@@ -8313,7 +8264,7 @@
     }
 
     onClose() {
-      const popupIframe = this.pswpElement.querySelector(selectors$H.popupIframe);
+      const popupIframe = this.pswpElement.querySelector(selectors$I.popupIframe);
       if (popupIframe) {
         popupIframe.parentNode.removeChild(popupIframe);
       }
@@ -8324,13 +8275,13 @@
         }
       }
 
-      this.pswpElement.setAttribute(attributes$s.dataOptionClasses, '');
-      const loaderElem = this.pswpElement.querySelector(`.${classes$x.loader}`);
+      this.pswpElement.setAttribute(attributes$t.dataOptionClasses, '');
+      const loaderElem = this.pswpElement.querySelector(`.${classes$y.loader}`);
       if (loaderElem) {
         this.pswpElement.removeChild(loaderElem);
       }
 
-      if (!document.body.classList.contains(classes$x.isCartDrawerOpen)) {
+      if (!document.body.classList.contains(classes$y.isCartDrawerOpen)) {
         this.a11y.removeTrapFocus();
       }
 
@@ -8339,19 +8290,19 @@
       // Unlock scroll if only cart drawer is closed and there are no more popups opened
       setTimeout(() => {
         const recentlyOpenedPopups = this.recentlyOpenedPopupsCount();
-        const isCartDrawerOpen = document.body.classList.contains(classes$x.isCartDrawerOpen);
+        const isCartDrawerOpen = document.body.classList.contains(classes$y.isCartDrawerOpen);
 
         if (recentlyOpenedPopups === 0 && !isCartDrawerOpen) {
           document.dispatchEvent(new CustomEvent('theme:scroll:unlock', {bubbles: true}));
         }
-      }, settings$4.unlockScrollDelay);
+      }, settings$5.unlockScrollDelay);
     }
 
     recentlyOpenedPopupsCount() {
       let count = 0;
 
       this.pswpElements.forEach((popup) => {
-        const isOpened = popup.classList.contains(classes$x.opened);
+        const isOpened = popup.classList.contains(classes$y.opened);
 
         if (isOpened) {
           count += 1;
@@ -8366,16 +8317,16 @@
 
       if (hasThumbnails) return;
 
-      const lastCurrentThumb = this.pswpElement.querySelector(`${selectors$H.popupThumbs} > .${classes$x.current}`);
+      const lastCurrentThumb = this.pswpElement.querySelector(`${selectors$I.popupThumbs} > .${classes$y.current}`);
       if (lastCurrentThumb) {
-        lastCurrentThumb.classList.remove(classes$x.current);
+        lastCurrentThumb.classList.remove(classes$y.current);
       }
 
       if (!this.popupThumbs) {
         return;
       }
       const currentThumb = this.popupThumbs[this.popup.getCurrentIndex()];
-      currentThumb.classList.add(classes$x.current);
+      currentThumb.classList.add(classes$y.current);
       this.scrollThumbs(currentThumb);
     }
 
@@ -8398,11 +8349,11 @@
     }
   }
 
-  const settings$3 = {
+  const settings$4 = {
     templateIndex: 0,
   };
 
-  const selectors$G = {
+  const selectors$H = {
     buttonQuickView: '[data-button-quick-view]',
     quickViewItemsTemplate: '[data-quick-view-items-template]',
     cartDrawer: '[data-cart-drawer]',
@@ -8411,7 +8362,7 @@
     quickViewItemHolder: '[data-quick-view-item-holder]',
   };
 
-  const classes$w = {
+  const classes$x = {
     loading: 'is-loading',
     isActive: 'is-active',
     quickViewFromCart: 'js-quick-view-from-cart',
@@ -8419,7 +8370,7 @@
     shopTheLookPopupClass: 'popup-quick-view popup-quick-view--shop-the-look pswp--not-close-btn',
   };
 
-  const attributes$r = {
+  const attributes$s = {
     loaded: 'data-loaded',
     handle: 'data-handle',
     variantId: 'data-variant-id',
@@ -8431,7 +8382,7 @@
   const options = {
     history: false,
     focus: false,
-    mainClass: classes$w.mainClass,
+    mainClass: classes$x.mainClass,
     showHideOpacity: false, // we need that off to control the animation ourselves
     closeOnVerticalDrag: false,
     closeOnScroll: false,
@@ -8443,21 +8394,21 @@
     constructor(container) {
       this.container = container;
       this.a11y = a11y;
-      this.buttonsQuickView = this.container.querySelectorAll(selectors$G.buttonQuickView);
-      this.buttonsShopTheLookQuickView = this.container.querySelectorAll(selectors$G.shopTheLookQuickViewButton);
+      this.buttonsQuickView = this.container.querySelectorAll(selectors$H.buttonQuickView);
+      this.buttonsShopTheLookQuickView = this.container.querySelectorAll(selectors$H.shopTheLookQuickViewButton);
       this.popupInitCallback = (trigger) => this.popupInit(trigger);
 
       this.buttonsQuickView?.forEach((button) => {
-        if (!button.hasAttribute(attributes$r.quickButtonInit)) {
+        if (!button.hasAttribute(attributes$s.quickButtonInit)) {
           button.addEventListener('click', (event) => this.initPhotoswipe(event));
           button.addEventListener('theme:popup:init', () => {
-            button.classList.remove(classes$w.loading);
+            button.classList.remove(classes$x.loading);
 
-            if (button.hasAttribute(attributes$r.shopTheLookQuickView)) {
+            if (button.hasAttribute(attributes$s.shopTheLookQuickView)) {
               this.popupInitCallback(button);
             }
           });
-          button.setAttribute(attributes$r.quickButtonInit, '');
+          button.setAttribute(attributes$s.quickButtonInit, '');
         }
       });
 
@@ -8470,14 +8421,14 @@
 
     popupInit(trigger) {
       // Handle active Quick View item
-      const holder = this.loadPhotoswipe.pswpElement.querySelector(`[${attributes$r.hotspot}="${trigger.getAttribute(attributes$r.hotspot)}"]`);
-      const quickViewItemHolders = this.loadPhotoswipe.pswpElement.querySelectorAll(selectors$G.quickViewItemHolder);
+      const holder = this.loadPhotoswipe.pswpElement.querySelector(`[${attributes$s.hotspot}="${trigger.getAttribute(attributes$s.hotspot)}"]`);
+      const quickViewItemHolders = this.loadPhotoswipe.pswpElement.querySelectorAll(selectors$H.quickViewItemHolder);
 
-      holder.classList.add(classes$w.isActive);
+      holder.classList.add(classes$x.isActive);
 
       quickViewItemHolders.forEach((element) => {
         if (element !== holder) {
-          element.classList.remove(classes$w.isActive);
+          element.classList.remove(classes$x.isActive);
         }
       });
 
@@ -8510,70 +8461,70 @@
     toggleQuickViewButtonsLoadingClasses(isLoading = true) {
       if (isLoading) {
         this.buttonsQuickView?.forEach((element) => {
-          element.classList.add(classes$w.loading);
+          element.classList.add(classes$x.loading);
         });
         return;
       }
 
       this.buttonsQuickView?.forEach((element) => {
-        element.classList.remove(classes$w.loading);
+        element.classList.remove(classes$x.loading);
       });
     }
 
     toggleQuickViewThumbsLoadingClasses(isLoading = true) {
-      this.buttonsShopTheLookThumb = this.loadPhotoswipe?.pswpElement.querySelectorAll(selectors$G.shopTheLookThumb);
+      this.buttonsShopTheLookThumb = this.loadPhotoswipe?.pswpElement.querySelectorAll(selectors$H.shopTheLookThumb);
 
       if (isLoading) {
         this.buttonsShopTheLookThumb?.forEach((element) => {
-          element.classList.add(classes$w.loading);
+          element.classList.add(classes$x.loading);
         });
         return;
       }
 
       this.buttonsShopTheLookThumb?.forEach((element) => {
-        element.classList.remove(classes$w.loading);
+        element.classList.remove(classes$x.loading);
       });
     }
 
     initPhotoswipe(event) {
       event.preventDefault();
 
-      const button = event.target.matches(selectors$G.buttonQuickView) ? event.target : event.target.closest(selectors$G.buttonQuickView);
+      const button = event.target.matches(selectors$H.buttonQuickView) ? event.target : event.target.closest(selectors$H.buttonQuickView);
       const isMobile = window.innerWidth < theme.sizes.small;
       let quickViewVariant = '';
       let isShopTheLookPopupTrigger = false;
 
-      if (button.hasAttribute(attributes$r.shopTheLookQuickView)) {
+      if (button.hasAttribute(attributes$s.shopTheLookQuickView)) {
         if (!isMobile) return;
         isShopTheLookPopupTrigger = true;
       }
 
-      options.mainClass = classes$w.mainClass;
-      button.classList.add(classes$w.loading);
+      options.mainClass = classes$x.mainClass;
+      button.classList.add(classes$x.loading);
 
       // Add class js-quick-view-from-cart to change the default Quick view animation
-      if (button.closest(selectors$G.cartDrawer)) {
-        document.body.classList.add(classes$w.quickViewFromCart);
+      if (button.closest(selectors$H.cartDrawer)) {
+        document.body.classList.add(classes$x.quickViewFromCart);
       }
 
       // Set the trigger element before calling trapFocus
       this.a11y.state.trigger = button;
 
-      if (button.hasAttribute(attributes$r.variantId)) {
-        quickViewVariant = `&variant=${button.getAttribute(attributes$r.variantId)}`;
+      if (button.hasAttribute(attributes$s.variantId)) {
+        quickViewVariant = `&variant=${button.getAttribute(attributes$s.variantId)}`;
       }
 
-      const productUrl = `${theme.routes.root}products/${button.getAttribute(attributes$r.handle)}?section_id=api-quickview${quickViewVariant}`;
+      const productUrl = `${theme.routes.root}products/${button.getAttribute(attributes$s.handle)}?section_id=api-quickview${quickViewVariant}`;
 
       if (isShopTheLookPopupTrigger) {
-        options.mainClass = classes$w.shopTheLookPopupClass;
+        options.mainClass = classes$x.shopTheLookPopupClass;
 
         this.buttonsQuickView.forEach((element) => {
-          element.classList.add(classes$w.loading);
+          element.classList.add(classes$x.loading);
         });
 
         const XMLS = new XMLSerializer();
-        const quickViewItemsTemplate = this.container.querySelector(selectors$G.quickViewItemsTemplate).content.firstElementChild.cloneNode(true);
+        const quickViewItemsTemplate = this.container.querySelector(selectors$H.quickViewItemsTemplate).content.firstElementChild.cloneNode(true);
 
         const itemsData = XMLS.serializeToString(quickViewItemsTemplate);
 
@@ -8590,7 +8541,7 @@
         },
       ];
 
-      this.loadPhotoswipe = new LoadPhotoswipe(items, options, settings$3.templateIndex, button);
+      this.loadPhotoswipe = new LoadPhotoswipe(items, options, settings$4.templateIndex, button);
     }
 
     loadPhotoswipeFromFetch(url, button) {
@@ -8605,13 +8556,13 @@
             },
           ];
 
-          this.loadPhotoswipe = new LoadPhotoswipe(items, options, settings$3.templateIndex, button);
+          this.loadPhotoswipe = new LoadPhotoswipe(items, options, settings$4.templateIndex, button);
         })
         .catch((error) => console.log('error: ', error));
     }
   }
 
-  const settings$2 = {
+  const settings$3 = {
     cartDrawerEnabled: window.theme.settings.cartType === 'drawer',
     timers: {
       addProductTimeout: 1000,
@@ -8622,7 +8573,7 @@
     },
   };
 
-  const selectors$F = {
+  const selectors$G = {
     outerSection: '[data-section-id]',
     aos: '[data-aos]',
     additionalCheckoutButtons: '[data-additional-checkout-button]',
@@ -8676,7 +8627,7 @@
     flickityEnabled: '.flickity-enabled',
   };
 
-  const classes$v = {
+  const classes$w = {
     hidden: 'hidden',
     added: 'is-added',
     isHidden: 'is-hidden',
@@ -8698,7 +8649,7 @@
     contentVisibilityHidden: 'cv-h',
   };
 
-  const attributes$q = {
+  const attributes$r = {
     shippingMessageLimit: 'data-limit',
     cartMessageValue: 'data-cart-message',
     cartTotal: 'data-cart-total',
@@ -8716,7 +8667,7 @@
     recipientError: 'data-recipient-errors',
   };
 
-  let sections$r = {};
+  let sections$s = {};
 
   class CartDrawer {
     constructor() {
@@ -8729,16 +8680,16 @@
 
     init() {
       // DOM Elements
-      this.cartToggleButtons = document.querySelectorAll(selectors$F.cartDrawerToggle);
-      this.cartPage = document.querySelector(selectors$F.cartPage);
-      this.cartDrawer = document.querySelector(selectors$F.cartDrawer);
+      this.cartToggleButtons = document.querySelectorAll(selectors$G.cartDrawerToggle);
+      this.cartPage = document.querySelector(selectors$G.cartPage);
+      this.cartDrawer = document.querySelector(selectors$G.cartDrawer);
       this.cart = this.cartDrawer || this.cartPage;
 
       this.cartCount = this.getCartItemCount();
 
       this.assignArguments();
 
-      this.recipientErrors = this.form?.getAttribute(attributes$q.recipientError) === 'true';
+      this.recipientErrors = this.form?.getAttribute(attributes$r.recipientError) === 'true';
       this.flktyUpsell = null;
       this.form = null;
       this.collapsible = null;
@@ -8756,7 +8707,7 @@
       this.toggleCartDrawer = this.toggleCartDrawer.bind(this);
       this.formSubmitHandler = throttle(this.formSubmitHandler.bind(this), 50);
       this.closeCartError = () => {
-        this.cartErrorHolder.classList.remove(classes$v.expanded);
+        this.cartErrorHolder.classList.remove(classes$w.expanded);
       };
       this.cartDrawerCloseEvent = null;
 
@@ -8773,7 +8724,7 @@
       this.isCartDrawerOpen = false;
       this.isCartDrawerLoaded = false;
       this.cartDiscounts = 0;
-      this.cartDrawerEnabled = settings$2.cartDrawerEnabled;
+      this.cartDrawerEnabled = settings$3.cartDrawerEnabled;
       this.cartAnimationTimer = 0;
       this.cartUpdateFailed = false;
 
@@ -8803,33 +8754,33 @@
      * @return  {Void}
      */
     assignArguments() {
-      this.cartDrawerBody = document.querySelector(selectors$F.cartDrawerBody);
-      this.emptyMessage = document.querySelector(selectors$F.emptyMessage);
-      this.buttonHolder = document.querySelector(selectors$F.buttonHolder);
-      this.itemsHolder = document.querySelector(selectors$F.itemsHolder);
-      this.cartItemsQty = document.querySelector(selectors$F.cartItemsQty);
-      this.itemsWrapper = document.querySelector(selectors$F.itemsWrapper);
-      this.items = document.querySelectorAll(selectors$F.item);
-      this.cartTotal = document.querySelector(selectors$F.cartTotal);
-      this.cartTotalPrice = document.querySelector(selectors$F.cartTotalPrice);
-      this.cartMessage = document.querySelectorAll(selectors$F.cartMessage);
-      this.cartOriginalTotal = document.querySelector(selectors$F.cartOriginalTotal);
-      this.cartErrorHolder = document.querySelector(selectors$F.cartErrors);
-      this.cartCloseErrorMessage = document.querySelector(selectors$F.cartCloseError);
-      this.pairProductsHolder = document.querySelector(selectors$F.pairProductsHolder);
-      this.pairProducts = document.querySelector(selectors$F.pairProducts);
-      this.priceHolder = document.querySelector(selectors$F.priceHolder);
-      this.upsellHolders = document.querySelectorAll(selectors$F.upsellHolder);
-      this.cartTermsCheckbox = document.querySelector(selectors$F.cartTermsCheckbox);
-      this.cartCheckoutButtonWrapper = document.querySelector(selectors$F.cartCheckoutButtonWrapper);
-      this.cartCheckoutButton = document.querySelector(selectors$F.cartCheckoutButton);
-      this.cartForm = document.querySelector(selectors$F.cartForm);
+      this.cartDrawerBody = document.querySelector(selectors$G.cartDrawerBody);
+      this.emptyMessage = document.querySelector(selectors$G.emptyMessage);
+      this.buttonHolder = document.querySelector(selectors$G.buttonHolder);
+      this.itemsHolder = document.querySelector(selectors$G.itemsHolder);
+      this.cartItemsQty = document.querySelector(selectors$G.cartItemsQty);
+      this.itemsWrapper = document.querySelector(selectors$G.itemsWrapper);
+      this.items = document.querySelectorAll(selectors$G.item);
+      this.cartTotal = document.querySelector(selectors$G.cartTotal);
+      this.cartTotalPrice = document.querySelector(selectors$G.cartTotalPrice);
+      this.cartMessage = document.querySelectorAll(selectors$G.cartMessage);
+      this.cartOriginalTotal = document.querySelector(selectors$G.cartOriginalTotal);
+      this.cartErrorHolder = document.querySelector(selectors$G.cartErrors);
+      this.cartCloseErrorMessage = document.querySelector(selectors$G.cartCloseError);
+      this.pairProductsHolder = document.querySelector(selectors$G.pairProductsHolder);
+      this.pairProducts = document.querySelector(selectors$G.pairProducts);
+      this.priceHolder = document.querySelector(selectors$G.priceHolder);
+      this.upsellHolders = document.querySelectorAll(selectors$G.upsellHolder);
+      this.cartTermsCheckbox = document.querySelector(selectors$G.cartTermsCheckbox);
+      this.cartCheckoutButtonWrapper = document.querySelector(selectors$G.cartCheckoutButtonWrapper);
+      this.cartCheckoutButton = document.querySelector(selectors$G.cartCheckoutButton);
+      this.cartForm = document.querySelector(selectors$G.cartForm);
       this.cartItemCount = 0;
       this.subtotal = window.theme.subtotal;
       this.button = null;
 
       if (this.cartMessage.length > 0) {
-        this.cartFreeLimitShipping = Number(this.cartMessage[0].getAttribute(attributes$q.shippingMessageLimit)) * 100 * window.Shopify.currency.rate;
+        this.cartFreeLimitShipping = Number(this.cartMessage[0].getAttribute(attributes$r.shippingMessageLimit)) * 100 * window.Shopify.currency.rate;
       }
 
       this.updateProgress();
@@ -8842,7 +8793,7 @@
      */
 
     initQuantity() {
-      this.items = document.querySelectorAll(selectors$F.item);
+      this.items = document.querySelectorAll(selectors$G.item);
 
       this.items?.forEach((item) => {
         const quantity = new QuantityCounter(item, true);
@@ -8877,19 +8828,19 @@
      */
 
     cartEvents() {
-      const cartItemRemove = document.querySelectorAll(selectors$F.cartItemRemove);
+      const cartItemRemove = document.querySelectorAll(selectors$G.cartItemRemove);
       this.totalItems = cartItemRemove.length;
 
       cartItemRemove?.forEach((button) => {
-        const item = button.closest(selectors$F.item);
+        const item = button.closest(selectors$G.item);
         button.addEventListener('click', (event) => {
           event.preventDefault();
 
-          if (button.classList.contains(classes$v.disabled)) return;
+          if (button.classList.contains(classes$w.disabled)) return;
 
           this.updateCart(
             {
-              id: item.getAttribute(attributes$q.dataId),
+              id: item.getAttribute(attributes$r.dataId),
               quantity: 0,
             },
             item
@@ -8922,21 +8873,21 @@
     cartAddEvent() {
       document.addEventListener('click', (event) => {
         const clickedElement = event.target;
-        const isButtonATC = clickedElement?.matches(selectors$F.buttonAddToCart);
-        const getButtonATC = clickedElement?.closest(selectors$F.buttonAddToCart);
+        const isButtonATC = clickedElement?.matches(selectors$G.buttonAddToCart);
+        const getButtonATC = clickedElement?.closest(selectors$G.buttonAddToCart);
 
         if (isButtonATC || getButtonATC) {
           event.preventDefault();
 
           this.button = isButtonATC ? clickedElement : getButtonATC;
           this.form = clickedElement.closest('form');
-          this.recipientErrors = this.form?.getAttribute(attributes$q.recipientError) === 'true';
-          this.formWrapper = this.button.closest(selectors$F.formWrapper);
-          const isVariantSoldOut = this.formWrapper?.classList.contains(classes$v.variantSoldOut);
-          const isButtonDisabled = this.button.hasAttribute(attributes$q.disabled);
-          const isQuickViewOnboarding = this.button.closest(selectors$F.quickViewOnboarding);
-          const hasDataAtcTrigger = this.button.hasAttribute(attributes$q.atcTrigger);
-          const hasNotificationPopup = this.button.hasAttribute(attributes$q.notificationPopup);
+          this.recipientErrors = this.form?.getAttribute(attributes$r.recipientError) === 'true';
+          this.formWrapper = this.button.closest(selectors$G.formWrapper);
+          const isVariantSoldOut = this.formWrapper?.classList.contains(classes$w.variantSoldOut);
+          const isButtonDisabled = this.button.hasAttribute(attributes$r.disabled);
+          const isQuickViewOnboarding = this.button.closest(selectors$G.quickViewOnboarding);
+          const hasDataAtcTrigger = this.button.hasAttribute(attributes$r.atcTrigger);
+          const hasNotificationPopup = this.button.hasAttribute(attributes$r.notificationPopup);
           const hasFileInput = this.form?.querySelector('[type="file"]');
 
           if (isButtonDisabled || hasFileInput || isQuickViewOnboarding) return;
@@ -8987,7 +8938,7 @@
           const element = document.createElement('div');
           element.innerHTML = response;
 
-          const cleanResponse = element.querySelector(selectors$F.apiContent);
+          const cleanResponse = element.querySelector(selectors$G.apiContent);
           this.build(cleanResponse);
         })
         .catch((error) => console.log(error));
@@ -9004,8 +8955,8 @@
 
     addToCart(data) {
       if (this.cartDrawerEnabled && this.button) {
-        this.button.classList.add(classes$v.loading);
-        this.button.setAttribute(attributes$q.disabled, true);
+        this.button.classList.add(classes$w.loading);
+        this.button.setAttribute(attributes$r.disabled, true);
       }
 
       fetch(theme.routes.cart_add_url, {
@@ -9050,17 +9001,17 @@
       let updatedQuantity = updateData.quantity;
       if (currentItem !== null) {
         if (updatedQuantity) {
-          currentItem.classList.add(classes$v.loading);
+          currentItem.classList.add(classes$w.loading);
         } else {
-          currentItem.classList.add(classes$v.removed);
+          currentItem.classList.add(classes$w.removed);
         }
       }
       this.disableCartButtons();
       this.addLoadingClass();
 
-      const newItem = this.cart.querySelector(`[${attributes$q.item}="${updateData.id}"]`) || currentItem;
-      const lineIndex = newItem?.hasAttribute(attributes$q.itemIndex) ? parseInt(newItem.getAttribute(attributes$q.itemIndex)) : 0;
-      const itemTitle = newItem?.hasAttribute(attributes$q.itemTitle) ? newItem.getAttribute(attributes$q.itemTitle) : null;
+      const newItem = this.cart.querySelector(`[${attributes$r.item}="${updateData.id}"]`) || currentItem;
+      const lineIndex = newItem?.hasAttribute(attributes$r.itemIndex) ? parseInt(newItem.getAttribute(attributes$r.itemIndex)) : 0;
+      const itemTitle = newItem?.hasAttribute(attributes$r.itemTitle) ? newItem.getAttribute(attributes$r.itemTitle) : null;
 
       if (lineIndex === 0) return;
 
@@ -9112,10 +9063,10 @@
      * @return  {Void}
      */
     resetLineItem(item) {
-      const qtyInput = item.querySelector(selectors$F.qtyInput);
+      const qtyInput = item.querySelector(selectors$G.qtyInput);
       const qty = qtyInput.getAttribute('value');
       qtyInput.value = qty;
-      item.classList.remove(classes$v.loading);
+      item.classList.remove(classes$w.loading);
     }
 
     /**
@@ -9125,11 +9076,11 @@
      */
     disableCartButtons() {
       const inputs = this.cart.querySelectorAll('input');
-      const buttons = this.cart.querySelectorAll(`button, ${selectors$F.cartItemRemove}`);
+      const buttons = this.cart.querySelectorAll(`button, ${selectors$G.cartItemRemove}`);
 
       if (inputs.length) {
         inputs.forEach((item) => {
-          item.classList.add(classes$v.disabled);
+          item.classList.add(classes$w.disabled);
           item.blur();
           item.disabled = true;
         });
@@ -9137,7 +9088,7 @@
 
       if (buttons.length) {
         buttons.forEach((item) => {
-          item.setAttribute(attributes$q.disabled, true);
+          item.setAttribute(attributes$r.disabled, true);
         });
       }
     }
@@ -9149,18 +9100,18 @@
      */
     enableCartButtons() {
       const inputs = this.cart.querySelectorAll('input');
-      const buttons = this.cart.querySelectorAll(`button, ${selectors$F.cartItemRemove}`);
+      const buttons = this.cart.querySelectorAll(`button, ${selectors$G.cartItemRemove}`);
 
       if (inputs.length) {
         inputs.forEach((item) => {
-          item.classList.remove(classes$v.disabled);
+          item.classList.remove(classes$w.disabled);
           item.disabled = false;
         });
       }
 
       if (buttons.length) {
         buttons.forEach((item) => {
-          item.removeAttribute(attributes$q.disabled);
+          item.removeAttribute(attributes$r.disabled);
         });
       }
     }
@@ -9174,7 +9125,7 @@
      */
 
     updateErrorText(itemTitle) {
-      this.cartErrorHolder.querySelector(selectors$F.errorMessage).innerText = itemTitle;
+      this.cartErrorHolder.querySelector(selectors$G.errorMessage).innerText = itemTitle;
     }
 
     /**
@@ -9186,10 +9137,10 @@
     toggleErrorMessage() {
       if (!this.cartErrorHolder) return;
 
-      this.cartErrorHolder.classList.toggle(classes$v.expanded, this.cartUpdateFailed);
+      this.cartErrorHolder.classList.toggle(classes$w.expanded, this.cartUpdateFailed);
 
       if (this.cartUpdateFailed) {
-        const cartCloseError = this.cartErrorHolder.querySelector(selectors$F.cartCloseError);
+        const cartCloseError = this.cartErrorHolder.querySelector(selectors$G.cartCloseError);
         this.focusOnErrorMessage(this.cartErrorHolder, cartCloseError);
       }
 
@@ -9229,24 +9180,24 @@
      */
 
     addToCartError(data) {
-      const buttonQuickBuyForm = this.button.closest(selectors$F.quickBuyForm);
-      const buttonUpsellHolder = this.button.closest(selectors$F.upsellHolder);
-      const isFocusEnabled = !document.body.classList.contains(classes$v.noOutline);
+      const buttonQuickBuyForm = this.button.closest(selectors$G.quickBuyForm);
+      const buttonUpsellHolder = this.button.closest(selectors$G.upsellHolder);
+      const isFocusEnabled = !document.body.classList.contains(classes$w.noOutline);
       // holder: Product form containers or Upsell products in Cart form
-      let holder = this.button.closest(selectors$F.productForm) ? this.button.closest(selectors$F.productForm) : this.button.closest(selectors$F.upsellHolder);
-      let errorContainer = holder.querySelector(selectors$F.formErrorsContainer);
+      let holder = this.button.closest(selectors$G.productForm) ? this.button.closest(selectors$G.productForm) : this.button.closest(selectors$G.upsellHolder);
+      let errorContainer = holder.querySelector(selectors$G.formErrorsContainer);
 
       // Upsell products in Cart form
       if (buttonUpsellHolder) {
-        errorContainer = buttonUpsellHolder.querySelector(selectors$F.formErrorsContainer);
+        errorContainer = buttonUpsellHolder.querySelector(selectors$G.formErrorsContainer);
       }
 
-      if (this.cartDrawerEnabled && this.button && this.button.closest(selectors$F.cartDrawer) !== null && !this.button.closest(selectors$F.cartDrawer)) {
+      if (this.cartDrawerEnabled && this.button && this.button.closest(selectors$G.cartDrawer) !== null && !this.button.closest(selectors$G.cartDrawer)) {
         this.closeCartDrawer();
       }
 
-      this.button.classList.remove(classes$v.loading);
-      this.button.removeAttribute(attributes$q.disabled);
+      this.button.classList.remove(classes$w.loading);
+      this.button.removeAttribute(attributes$r.disabled);
 
       // Error message content
       const closeErrorButton = buttonQuickBuyForm
@@ -9273,11 +9224,11 @@
 
       // Quick buy in PGI errors
       if (buttonQuickBuyForm) {
-        const productMediaContainer = errorContainer.closest(selectors$F.productMediaContainer);
-        productMediaContainer.classList.add(classes$v.productGridImageError);
+        const productMediaContainer = errorContainer.closest(selectors$G.productMediaContainer);
+        productMediaContainer.classList.add(classes$w.productGridImageError);
 
-        errorContainer.querySelector(selectors$F.error).addEventListener('animationend', () => {
-          productMediaContainer.classList.remove(classes$v.productGridImageError);
+        errorContainer.querySelector(selectors$G.error).addEventListener('animationend', () => {
+          productMediaContainer.classList.remove(classes$w.productGridImageError);
           errorContainer.innerHTML = '';
 
           if (!isFocusEnabled) {
@@ -9286,7 +9237,7 @@
         });
       } else {
         // PDP form, Quick view popup forms and Upsell sliders errors
-        errorContainer.classList.add(classes$v.visible);
+        errorContainer.classList.add(classes$w.visible);
         errorContainer.addEventListener('transitionend', () => {
           this.resizeSliders(errorContainer);
         });
@@ -9302,17 +9253,17 @@
      * @return  {Void}
      */
     handleCloseErrorMessages(container) {
-      const formErrorClose = container.querySelector(selectors$F.formCloseError);
+      const formErrorClose = container.querySelector(selectors$G.formCloseError);
 
       formErrorClose?.addEventListener('click', (event) => {
         const clickedElement = event.target;
-        const isFormCloseError = clickedElement.matches(selectors$F.formCloseError) || clickedElement.closest(selectors$F.formCloseError);
+        const isFormCloseError = clickedElement.matches(selectors$G.formCloseError) || clickedElement.closest(selectors$G.formCloseError);
 
         if (!isFormCloseError) return;
 
         event.preventDefault();
-        container.classList.remove(classes$v.visible);
-        container.querySelector(selectors$F.error).addEventListener('transitionend', () => {
+        container.classList.remove(classes$w.visible);
+        container.querySelector(selectors$G.error).addEventListener('transitionend', () => {
           container.innerHTML = '';
           this.resizeSliders(clickedElement);
         });
@@ -9329,7 +9280,7 @@
      * @return  {Void}
      */
     focusOnErrorMessage(container, button) {
-      const isFocusEnabled = !document.body.classList.contains(classes$v.noOutline);
+      const isFocusEnabled = !document.body.classList.contains(classes$w.noOutline);
 
       if (!isFocusEnabled) return;
 
@@ -9342,9 +9293,9 @@
      * Hide error message container as soon as an item is successfully added to the cart
      */
     hideAddToCartErrorMessage() {
-      const holder = this.button.closest(selectors$F.upsellHolder) ? this.button.closest(selectors$F.upsellHolder) : this.button.closest(selectors$F.productForm);
-      const errorContainer = holder?.querySelector(selectors$F.formErrorsContainer);
-      errorContainer?.classList.remove(classes$v.visible);
+      const holder = this.button.closest(selectors$G.upsellHolder) ? this.button.closest(selectors$G.upsellHolder) : this.button.closest(selectors$G.productForm);
+      const errorContainer = holder?.querySelector(selectors$G.formErrorsContainer);
+      errorContainer?.classList.remove(classes$w.visible);
     }
 
     /**
@@ -9354,7 +9305,7 @@
      * @return  {Void}
      */
     resizeSliders(element) {
-      const slider = element.closest(selectors$F.flickityEnabled);
+      const slider = element.closest(selectors$G.flickityEnabled);
 
       if (!slider) return;
 
@@ -9368,7 +9319,7 @@
      * @return  {Void}
      */
     renderCartDrawer(alwaysOpen = true) {
-      const cartDrawerTemplate = document.querySelector(selectors$F.cartDrawerTemplate);
+      const cartDrawerTemplate = document.querySelector(selectors$G.cartDrawerTemplate);
 
       if (!cartDrawerTemplate) {
         return;
@@ -9390,7 +9341,7 @@
       }
 
       // Bind cart drawer close button event
-      this.cartDrawerToggle = this.cartDrawer.querySelector(selectors$F.cartDrawerToggle);
+      this.cartDrawerToggle = this.cartDrawer.querySelector(selectors$G.cartDrawerToggle);
       this.cartDrawerToggle.addEventListener('click', this.cartDrawerToggleClickEvent);
 
       this.isCartDrawerLoaded = true;
@@ -9427,19 +9378,19 @@
       document.dispatchEvent(new CustomEvent('theme:scroll:lock', {bubbles: true, detail: this.cartDrawer}));
       document.dispatchEvent(new CustomEvent('theme:scroll:lock', {bubbles: true, detail: this.cartDrawerBody}));
 
-      document.body.classList.add(classes$v.cartDrawerOpen);
-      this.cartDrawer.classList.add(classes$v.open);
-      this.cartDrawer.classList.remove(classes$v.contentVisibilityHidden);
+      document.body.classList.add(classes$w.cartDrawerOpen);
+      this.cartDrawer.classList.add(classes$w.open);
+      this.cartDrawer.classList.remove(classes$w.contentVisibilityHidden);
 
       // Cart elements opening animation
-      this.cartDrawer.querySelectorAll(selectors$F.aos).forEach((item) => {
+      this.cartDrawer.querySelectorAll(selectors$G.aos).forEach((item) => {
         requestAnimationFrame(() => {
-          item.classList.add(classes$v.aosAnimate);
+          item.classList.add(classes$w.aosAnimate);
         });
       });
 
       this.cartToggleButtons.forEach((button) => {
-        button.setAttribute(attributes$q.ariaExpanded, true);
+        button.setAttribute(attributes$r.ariaExpanded, true);
       });
 
       this.a11y.trapFocus({
@@ -9472,28 +9423,28 @@
       }
 
       this.cartAnimationTimer = setTimeout(() => {
-        this.cartDrawer.querySelectorAll(selectors$F.aos).forEach((item) => {
-          item.classList.remove(classes$v.aosAnimate);
+        this.cartDrawer.querySelectorAll(selectors$G.aos).forEach((item) => {
+          item.classList.remove(classes$w.aosAnimate);
         });
       }, 300);
 
-      this.cartErrorHolder.classList.remove(classes$v.expanded);
+      this.cartErrorHolder.classList.remove(classes$w.expanded);
 
       this.a11y.removeTrapFocus();
 
       this.cartToggleButtons.forEach((button) => {
-        button.setAttribute(attributes$q.ariaExpanded, false);
+        button.setAttribute(attributes$r.ariaExpanded, false);
       });
 
-      document.body.classList.remove(classes$v.cartDrawerOpen);
-      this.cartDrawer.classList.remove(classes$v.open);
-      this.itemsHolder.classList.remove(classes$v.updated);
+      document.body.classList.remove(classes$w.cartDrawerOpen);
+      this.cartDrawer.classList.remove(classes$w.open);
+      this.itemsHolder.classList.remove(classes$w.updated);
 
       const onCartDrawerTransitionEnd = (event) => {
         if (event.target !== this.cartDrawer) return;
 
         requestAnimationFrame(() => {
-          this.cartDrawer.classList.add(classes$v.contentVisibilityHidden);
+          this.cartDrawer.classList.add(classes$w.contentVisibilityHidden);
         });
 
         this.cartDrawer.removeEventListener('transitionend', onCartDrawerTransitionEnd);
@@ -9502,7 +9453,7 @@
       this.cartDrawer.addEventListener('transitionend', onCartDrawerTransitionEnd);
 
       // Fixes header background update on cart-drawer close
-      const isFocusEnabled = !document.body.classList.contains(classes$v.noOutline);
+      const isFocusEnabled = !document.body.classList.contains(classes$w.noOutline);
       if (!isFocusEnabled) {
         requestAnimationFrame(() => {
           document.activeElement.blur();
@@ -9551,7 +9502,7 @@
         event.preventDefault();
         const button = event.target;
 
-        if (button.getAttribute(attributes$q.ariaExpanded) === 'false') {
+        if (button.getAttribute(attributes$r.ariaExpanded) === 'false') {
           this.a11y.state.trigger = button;
         }
 
@@ -9560,9 +9511,9 @@
 
       // Define cart drawer close event
       this.cartDrawerCloseEvent = (event) => {
-        const isCartDrawerToggle = event.target.matches(selectors$F.cartDrawerToggle);
-        const isCartDrawerChild = document.querySelector(selectors$F.cartDrawer).contains(event.target);
-        const isPopupQuickView = event.target.closest(selectors$F.popupQuickView);
+        const isCartDrawerToggle = event.target.matches(selectors$G.cartDrawerToggle);
+        const isCartDrawerChild = document.querySelector(selectors$G.cartDrawer).contains(event.target);
+        const isPopupQuickView = event.target.closest(selectors$G.popupQuickView);
 
         if (!isCartDrawerToggle && !isCartDrawerChild && !isPopupQuickView) {
           this.closeCartDrawer();
@@ -9590,10 +9541,10 @@
     toggleClassesOnContainers() {
       const that = this;
 
-      this.emptyMessage.classList.toggle(classes$v.hidden, that.hasItemsInCart());
-      this.buttonHolder.classList.toggle(classes$v.hidden, !that.hasItemsInCart());
-      this.itemsHolder.classList.toggle(classes$v.hidden, !that.hasItemsInCart());
-      this.cartItemsQty.classList.toggle(classes$v.hidden, !that.hasItemsInCart());
+      this.emptyMessage.classList.toggle(classes$w.hidden, that.hasItemsInCart());
+      this.buttonHolder.classList.toggle(classes$w.hidden, !that.hasItemsInCart());
+      this.itemsHolder.classList.toggle(classes$w.hidden, !that.hasItemsInCart());
+      this.cartItemsQty.classList.toggle(classes$w.hidden, !that.hasItemsInCart());
     }
 
     /**
@@ -9605,19 +9556,19 @@
      */
 
     build(data) {
-      const cartItemsData = data.querySelector(selectors$F.apiLineItems);
-      const upsellItemsData = data.querySelector(selectors$F.apiUpsellItems);
+      const cartItemsData = data.querySelector(selectors$G.apiLineItems);
+      const upsellItemsData = data.querySelector(selectors$G.apiUpsellItems);
       const cartEmptyData = Boolean(cartItemsData === null && upsellItemsData === null);
-      const priceData = data.querySelector(selectors$F.apiCartPrice);
-      const cartTotal = data.querySelector(selectors$F.cartTotal);
+      const priceData = data.querySelector(selectors$G.apiCartPrice);
+      const cartTotal = data.querySelector(selectors$G.cartTotal);
 
       if (this.priceHolder && priceData) {
         this.priceHolder.innerHTML = priceData.innerHTML;
       }
 
       // Cart page empty state animations re-init
-      this.emptyMessage.querySelectorAll(selectors$F.aos).forEach((item) => {
-        item.classList.remove(classes$v.aosAnimate);
+      this.emptyMessage.querySelectorAll(selectors$G.aos).forEach((item) => {
+        item.classList.remove(classes$w.aosAnimate);
       });
 
       if (cartEmptyData) {
@@ -9636,8 +9587,8 @@
         this.renderPairProducts();
       }
 
-      this.newTotalItems = cartItemsData && cartItemsData.querySelectorAll(selectors$F.item).length ? cartItemsData.querySelectorAll(selectors$F.item).length : 0;
-      this.subtotal = cartTotal && cartTotal.hasAttribute(attributes$q.cartTotal) ? parseInt(cartTotal.getAttribute(attributes$q.cartTotal)) : 0;
+      this.newTotalItems = cartItemsData && cartItemsData.querySelectorAll(selectors$G.item).length ? cartItemsData.querySelectorAll(selectors$G.item).length : 0;
+      this.subtotal = cartTotal && cartTotal.hasAttribute(attributes$r.cartTotal) ? parseInt(cartTotal.getAttribute(attributes$r.cartTotal)) : 0;
       this.cartCount = this.getCartItemCount();
 
       if (this.cartMessage.length > 0) {
@@ -9645,10 +9596,10 @@
       }
 
       this.cartToggleButtons.forEach((button) => {
-        button.classList.remove(classes$v.cartItems);
+        button.classList.remove(classes$w.cartItems);
 
         if (this.newTotalItems > 0) {
-          button.classList.add(classes$v.cartItems);
+          button.classList.add(classes$w.cartItems);
         }
       });
 
@@ -9666,7 +9617,7 @@
 
       // Add class "is-updated" line items holder to reduce cart items animation delay via CSS variables
       if (this.isCartDrawerOpen) {
-        this.itemsHolder.classList.add(classes$v.updated);
+        this.itemsHolder.classList.add(classes$w.updated);
       }
 
       this.cartEvents();
@@ -9692,7 +9643,7 @@
       // Returning 0 and not the actual cart items count is done only for when "Cart type" settings are set to "Page"
       // The actual count is necessary only when we build and render the cart/cart-drawer after we get a response from the Cart API
       if (!this.cart) return 0;
-      return Array.from(this.cart.querySelectorAll(selectors$F.qtyInput)).reduce((total, quantityInput) => total + parseInt(quantityInput.value), 0);
+      return Array.from(this.cart.querySelectorAll(selectors$G.qtyInput)).reduce((total, quantityInput) => total + parseInt(quantityInput.value), 0);
     }
 
     /**
@@ -9715,13 +9666,13 @@
 
     freeShippingMessageHandle(total) {
       if (this.cartMessage.length > 0) {
-        document.querySelectorAll(selectors$F.cartMessage).forEach((message) => {
-          const hasFreeShipping = message.hasAttribute(attributes$q.cartMessageValue) && message.getAttribute(attributes$q.cartMessageValue) === 'true' && total !== 0;
-          const cartMessageDefault = message.querySelector(selectors$F.cartMessageDefault);
+        document.querySelectorAll(selectors$G.cartMessage).forEach((message) => {
+          const hasFreeShipping = message.hasAttribute(attributes$r.cartMessageValue) && message.getAttribute(attributes$r.cartMessageValue) === 'true' && total !== 0;
+          const cartMessageDefault = message.querySelector(selectors$G.cartMessageDefault);
 
-          message.classList.toggle(classes$v.success, total >= this.cartFreeLimitShipping && hasFreeShipping);
-          message.classList.toggle(classes$v.isHidden, total === 0);
-          cartMessageDefault.classList.toggle(classes$v.isHidden, total >= this.cartFreeLimitShipping);
+          message.classList.toggle(classes$w.success, total >= this.cartFreeLimitShipping && hasFreeShipping);
+          message.classList.toggle(classes$w.isHidden, total === 0);
+          cartMessageDefault.classList.toggle(classes$w.isHidden, total >= this.cartFreeLimitShipping);
         });
       }
     }
@@ -9739,9 +9690,9 @@
         : themeCurrency.formatMoney(this.cartFreeLimitShipping - this.subtotal, theme.moneyFormat);
 
       if (this.cartMessage.length > 0) {
-        document.querySelectorAll(selectors$F.cartMessage).forEach((message) => {
-          const cartMessageProgressItems = message.querySelectorAll(selectors$F.cartProgress);
-          const leftToSpendMessage = message.querySelector(selectors$F.leftToSpend);
+        document.querySelectorAll(selectors$G.cartMessage).forEach((message) => {
+          const cartMessageProgressItems = message.querySelectorAll(selectors$G.cartProgress);
+          const leftToSpendMessage = message.querySelector(selectors$G.leftToSpend);
 
           if (leftToSpendMessage) {
             leftToSpendMessage.innerHTML = leftToSpend.replace('.00', '').replace(',00', '');
@@ -9749,10 +9700,10 @@
 
           if (cartMessageProgressItems.length) {
             cartMessageProgressItems.forEach((cartMessageProgress, index) => {
-              cartMessageProgress.classList.toggle(classes$v.isHidden, this.subtotal / this.cartFreeLimitShipping >= 1);
+              cartMessageProgress.classList.toggle(classes$w.isHidden, this.subtotal / this.cartFreeLimitShipping >= 1);
               cartMessageProgress.style.setProperty('--progress-width', `${newPercentValue}%`);
               if (index === 0) {
-                cartMessageProgress.setAttribute(attributes$q.value, newPercentValue);
+                cartMessageProgress.setAttribute(attributes$r.value, newPercentValue);
               }
             });
           }
@@ -9767,9 +9718,9 @@
      */
     renderPairProducts() {
       this.flktyUpsell = null;
-      this.pairProductsHolder = document.querySelector(selectors$F.pairProductsHolder);
-      this.pairProducts = document.querySelector(selectors$F.pairProducts);
-      this.upsellHolders = document.querySelectorAll(selectors$F.upsellHolder);
+      this.pairProductsHolder = document.querySelector(selectors$G.pairProductsHolder);
+      this.pairProducts = document.querySelector(selectors$G.pairProducts);
+      this.upsellHolders = document.querySelectorAll(selectors$G.upsellHolder);
 
       if (this.pairProductsHolder === null || this.pairProductsHolder === undefined) {
         return;
@@ -9812,7 +9763,7 @@
 
     observeAdditionalCheckoutButtons() {
       // identify an element to observe
-      const additionalCheckoutButtons = this.cart.querySelector(selectors$F.additionalCheckoutButtons);
+      const additionalCheckoutButtons = this.cart.querySelector(selectors$G.additionalCheckoutButtons);
       if (additionalCheckoutButtons) {
         // create a new instance of `MutationObserver` named `observer`,
         // passing it a callback function
@@ -9831,36 +9782,36 @@
     }
 
     formSubmitHandler() {
-      const termsAccepted = document.querySelector(selectors$F.cartTermsCheckbox).checked;
-      const termsError = document.querySelector(selectors$F.termsErrorMessage);
+      const termsAccepted = document.querySelector(selectors$G.cartTermsCheckbox).checked;
+      const termsError = document.querySelector(selectors$G.termsErrorMessage);
 
       // Disable form submit if terms and conditions are not accepted
       if (!termsAccepted) {
-        if (document.querySelector(selectors$F.termsErrorMessage).length > 0) {
+        if (document.querySelector(selectors$G.termsErrorMessage).length > 0) {
           return;
         }
 
         termsError.innerText = theme.strings.cart_acceptance_error;
-        this.cartCheckoutButton.setAttribute(attributes$q.disabled, true);
-        termsError.classList.add(classes$v.expanded);
+        this.cartCheckoutButton.setAttribute(attributes$r.disabled, true);
+        termsError.classList.add(classes$w.expanded);
       } else {
-        termsError.classList.remove(classes$v.expanded);
-        this.cartCheckoutButton.removeAttribute(attributes$q.disabled);
+        termsError.classList.remove(classes$w.expanded);
+        this.cartCheckoutButton.removeAttribute(attributes$r.disabled);
       }
     }
 
     resetButtonClasses() {
-      const buttons = document.querySelectorAll(selectors$F.buttonAddToCart);
+      const buttons = document.querySelectorAll(selectors$G.buttonAddToCart);
       if (buttons) {
         buttons.forEach((button) => {
-          if (button.classList.contains(classes$v.loading)) {
-            button.classList.remove(classes$v.loading);
-            button.classList.add(classes$v.success);
+          if (button.classList.contains(classes$w.loading)) {
+            button.classList.remove(classes$w.loading);
+            button.classList.add(classes$w.success);
 
             setTimeout(() => {
-              button.removeAttribute(attributes$q.disabled);
-              button.classList.remove(classes$v.success);
-            }, settings$2.timers.addProductTimeout);
+              button.removeAttribute(attributes$r.disabled);
+              button.classList.remove(classes$w.success);
+            }, settings$3.timers.addProductTimeout);
           }
         });
       }
@@ -9868,17 +9819,17 @@
 
     addLoadingClass() {
       if (this.cartDrawer) {
-        this.cartDrawer.classList.add(classes$v.loading);
+        this.cartDrawer.classList.add(classes$w.loading);
       } else if (this.itemsWrapper) {
-        this.itemsWrapper.classList.add(classes$v.loading);
+        this.itemsWrapper.classList.add(classes$w.loading);
       }
     }
 
     removeLoadingClass() {
       if (this.cartDrawer) {
-        this.cartDrawer.classList.remove(classes$v.loading);
+        this.cartDrawer.classList.remove(classes$w.loading);
       } else if (this.itemsWrapper) {
-        this.itemsWrapper.classList.remove(classes$v.loading);
+        this.itemsWrapper.classList.remove(classes$w.loading);
       }
     }
 
@@ -9902,25 +9853,25 @@
 
   const cartDrawer = {
     onLoad() {
-      sections$r[this.id] = new CartDrawer();
+      sections$s[this.id] = new CartDrawer();
     },
     onUnload() {
-      if (typeof sections$r[this.id].unload === 'function') {
-        sections$r[this.id].unload();
+      if (typeof sections$s[this.id].unload === 'function') {
+        sections$s[this.id].unload();
       }
     },
   };
   register('cart-template', cartDrawer);
 
-  const selectors$E = {
+  const selectors$F = {
     scrollToTop: '[data-scroll-top-button]',
   };
-  const classes$u = {
+  const classes$v = {
     isVisible: 'is-visible',
   };
 
   // Scroll to top button
-  const scrollTopButton = document.querySelector(selectors$E.scrollToTop);
+  const scrollTopButton = document.querySelector(selectors$F.scrollToTop);
   if (scrollTopButton) {
     scrollTopButton.addEventListener('click', () => {
       window.scrollTo({
@@ -9932,12 +9883,12 @@
     document.addEventListener(
       'scroll',
       throttle(() => {
-        scrollTopButton.classList.toggle(classes$u.isVisible, window.pageYOffset > window.innerHeight);
+        scrollTopButton.classList.toggle(classes$v.isVisible, window.pageYOffset > window.innerHeight);
       }, 150)
     );
   }
 
-  const selectors$D = {
+  const selectors$E = {
     details: 'details',
     popdownBody: '[data-popdown-body]',
     popdownClose: '[data-popdown-close]',
@@ -9954,13 +9905,13 @@
     searchForm: 'search-form',
   };
 
-  const attributes$p = {
+  const attributes$q = {
     popdownInHeader: 'data-popdown-in-header',
     popdownInPage: 'data-popdown-in-page',
     searchPerformed: 'data-search-performed',
   };
 
-  const classes$t = {
+  const classes$u = {
     searchOpened: 'search-opened',
     headerMenuOpened: 'site-header--menu-opened',
     navCompress: 'nav--compress',
@@ -9969,24 +9920,24 @@
   class SearchPopdown extends HTMLElement {
     constructor() {
       super();
-      this.isPopdownInHeader = this.hasAttribute(attributes$p.popdownInHeader);
-      this.isPopdownInPage = this.hasAttribute(attributes$p.popdownInPage);
-      this.popdownBody = this.querySelector(selectors$D.popdownBody);
-      this.popdownClose = this.querySelector(selectors$D.popdownClose);
-      this.searchFormInner = this.querySelector(selectors$D.searchFormInner);
-      this.popularSearchesLink = this.querySelectorAll(selectors$D.popularSearchesLink);
-      this.searchFormWrapper = this.querySelector(selectors$D.searchForm) ? this.querySelector(selectors$D.searchForm) : this.querySelector(selectors$D.predictiveSearch);
-      this.predictiveSearch = this.searchFormWrapper.matches(selectors$D.predictiveSearch);
-      this.header = document.querySelector(selectors$D.header);
+      this.isPopdownInHeader = this.hasAttribute(attributes$q.popdownInHeader);
+      this.isPopdownInPage = this.hasAttribute(attributes$q.popdownInPage);
+      this.popdownBody = this.querySelector(selectors$E.popdownBody);
+      this.popdownClose = this.querySelector(selectors$E.popdownClose);
+      this.searchFormInner = this.querySelector(selectors$E.searchFormInner);
+      this.popularSearchesLink = this.querySelectorAll(selectors$E.popularSearchesLink);
+      this.searchFormWrapper = this.querySelector(selectors$E.searchForm) ? this.querySelector(selectors$E.searchForm) : this.querySelector(selectors$E.predictiveSearch);
+      this.predictiveSearch = this.searchFormWrapper.matches(selectors$E.predictiveSearch);
+      this.header = document.querySelector(selectors$E.header);
       this.headerSection = this.header?.parentNode;
-      this.nav = this.header?.querySelector(selectors$D.nav);
-      this.mobileMenu = this.headerSection?.querySelector(selectors$D.mobileMenu);
+      this.nav = this.header?.querySelector(selectors$E.nav);
+      this.mobileMenu = this.headerSection?.querySelector(selectors$E.mobileMenu);
       this.a11y = a11y;
       this.ensureClosingOnResizeEvent = () => this.ensureClosingOnResize();
 
       if (this.isPopdownInHeader) {
-        this.details = this.querySelector(selectors$D.details);
-        this.popdownToggle = this.querySelector(selectors$D.popdownToggle);
+        this.details = this.querySelector(selectors$E.details);
+        this.popdownToggle = this.querySelector(selectors$E.popdownToggle);
       }
     }
 
@@ -10023,12 +9974,12 @@
 
     onPopdownToggleClick(event) {
       event.preventDefault();
-      event.target.closest(selectors$D.details).hasAttribute('open') ? this.close() : this.open(event);
+      event.target.closest(selectors$E.details).hasAttribute('open') ? this.close() : this.open(event);
     }
 
     onBodyClick(event) {
       const isTargetInPopdown = this.contains(event.target);
-      const isHeaderMenuOpened = this.header?.classList.contains(classes$t.headerMenuOpened);
+      const isHeaderMenuOpened = this.header?.classList.contains(classes$u.headerMenuOpened);
 
       if (isHeaderMenuOpened || isTargetInPopdown) return;
       if (!isTargetInPopdown) this.close();
@@ -10045,7 +9996,7 @@
     }
 
     triggerPopdownOpen(event) {
-      const isSearchPageWithoutTerms = this.closest(`[${attributes$p.searchPerformed}="false"]`);
+      const isSearchPageWithoutTerms = this.closest(`[${attributes$q.searchPerformed}="false"]`);
       const isTouch = matchMedia('(pointer:coarse)').matches;
       const viewportMobile = window.innerWidth < theme.sizes.small;
       const shouldOpenPopdownOnTouchDevice = isTouch || viewportMobile;
@@ -10056,13 +10007,13 @@
       if (shouldOpenPopdownOnTouchDevice || shouldOpenPopdownOnNoTerms) {
         event.preventDefault();
 
-        const isNavCompressed = this.nav.classList.contains(classes$t.navCompress);
-        let popdownToggle = this.mobileMenu.querySelector(selectors$D.popdownToggle);
+        const isNavCompressed = this.nav.classList.contains(classes$u.navCompress);
+        let popdownToggle = this.mobileMenu.querySelector(selectors$E.popdownToggle);
 
         if (!isTouch) {
           popdownToggle = isNavCompressed
-            ? this.nav.querySelector(`${selectors$D.navItemsCompress} ${selectors$D.popdownToggle}`)
-            : this.nav.querySelector(`${selectors$D.navIcons} ${selectors$D.popdownToggle}`);
+            ? this.nav.querySelector(`${selectors$E.navItemsCompress} ${selectors$E.popdownToggle}`)
+            : this.nav.querySelector(`${selectors$E.navIcons} ${selectors$E.popdownToggle}`);
         }
 
         setTimeout(() => {
@@ -10073,10 +10024,10 @@
 
     open(event) {
       this.onBodyClickEvent = (event) => this.onBodyClick(event);
-      event.target.closest(selectors$D.details).setAttribute('open', '');
+      event.target.closest(selectors$E.details).setAttribute('open', '');
       this.searchFormWrapper.input.setAttribute('aria-expanded', true);
 
-      document.body.classList.add(classes$t.searchOpened);
+      document.body.classList.add(classes$u.searchOpened);
       document.body.addEventListener('click', this.onBodyClickEvent);
       document.addEventListener('theme:resize', this.ensureClosingOnResizeEvent);
       document.dispatchEvent(new CustomEvent('theme:scroll:lock', {bubbles: true}));
@@ -10087,7 +10038,7 @@
       requestAnimationFrame(() => {
         // Firefox opening transition fix (single requestAnimationFrame method does not work everytime)
         requestAnimationFrame(() => {
-          event.target.closest(selectors$D.details).setAttribute('open', 'true');
+          event.target.closest(selectors$E.details).setAttribute('open', 'true');
           this.a11y.trapFocus({
             container: this.searchFormInner,
           });
@@ -10113,7 +10064,7 @@
     onClose() {
       this.details.removeAttribute('open');
       document.dispatchEvent(new CustomEvent('theme:search:close', {bubbles: true}));
-      document.body.classList.remove(classes$t.searchOpened);
+      document.body.classList.remove(classes$u.searchOpened);
       document.body.removeEventListener('click', this.onBodyClickEvent);
       document.removeEventListener('theme:resize', this.ensureClosingOnResizeEvent);
       document.dispatchEvent(new CustomEvent('theme:scroll:unlock', {bubbles: true}));
@@ -10335,7 +10286,7 @@
 
   register('collection-template', filters);
 
-  const selectors$C = {
+  const selectors$D = {
     templateAddresses: '.template-customers-addresses',
     accountForm: '[data-form]',
     addressNewForm: '[data-form-new]',
@@ -10354,11 +10305,11 @@
     requiredInputs: 'input[type="text"]:not(.optional)',
   };
 
-  const attributes$o = {
+  const attributes$p = {
     dataFormId: 'data-form-id',
   };
 
-  const classes$s = {
+  const classes$t = {
     hidden: 'is-hidden',
     validation: 'validation--showup',
   };
@@ -10366,8 +10317,8 @@
   class Addresses {
     constructor(section) {
       this.section = section;
-      this.addressNewForm = this.section.querySelector(selectors$C.addressNewForm);
-      this.accountForms = this.section.querySelectorAll(selectors$C.accountForm);
+      this.addressNewForm = this.section.querySelector(selectors$D.addressNewForm);
+      this.accountForms = this.section.querySelectorAll(selectors$D.accountForm);
 
       this.init();
       this.validate();
@@ -10379,34 +10330,34 @@
         const newAddressForm = this.addressNewForm;
         this.customerAddresses();
 
-        const newButtons = section.querySelectorAll(selectors$C.btnNew);
+        const newButtons = section.querySelectorAll(selectors$D.btnNew);
         if (newButtons.length) {
           newButtons.forEach((button) => {
             button.addEventListener('click', function (e) {
               e.preventDefault();
-              button.classList.add(classes$s.hidden);
-              newAddressForm.classList.remove(classes$s.hidden);
+              button.classList.add(classes$t.hidden);
+              newAddressForm.classList.remove(classes$t.hidden);
             });
           });
         }
 
-        const editButtons = section.querySelectorAll(selectors$C.btnEdit);
+        const editButtons = section.querySelectorAll(selectors$D.btnEdit);
         if (editButtons.length) {
           editButtons.forEach((button) => {
             button.addEventListener('click', function (e) {
               e.preventDefault();
-              const formId = this.getAttribute(attributes$o.dataFormId);
-              section.querySelector(`[${selectors$C.editAddress}="${formId}"]`).classList.toggle(classes$s.hidden);
+              const formId = this.getAttribute(attributes$p.dataFormId);
+              section.querySelector(`[${selectors$D.editAddress}="${formId}"]`).classList.toggle(classes$t.hidden);
             });
           });
         }
 
-        const deleteButtons = section.querySelectorAll(selectors$C.btnDelete);
+        const deleteButtons = section.querySelectorAll(selectors$D.btnDelete);
         if (deleteButtons.length) {
           deleteButtons.forEach((button) => {
             button.addEventListener('click', function (e) {
               e.preventDefault();
-              const formId = this.getAttribute(attributes$o.dataFormId);
+              const formId = this.getAttribute(attributes$p.dataFormId);
               if (confirm(theme.strings.delete_confirm)) {
                 Shopify.postLink('/account/addresses/' + formId, {parameters: {_method: 'delete'}});
               }
@@ -10414,13 +10365,13 @@
           });
         }
 
-        const cancelButtons = section.querySelectorAll(selectors$C.btnCancel);
+        const cancelButtons = section.querySelectorAll(selectors$D.btnCancel);
         if (cancelButtons.length) {
           cancelButtons.forEach((button) => {
             button.addEventListener('click', function (e) {
               e.preventDefault();
-              this.closest(selectors$C.accountForm).classList.add(classes$s.hidden);
-              document.querySelector(selectors$C.btnNew).classList.remove(classes$s.hidden);
+              this.closest(selectors$D.accountForm).classList.add(classes$t.hidden);
+              document.querySelector(selectors$D.btnNew).classList.remove(classes$t.hidden);
             });
           });
         }
@@ -10430,18 +10381,18 @@
     customerAddresses() {
       // Initialize observers on address selectors, defined in shopify_common.js
       if (Shopify.CountryProvinceSelector) {
-        new Shopify.CountryProvinceSelector(selectors$C.addressCountryNew, selectors$C.addressProvinceNew, {
-          hideElement: selectors$C.addressProvinceContainerNew,
+        new Shopify.CountryProvinceSelector(selectors$D.addressCountryNew, selectors$D.addressProvinceNew, {
+          hideElement: selectors$D.addressProvinceContainerNew,
         });
       }
 
       // Initialize each edit form's country/province selector
-      const countryOptions = this.section.querySelectorAll(selectors$C.addressCountryOption);
+      const countryOptions = this.section.querySelectorAll(selectors$D.addressCountryOption);
       countryOptions.forEach((element) => {
-        const formId = element.getAttribute(attributes$o.dataFormId);
-        const countrySelector = `${selectors$C.addressCountry}_${formId}`;
-        const provinceSelector = `${selectors$C.addressProvince}_${formId}`;
-        const containerSelector = `${selectors$C.addressProvinceContainer}_${formId}`;
+        const formId = element.getAttribute(attributes$p.dataFormId);
+        const countrySelector = `${selectors$D.addressCountry}_${formId}`;
+        const provinceSelector = `${selectors$D.addressProvince}_${formId}`;
+        const containerSelector = `${selectors$D.addressProvinceContainer}_${formId}`;
 
         new Shopify.CountryProvinceSelector(countrySelector, provinceSelector, {
           hideElement: containerSelector,
@@ -10452,7 +10403,7 @@
     validate() {
       this.accountForms.forEach((accountForm) => {
         const form = accountForm.querySelector('form');
-        const inputs = form.querySelectorAll(selectors$C.requiredInputs);
+        const inputs = form.querySelectorAll(selectors$D.requiredInputs);
 
         form.addEventListener('submit', (event) => {
           let isEmpty = false;
@@ -10460,10 +10411,10 @@
           // Display notification if input is empty
           inputs.forEach((input) => {
             if (!input.value) {
-              input.nextElementSibling.classList.add(classes$s.validation);
+              input.nextElementSibling.classList.add(classes$t.validation);
               isEmpty = true;
             } else {
-              input.nextElementSibling.classList.remove(classes$s.validation);
+              input.nextElementSibling.classList.remove(classes$t.validation);
             }
           });
 
@@ -10475,12 +10426,12 @@
     }
   }
 
-  const template = document.querySelector(selectors$C.templateAddresses);
+  const template = document.querySelector(selectors$D.templateAddresses);
   if (template) {
     new Addresses(template);
   }
 
-  const selectors$B = {
+  const selectors$C = {
     form: '[data-account-form]',
     showReset: '[data-show-reset]',
     hideReset: '[data-hide-reset]',
@@ -10491,31 +10442,31 @@
     recoverHash: '#recover',
   };
 
-  const classes$r = {
+  const classes$s = {
     hidden: 'is-hidden',
   };
 
   class Login {
     constructor(form) {
       this.form = form;
-      this.showButton = form.querySelector(selectors$B.showReset);
-      this.hideButton = form.querySelector(selectors$B.hideReset);
-      this.recover = form.querySelector(selectors$B.recover);
-      this.login = form.querySelector(selectors$B.login);
-      this.success = form.querySelector(selectors$B.recoverSuccess);
-      this.successText = form.querySelector(selectors$B.recoverSuccessText);
+      this.showButton = form.querySelector(selectors$C.showReset);
+      this.hideButton = form.querySelector(selectors$C.hideReset);
+      this.recover = form.querySelector(selectors$C.recover);
+      this.login = form.querySelector(selectors$C.login);
+      this.success = form.querySelector(selectors$C.recoverSuccess);
+      this.successText = form.querySelector(selectors$C.recoverSuccessText);
       this.init();
     }
 
     init() {
-      if (window.location.hash == selectors$B.recoverHash) {
+      if (window.location.hash == selectors$C.recoverHash) {
         this.showRecoverPasswordForm();
       } else {
         this.hideRecoverPasswordForm();
       }
 
       if (this.success) {
-        this.successText.classList.remove(classes$r.hidden);
+        this.successText.classList.remove(classes$s.hidden);
       }
 
       this.showButton.addEventListener(
@@ -10537,45 +10488,45 @@
     }
 
     showRecoverPasswordForm() {
-      this.recover.classList.remove(classes$r.hidden);
-      this.login.classList.add(classes$r.hidden);
-      window.location.hash = selectors$B.recoverHash;
+      this.recover.classList.remove(classes$s.hidden);
+      this.login.classList.add(classes$s.hidden);
+      window.location.hash = selectors$C.recoverHash;
       return false;
     }
 
     hideRecoverPasswordForm() {
-      this.login.classList.remove(classes$r.hidden);
-      this.recover.classList.add(classes$r.hidden);
+      this.login.classList.remove(classes$s.hidden);
+      this.recover.classList.add(classes$s.hidden);
       window.location.hash = '';
       return false;
     }
   }
 
-  const loginForm = document.querySelector(selectors$B.form);
+  const loginForm = document.querySelector(selectors$C.form);
   if (loginForm) {
     new Login(loginForm);
   }
 
   register('search-template', [filters, tabs]);
 
-  const selectors$A = {
+  const selectors$B = {
     frame: '[data-ticker-frame]',
     scale: '[data-ticker-scale]',
     text: '[data-ticker-text]',
     clone: 'data-clone',
   };
 
-  const attributes$n = {
+  const attributes$o = {
     speed: 'data-marquee-speed',
   };
 
-  const classes$q = {
+  const classes$r = {
     animationClass: 'ticker--animated',
     unloadedClass: 'ticker--unloaded',
     comparitorClass: 'ticker__comparitor',
   };
 
-  const settings$1 = {
+  const settings$2 = {
     moveTime: 1.63, // 100px going to move for 1.63s
     space: 100, // 100px
   };
@@ -10584,13 +10535,13 @@
     constructor(el, stopClone = false) {
       this.frame = el;
       this.stopClone = stopClone;
-      this.scale = this.frame.querySelector(selectors$A.scale);
-      this.text = this.frame.querySelector(selectors$A.text);
+      this.scale = this.frame.querySelector(selectors$B.scale);
+      this.text = this.frame.querySelector(selectors$B.text);
 
       this.comparitor = this.text.cloneNode(true);
-      this.comparitor.classList.add(classes$q.comparitorClass);
+      this.comparitor.classList.add(classes$r.comparitorClass);
       this.frame.appendChild(this.comparitor);
-      this.scale.classList.remove(classes$q.unloadedClass);
+      this.scale.classList.remove(classes$r.unloadedClass);
       this.resizeEvent = debounce(() => this.checkWidth(), 100);
       this.listen();
     }
@@ -10605,35 +10556,35 @@
 
       if (this.frame.clientWidth - padding < this.comparitor.clientWidth || this.stopClone) {
         if (this.scale.childElementCount === 1) {
-          this.text.classList.add(classes$q.animationClass);
+          this.text.classList.add(classes$r.animationClass);
           this.clone = this.text.cloneNode(true);
-          this.clone.setAttribute(selectors$A.clone, '');
+          this.clone.setAttribute(selectors$B.clone, '');
           this.scale.appendChild(this.clone);
 
           if (this.stopClone) {
             for (let index = 0; index < 10; index++) {
               const cloneSecond = this.text.cloneNode(true);
-              cloneSecond.setAttribute(selectors$A.clone, '');
+              cloneSecond.setAttribute(selectors$B.clone, '');
               this.scale.appendChild(cloneSecond);
             }
           }
 
-          let frameSpeed = this.frame.getAttribute(attributes$n.speed);
+          let frameSpeed = this.frame.getAttribute(attributes$o.speed);
           if (frameSpeed === null) {
             frameSpeed = 100;
           }
-          const speed = settings$1.moveTime * (100 / parseInt(frameSpeed, 10));
-          const animationTimeFrame = (this.text.clientWidth / settings$1.space) * speed;
+          const speed = settings$2.moveTime * (100 / parseInt(frameSpeed, 10));
+          const animationTimeFrame = (this.text.clientWidth / settings$2.space) * speed;
 
           this.scale.style.setProperty('--animation-time', `${animationTimeFrame}s`);
         }
       } else {
-        this.text.classList.add(classes$q.animationClass);
-        let clone = this.scale.querySelector(`[${selectors$A.clone}]`);
+        this.text.classList.add(classes$r.animationClass);
+        let clone = this.scale.querySelector(`[${selectors$B.clone}]`);
         if (clone) {
           this.scale.removeChild(clone);
         }
-        this.text.classList.remove(classes$q.animationClass);
+        this.text.classList.remove(classes$r.animationClass);
       }
     }
 
@@ -10642,38 +10593,38 @@
     }
   }
 
-  const selectors$z = {
-    bar: '[data-bar]',
-    barSlide: '[data-slide]',
-    topBarSlide: '[data-top-bar-slide]',
+  const selectors$A = {
+    announcement: '[data-announcement]',
+    announcementSlide: '[data-announcement-slide]',
     frame: '[data-ticker-frame]',
+    slide: '[data-slide]',
     slider: '[data-slider]',
     tickerScale: '[data-ticker-scale]',
     tickerText: '[data-ticker-text]',
   };
 
-  const attributes$m = {
+  const attributes$n = {
     slide: 'data-slide',
     speed: 'data-slider-speed',
     stop: 'data-stop',
     style: 'style',
-    dataTargetReferrer: 'data-target-referrer',
+    targetReferrer: 'data-target-referrer',
   };
 
-  const classes$p = {
+  const classes$q = {
     desktop: 'desktop',
     mobile: 'mobile',
     tickerAnimated: 'ticker--animated',
   };
 
-  const sections$q = {};
+  const sections$r = {};
 
   class AnnouncementBar {
     constructor(container) {
       this.barHolder = container;
       this.locationPath = location.href;
-      this.slides = this.barHolder.querySelectorAll(selectors$z.barSlide);
-      this.slider = this.barHolder.querySelector(selectors$z.slider);
+      this.slides = this.barHolder.querySelectorAll(selectors$A.slide);
+      this.slider = this.barHolder.querySelector(selectors$A.slider);
       this.tickers = [];
       this.flkty = null;
 
@@ -10701,11 +10652,11 @@
       for (let i = 0; i < this.slides.length; i++) {
         const element = this.slides[i];
 
-        if (!element.hasAttribute(attributes$m.dataTargetReferrer)) {
+        if (!element.hasAttribute(attributes$n.targetReferrer)) {
           continue;
         }
 
-        if (this.locationPath.indexOf(element.getAttribute(attributes$m.dataTargetReferrer)) === -1 && !window.Shopify.designMode) {
+        if (this.locationPath.indexOf(element.getAttribute(attributes$n.targetReferrer)) === -1 && !window.Shopify.designMode) {
           element.parentNode.removeChild(element);
         }
       }
@@ -10715,15 +10666,15 @@
      * Init slider
      */
     initSlider() {
-      const slides = this.slider.querySelectorAll(selectors$z.barSlide);
+      const slides = this.slider.querySelectorAll(selectors$A.slide);
 
       if (slides) {
-        let slideSelector = `${selectors$z.barSlide}`;
+        let slideSelector = `${selectors$A.slide}`;
 
         if (window.innerWidth < theme.sizes.small) {
-          slideSelector = `${selectors$z.barSlide}:not(.${classes$p.desktop})`;
+          slideSelector = `${selectors$A.slide}:not(.${classes$q.desktop})`;
         } else {
-          slideSelector = `${selectors$z.barSlide}:not(.${classes$p.mobile})`;
+          slideSelector = `${selectors$A.slide}:not(.${classes$q.mobile})`;
         }
 
         if (this.flkty != null) {
@@ -10735,7 +10686,7 @@
           pageDots: false,
           prevNextButtons: false,
           wrapAround: true,
-          autoPlay: parseInt(this.slider.getAttribute(attributes$m.speed), 10),
+          autoPlay: parseInt(this.slider.getAttribute(attributes$n.speed), 10),
           on: {
             ready: () => {
               setTimeout(() => {
@@ -10763,58 +10714,58 @@
      * Init tickers in sliders
      */
     initTickers(stopClone = false) {
-      const frames = this.barHolder.querySelectorAll(selectors$z.frame);
+      const frames = this.barHolder.querySelectorAll(selectors$A.frame);
 
       frames.forEach((element) => {
         const ticker = new Ticker(element, stopClone);
         this.tickers.push(ticker);
 
-        const slides = element.querySelectorAll(selectors$z.barSlide);
+        const slides = element.querySelectorAll(selectors$A.slide);
         if (slides.length !== 0) {
-          const slidesMobile = element.querySelectorAll(`${selectors$z.barSlide}.${classes$p.mobile}`);
-          const slidesDesktop = element.querySelectorAll(`${selectors$z.barSlide}.${classes$p.desktop}`);
+          const slidesMobile = element.querySelectorAll(`${selectors$A.slide}.${classes$q.mobile}`);
+          const slidesDesktop = element.querySelectorAll(`${selectors$A.slide}.${classes$q.desktop}`);
 
           if (slides.length === slidesMobile.length) {
-            element.parentNode.classList.add(classes$p.mobile);
+            element.parentNode.classList.add(classes$q.mobile);
           } else if (slides.length === slidesDesktop.length) {
-            element.parentNode.classList.add(classes$p.desktop);
+            element.parentNode.classList.add(classes$q.desktop);
           }
         }
       });
     }
 
     toggleTicker(e, isStopped) {
-      const tickerScale = e.target.closest(selectors$z.tickerScale);
-      const element = document.querySelector(`[${attributes$m.slide}="${e.detail.blockId}"]`);
+      const tickerScale = e.target.closest(selectors$A.tickerScale);
+      const element = document.querySelector(`[${attributes$n.slide}="${e.detail.blockId}"]`);
 
       if (isStopped && element) {
-        tickerScale.setAttribute(attributes$m.stop, '');
-        tickerScale.querySelectorAll(selectors$z.tickerText).forEach((textHolder) => {
-          textHolder.classList.remove(classes$p.tickerAnimated);
+        tickerScale.setAttribute(attributes$n.stop, '');
+        tickerScale.querySelectorAll(selectors$A.tickerText).forEach((textHolder) => {
+          textHolder.classList.remove(classes$q.tickerAnimated);
           textHolder.style.transform = `translate3d(${-(element.offsetLeft - parseInt(getComputedStyle(element).marginLeft, 10))}px, 0, 0)`;
         });
       }
 
       if (!isStopped && element) {
-        tickerScale.querySelectorAll(selectors$z.tickerText).forEach((textHolder) => {
-          textHolder.classList.add(classes$p.tickerAnimated);
-          textHolder.removeAttribute(attributes$m.style);
+        tickerScale.querySelectorAll(selectors$A.tickerText).forEach((textHolder) => {
+          textHolder.classList.add(classes$q.tickerAnimated);
+          textHolder.removeAttribute(attributes$n.style);
         });
-        tickerScale.removeAttribute(attributes$m.stop);
+        tickerScale.removeAttribute(attributes$n.stop);
       }
     }
 
     tickerAnimationPause() {
       let hoverTimer = 0;
       let isHovered = false;
-      const tickerContainer = this.barHolder.querySelector(selectors$z.topBarSlide);
+      const tickerContainer = this.barHolder.querySelector(selectors$A.announcementSlide);
 
       tickerContainer.addEventListener('mouseenter', () => {
         isHovered = true;
 
         hoverTimer = setTimeout(() => {
           if (isHovered) {
-            tickerContainer.querySelectorAll(selectors$z.tickerText).forEach((element) => {
+            tickerContainer.querySelectorAll(selectors$A.tickerText).forEach((element) => {
               element.style.animationPlayState = 'paused';
             });
           }
@@ -10826,7 +10777,7 @@
       tickerContainer.addEventListener('mouseleave', () => {
         isHovered = false;
 
-        tickerContainer.querySelectorAll(selectors$z.tickerText).forEach((element) => {
+        tickerContainer.querySelectorAll(selectors$A.tickerText).forEach((element) => {
           element.style.animationPlayState = 'running';
         });
       });
@@ -10864,17 +10815,17 @@
     }
   }
 
-  const bar = {
+  const announcement = {
     onLoad() {
-      sections$q[this.id] = [];
-      const element = this.container.querySelector(selectors$z.bar);
+      sections$r[this.id] = [];
+      const element = this.container.querySelector(selectors$A.announcement);
       if (element) {
-        sections$q[this.id].push(new AnnouncementBar(element));
+        sections$r[this.id].push(new AnnouncementBar(element));
       }
     },
     onBlockSelect(e) {
-      if (sections$q[this.id].length) {
-        sections$q[this.id].forEach((el) => {
+      if (sections$r[this.id].length) {
+        sections$r[this.id].forEach((el) => {
           if (typeof el.onBlockSelect === 'function') {
             el.onBlockSelect(e);
           }
@@ -10882,8 +10833,8 @@
       }
     },
     onBlockDeselect(e) {
-      if (sections$q[this.id].length) {
-        sections$q[this.id].forEach((el) => {
+      if (sections$r[this.id].length) {
+        sections$r[this.id].forEach((el) => {
           if (typeof el.onBlockSelect === 'function') {
             el.onBlockDeselect(e);
           }
@@ -10891,7 +10842,7 @@
       }
     },
     onUnload() {
-      sections$q[this.id].forEach((el) => {
+      sections$r[this.id].forEach((el) => {
         if (typeof el.onUnload === 'function') {
           el.onUnload();
         }
@@ -10899,22 +10850,567 @@
     },
   };
 
-  register('announcement-bar', bar);
-  register('marquee', bar);
+  register('announcement-bar', announcement);
+  register('marquee', announcement);
+
+  const selectors$z = {
+    disclosureWrappper: '[data-hover-disclosure]',
+    header: '[data-site-header]',
+    link: '[data-top-link]',
+    headerBackground: '[data-header-background]',
+    navItem: '[data-nav-item]',
+  };
+
+  const classes$p = {
+    isVisible: 'is-visible',
+    grandparent: 'grandparent',
+    headerMenuOpened: 'site-header--menu-opened',
+    hasScrolled: 'has-scrolled',
+    headerHovered: 'site-header--hovered',
+    searchOpened: 'search-opened',
+  };
+
+  const attributes$m = {
+    disclosureToggle: 'data-hover-disclosure-toggle',
+    ariaHasPopup: 'aria-haspopup',
+    ariaExpanded: 'aria-expanded',
+    ariaControls: 'aria-controls',
+  };
+
+  let sections$q = {};
+
+  class HoverDisclosure {
+    constructor(el) {
+      this.disclosure = el;
+      this.header = el.closest(selectors$z.header);
+      this.key = this.disclosure.id;
+      this.trigger = document.querySelector(`[${attributes$m.disclosureToggle}='${this.key}']`);
+      this.link = this.trigger.querySelector(selectors$z.link);
+      this.grandparent = this.trigger.classList.contains(classes$p.grandparent);
+      this.background = document.querySelector(selectors$z.headerBackground);
+      this.trigger.setAttribute(attributes$m.ariaHasPopup, true);
+      this.trigger.setAttribute(attributes$m.ariaExpanded, false);
+      this.trigger.setAttribute(attributes$m.ariaControls, this.key);
+      this.dropdown = this.trigger.querySelector(selectors$z.disclosureWrappper);
+
+      this.connectHoverToggle();
+      this.handleTablets();
+    }
+
+    showDisclosure() {
+      this.hasScrolled = document.body.classList.contains(classes$p.hasScrolled);
+      this.headerHeight = this.hasScrolled ? window.stickyHeaderHeight : this.header.offsetHeight;
+
+      if (this.grandparent) {
+        this.dropdown.style.height = 'auto';
+        this.dropdownHeight = this.dropdown.offsetHeight + this.headerHeight;
+      } else {
+        this.dropdownHeight = this.headerHeight;
+      }
+
+      this.background.style.setProperty('--header-background-height', `${this.dropdownHeight}px`);
+
+      // Set accessibility and classes
+      this.trigger.setAttribute(attributes$m.ariaExpanded, true);
+      this.trigger.classList.add(classes$p.isVisible);
+      this.header.classList.add(classes$p.headerMenuOpened);
+      if (this.trigger.classList.contains(classes$p.grandparent)) {
+        document.dispatchEvent(new CustomEvent('theme:scroll:lock', {bubbles: true, detail: this.header}));
+      }
+      this.updateHeaderHover();
+    }
+
+    hideDisclosure() {
+      this.background.style.removeProperty('--header-background-height');
+
+      this.trigger.classList.remove(classes$p.isVisible);
+      this.trigger.setAttribute(attributes$m.ariaExpanded, false);
+      this.header.classList.remove(classes$p.headerMenuOpened);
+      if (!document.body.classList.contains(classes$p.searchOpened)) {
+        document.dispatchEvent(new CustomEvent('theme:scroll:unlock', {bubbles: true}));
+      }
+    }
+
+    updateHeaderHover() {
+      requestAnimationFrame(() => {
+        const isHovered = this.header.matches(':hover');
+        const hasHoveredClass = this.header.classList.contains(classes$p.headerHovered);
+
+        if (isHovered && !hasHoveredClass) this.header.classList.add(classes$p.headerHovered);
+      });
+    }
+
+    handleTablets() {
+      // first click opens the popup, second click opens the link
+      this.trigger.addEventListener('touchstart', (e) => {
+        const isOpen = this.trigger.classList.contains(classes$p.isVisible);
+        if (!isOpen) {
+          e.preventDefault();
+
+          // Hide the rest of the active nav items
+          const activeNavItems = this.header.querySelectorAll(`.${classes$p.isVisible}${selectors$z.navItem}`);
+
+          if (activeNavItems.length > 0) {
+            activeNavItems.forEach((item) => {
+              if (item !== this.trigger) {
+                item.dispatchEvent(new Event('mouseleave', {bubbles: true}));
+
+                const onTransitionEnd = () => {
+                  requestAnimationFrame(() => {
+                    this.showDisclosure();
+                  });
+
+                  item.removeEventListener('transitionend', onTransitionEnd);
+                };
+
+                item.addEventListener('transitionend', onTransitionEnd);
+              }
+            });
+
+            return;
+          }
+
+          this.showDisclosure();
+        }
+      });
+    }
+
+    connectHoverToggle() {
+      this.trigger.addEventListener('mouseenter', () => this.showDisclosure());
+      this.link.addEventListener('focus', () => this.showDisclosure());
+
+      this.trigger.addEventListener('mouseleave', () => this.hideDisclosure());
+      this.trigger.addEventListener('focusout', (event) => {
+        const inMenu = this.trigger.contains(event.relatedTarget);
+
+        if (!inMenu) {
+          this.hideDisclosure();
+        }
+      });
+      this.disclosure.addEventListener('keyup', (event) => {
+        if (event.code !== theme.keyboardKeys.ESCAPE) {
+          return;
+        }
+        this.hideDisclosure();
+      });
+    }
+
+    onBlockSelect(event) {
+      if (this.disclosure.contains(event.target)) {
+        this.showDisclosure(event);
+      }
+    }
+
+    onBlockDeselect(event) {
+      if (this.disclosure.contains(event.target)) {
+        this.hideDisclosure();
+      }
+    }
+  }
+
+  const hoverDisclosure = {
+    onLoad() {
+      sections$q[this.id] = [];
+      const disclosures = this.container.querySelectorAll(selectors$z.disclosureWrappper);
+
+      disclosures.forEach((el) => {
+        sections$q[this.id].push(new HoverDisclosure(el));
+      });
+    },
+    onBlockSelect(evt) {
+      sections$q[this.id].forEach((el) => {
+        if (typeof el.onBlockSelect === 'function') {
+          el.onBlockSelect(evt);
+        }
+      });
+    },
+    onBlockDeselect(evt) {
+      sections$q[this.id].forEach((el) => {
+        if (typeof el.onBlockDeselect === 'function') {
+          el.onBlockDeselect(evt);
+        }
+      });
+    },
+  };
 
   const selectors$y = {
-    trigger: '[data-collapsible-trigger]',
+    header: '[data-site-header]',
+    announcementBar: '[data-announcement-wrapper]',
+    collectionFilters: '[data-collection-filters]',
+    logo: '[data-logo]',
+    logoTextLink: '[data-logo-text-link]',
+    mobileNavDropdownTrigger: '[data-collapsible-trigger]',
+    navDrawer: '#nav-drawer',
+    drawer: '[data-drawer]',
+    drawerToggle: '[data-drawer-toggle]',
+    popdownToggle: '[data-popdown-toggle]',
+    mobileMenu: '[data-mobile-menu]',
+    nav: '[data-nav]',
+    navIcons: '[data-nav-icons]',
+    navItem: '[data-nav-item]',
+    navLinkMobile: '[data-nav-link-mobile]',
+    navSearchOpen: '[data-nav-search-open]',
+    wrapper: '[data-wrapper]',
+    headerBackground: '[data-header-background]',
+    cartPage: '[data-cart-page]',
+    widthContent: '[data-takes-space]',
   };
 
   const classes$o = {
+    jsDrawerOpenAll: ['js-drawer-open', 'js-drawer-open-cart', 'js-quick-view-visible', 'js-quick-view-from-cart'],
+    headerTransparent: 'site-header--transparent',
+    headerHovered: 'site-header--hovered',
+    headerMenuOpened: 'site-header--menu-opened',
+    hasScrolled: 'has-scrolled',
+    hideHeader: 'hide-header',
+    navCompress: 'nav--compress',
+    logoCompress: 'logo--compress',
+    isVisible: 'is-visible',
+    isOpen: 'is-open',
+    searchOpened: 'search-opened',
+    noOutline: 'no-outline',
+    cloneClass: 'js__header__clone',
+  };
+
+  const attributes$l = {
+    navAlignment: 'data-nav-alignment',
+  };
+
+  const sections$p = {};
+
+  class Header {
+    constructor(container) {
+      this.container = container;
+      this.background = document.querySelector(selectors$y.headerBackground);
+      this.header = container;
+      this.headerSection = container.parentNode;
+      this.headerWrapper = container.querySelector(selectors$y.wrapper);
+      this.logo = container.querySelector(selectors$y.logo);
+      this.logoTextLink = container.querySelector(selectors$y.logoTextLink);
+      this.nav = container.querySelector(selectors$y.nav);
+      this.navIcons = container.querySelector(selectors$y.navIcons);
+      this.headerStateEvent = (event) => this.headerState(event);
+      this.handleTouchstartEvent = (event) => this.handleTouchstart(event);
+      this.updateBackgroundHeightEvent = (event) => this.updateBackgroundHeight(event);
+
+      initTransparentHeader();
+
+      this.minWidth = this.getMinWidth();
+      this.checkWidthEvent = () => this.checkWidth();
+      this.listenWidth();
+      this.initMobileNav();
+      this.handleTextLinkLogos();
+      this.initStickyHeader();
+      this.handleBackgroundEvents();
+
+      if (!document.querySelector(selectors$y.cartPage)) {
+        window.cart = new CartDrawer();
+      }
+
+      document.body.addEventListener('touchstart', this.handleTouchstartEvent, {passive: true});
+      this.updateHeaderHover();
+    }
+
+    updateHeaderHover() {
+      requestAnimationFrame(() => {
+        const isHovered = this.header.matches(':hover');
+        const hasHoveredClass = this.header.classList.contains(classes$o.headerHovered);
+
+        if (isHovered && !hasHoveredClass) this.header.classList.add(classes$o.headerHovered);
+      });
+    }
+
+    handleTouchstart(event) {
+      const isInHeader = this.header.contains(event.target);
+      const activeNavItem = this.header.querySelector(`.${classes$o.isVisible}${selectors$y.navItem}`);
+
+      if (!isInHeader && activeNavItem) {
+        activeNavItem.dispatchEvent(new Event('mouseleave', {bubbles: true}));
+      }
+    }
+
+    handleTextLinkLogos() {
+      if (this.logoTextLink === null) return;
+
+      const headerHeight = this.header.offsetHeight;
+      document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
+      document.documentElement.style.setProperty('--header-sticky-height', `${headerHeight}px`);
+    }
+
+    initStickyHeader() {
+      this.hasScrolled = false;
+      this.hasCollectionFilters = document.querySelector(selectors$y.collectionFilters);
+      this.position = this.header.dataset.position;
+
+      const shouldShowCompactHeader = this.position === 'fixed' && !this.hasCollectionFilters;
+      if (shouldShowCompactHeader) {
+        this.headerState();
+        document.addEventListener('theme:scroll', this.headerStateEvent);
+        return;
+      }
+
+      document.body.classList.remove(classes$o.hasScrolled);
+      if (window.isHeaderTransparent) {
+        this.header.classList.add(classes$o.headerTransparent);
+      }
+    }
+
+    // Switch to "compact" header on scroll
+    headerState(event) {
+      const headerHeight = parseInt(this.header.dataset.height || this.header.offsetHeight);
+      const announcementBar = document.querySelector(selectors$y.announcementBar);
+      const announcementHeight = announcementBar ? announcementBar.offsetHeight : 0;
+      const pageOffset = headerHeight + announcementHeight;
+      const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollUp = event && event.detail && event.detail.up;
+
+      // Show compact header when scroll down
+      this.hasScrolled = currentScrollTop > pageOffset;
+      document.body.classList.toggle(classes$o.hasScrolled, this.hasScrolled);
+
+      // Hide compact header when scroll back to top
+      const hideHeaderThreshold = pageOffset + window.stickyHeaderHeight;
+      const bellowThreshold = currentScrollTop < hideHeaderThreshold;
+      const shouldHideHeader = bellowThreshold && scrollUp;
+      document.body.classList.toggle(classes$o.hideHeader, shouldHideHeader);
+
+      if (window.isHeaderTransparent) {
+        const shouldShowTransparentHeader = !this.hasScrolled || shouldHideHeader;
+        this.header.classList.toggle(classes$o.headerTransparent, shouldShowTransparentHeader);
+      }
+
+      // Update header background height if users scroll the page with their mouse over the header or over an opened nav menu
+      if (this.header.classList.contains(classes$o.headerHovered)) {
+        const currentHeight = this.hasScrolled ? window.stickyHeaderHeight : headerHeight;
+        this.background.style.setProperty('--header-background-height', `${currentHeight}px`);
+
+        const activeNavItem = this.header.querySelector(`.${classes$o.isVisible}${selectors$y.navItem}`);
+        if (activeNavItem) {
+          activeNavItem.dispatchEvent(new Event('mouseenter', {bubbles: true}));
+        }
+      }
+    }
+
+    handleBackgroundEvents() {
+      this.headerWrapper.addEventListener('mouseenter', this.updateBackgroundHeightEvent);
+
+      this.headerWrapper.addEventListener('mouseleave', this.updateBackgroundHeightEvent);
+
+      this.header.addEventListener('focusout', this.updateBackgroundHeightEvent);
+
+      document.addEventListener('theme:cart:close', this.updateBackgroundHeightEvent);
+
+      // Helps fixing Safari issues with background not being updated on search close and mouse over the header
+      document.addEventListener('theme:search:close', this.updateBackgroundHeightEvent);
+    }
+
+    updateBackgroundHeight(event) {
+      const isDesktop = matchMedia('(pointer:fine)').matches;
+      const isFocusEnabled = !document.body.classList.contains(classes$o.noOutline);
+      const isNotTabbingOnDesktop = isDesktop && !isFocusEnabled;
+
+      if (!event) return;
+
+      let drawersVisible = classes$o.jsDrawerOpenAll.some((popupClass) => document.body.classList.contains(popupClass));
+
+      // Update header background height on:
+      // 'mouseenter' event
+      // opened Cart drawer/Quick View/Menu drawers
+      if (event.type === 'mouseenter' || drawersVisible) {
+        this.headerHeight = this.hasScrolled ? window.stickyHeaderHeight : this.header.offsetHeight;
+
+        this.header.classList.add(classes$o.headerHovered);
+
+        if (!this.header.classList.contains(classes$o.headerMenuOpened)) {
+          this.background.style.setProperty('--header-background-height', `${this.headerHeight}px`);
+        }
+      }
+
+      if (event.type === 'mouseenter') return;
+
+      requestAnimationFrame(() => {
+        drawersVisible = classes$o.jsDrawerOpenAll.some((popupClass) => document.body.classList.contains(popupClass));
+
+        if (drawersVisible) return;
+
+        // Remove header background and handle focus on:
+        // 'mouseleave' event
+        // 'theme:cart:close' event
+        // 'theme:search:close' event
+        // 'focusout' event
+        // closed Cart drawer/Quick View/Menu drawers
+
+        if (event.type === 'focusout' && !isDesktop) return;
+        if (event.type === 'theme:search:close' && !isNotTabbingOnDesktop) return;
+        if (this.hasScrolled) return;
+
+        const focusOutOfHeader = document.activeElement.closest(selectors$y.header) === null;
+        const isSearchOpened = document.body.classList.contains(classes$o.searchOpened);
+        const headerMenuOpened = this.header.classList.contains(classes$o.headerMenuOpened);
+
+        if (isSearchOpened || headerMenuOpened) return;
+
+        if (event.type === 'focusout') {
+          if (!focusOutOfHeader) return;
+        }
+
+        this.header.classList.remove(classes$o.headerHovered);
+        this.background.style.setProperty('--header-background-height', '0px');
+
+        if (!isFocusEnabled) {
+          document.activeElement.blur();
+        }
+      });
+    }
+
+    listenWidth() {
+      document.addEventListener('theme:resize', this.checkWidthEvent);
+      this.checkWidth();
+    }
+
+    checkWidth() {
+      if (window.innerWidth < this.minWidth) {
+        this.nav.classList.add(classes$o.navCompress);
+        this.logo.classList.add(classes$o.logoCompress);
+      } else {
+        this.nav.classList.remove(classes$o.navCompress);
+        this.logo.classList.remove(classes$o.logoCompress);
+      }
+    }
+
+    getMinWidth() {
+      const headerWrapperStyles = this.headerWrapper.currentStyle || window.getComputedStyle(this.headerWrapper);
+      const headerPaddings = parseInt(headerWrapperStyles.paddingLeft) * 2;
+      const comparitor = this.header.cloneNode(true);
+      comparitor.classList.add(classes$o.cloneClass);
+      document.body.appendChild(comparitor);
+      const wideElements = comparitor.querySelectorAll(selectors$y.widthContent);
+      const navAlignment = this.header.getAttribute(attributes$l.navAlignment);
+      const minWidth = _sumSplitWidths(wideElements, navAlignment);
+
+      document.body.removeChild(comparitor);
+
+      return minWidth + wideElements.length * 20 + headerPaddings;
+    }
+
+    initMobileNav() {
+      // Search popdown link
+      this.mobileMenu = this.headerSection.querySelector(selectors$y.mobileMenu);
+      this.navDrawer = this.headerSection.querySelector(selectors$y.navDrawer);
+      this.drawerToggle = this.navDrawer.querySelector(selectors$y.drawerToggle);
+      this.navSearchOpen = this.navDrawer.querySelectorAll(selectors$y.navSearchOpen);
+
+      this.navSearchOpen?.forEach((element) => {
+        element.addEventListener('click', (event) => {
+          event.preventDefault();
+
+          const drawer = this.drawerToggle.closest(`${selectors$y.drawer}.${classes$o.isOpen}`);
+          const isMobile = matchMedia('(pointer:coarse)').matches;
+          const popdownToggle = isMobile ? this.mobileMenu.querySelector(selectors$y.popdownToggle) : this.nav.querySelector(selectors$y.popdownToggle);
+
+          this.drawerToggle.dispatchEvent(new Event('click', {bubbles: true}));
+
+          const onDrawerTransitionEnd = (e) => {
+            if (e.target !== drawer) return;
+            requestAnimationFrame(() => popdownToggle.dispatchEvent(new Event('click', {bubbles: true})));
+            drawer.removeEventListener('transitionend', onDrawerTransitionEnd);
+          };
+
+          drawer.addEventListener('transitionend', onDrawerTransitionEnd);
+        });
+      });
+
+      // First item in dropdown menu
+      if (theme.settings.mobileMenuBehaviour === 'link') {
+        return;
+      }
+
+      const navMobileLinks = this.headerSection.querySelectorAll(selectors$y.navLinkMobile);
+      if (navMobileLinks.length) {
+        navMobileLinks.forEach((link) => {
+          link.addEventListener('click', (e) => {
+            const hasDropdown = link.parentNode.querySelectorAll(selectors$y.mobileNavDropdownTrigger).length;
+            const dropdownTrigger = link.nextElementSibling;
+
+            if (hasDropdown) {
+              e.preventDefault();
+              dropdownTrigger.dispatchEvent(new Event('click'), {bubbles: true});
+            }
+          });
+        });
+      }
+    }
+
+    onUnload() {
+      // Reset variables so that the proper ones are applied before saving in the Theme editor
+      // Necessary only when they were previously updated in `handleTextLinkLogos()` function
+      document.documentElement.style.removeProperty('--header-height');
+      document.documentElement.style.removeProperty('--header-sticky-height');
+
+      this.initStickyHeader();
+      document.body.classList.remove(...classes$o.jsDrawerOpenAll);
+      document.removeEventListener('theme:scroll', this.headerStateEvent);
+      document.removeEventListener('theme:resize', this.checkWidthEvent);
+      document.removeEventListener('theme:cart:close', this.updateBackgroundHeightEvent);
+      document.removeEventListener('theme:search:close', this.updateBackgroundHeightEvent);
+      document.body.removeEventListener('touchstart', this.handleTouchstartEvent);
+      document.dispatchEvent(new CustomEvent('theme:scroll:unlock', {bubbles: true}));
+
+      if (typeof window.cart.unload === 'function') {
+        window.cart.unload();
+      }
+    }
+  }
+
+  function _sumSplitWidths(nodes, alignment) {
+    let arr = [];
+    nodes.forEach((el) => {
+      arr.push(el.clientWidth);
+    });
+    let [logoWidth, navWidth, iconsWidth] = arr;
+
+    // Check if nav is left and set correct width
+    if (alignment === 'left') {
+      const tempWidth = logoWidth;
+      logoWidth = navWidth;
+      navWidth = tempWidth;
+    }
+
+    if (alignment !== 'right') {
+      if (logoWidth > iconsWidth) {
+        iconsWidth = logoWidth;
+      } else {
+        logoWidth = iconsWidth;
+      }
+    }
+
+    return logoWidth + navWidth + iconsWidth;
+  }
+
+  const headerSection = {
+    onLoad() {
+      sections$p[this.id] = new Header(this.container);
+    },
+    onUnload() {
+      sections$p[this.id].onUnload();
+    },
+  };
+
+  register('header', [headerSection, hoverDisclosure, drawer]);
+
+  const selectors$x = {
+    trigger: '[data-collapsible-trigger]',
+  };
+
+  const classes$n = {
     isExpanded: 'is-expanded',
   };
 
   const accordionSection = {
     onBlockSelect(e) {
-      const trigger = e.target.querySelector(selectors$y.trigger);
+      const trigger = e.target.querySelector(selectors$x.trigger);
       requestAnimationFrame(() => {
-        if (!trigger.classList.contains(classes$o.isExpanded)) {
+        if (!trigger.classList.contains(classes$n.isExpanded)) {
           trigger.dispatchEvent(new Event('click'));
         }
       });
@@ -10923,23 +11419,23 @@
 
   register('accordions', [accordionSection, collapsible]);
 
-  const selectors$x = {
+  const selectors$w = {
     button: '[data-share-button]',
     tooltip: '[data-share-button-tooltip]',
   };
 
-  const classes$n = {
+  const classes$m = {
     visible: 'is-visible',
     hiding: 'is-hiding',
   };
 
-  const sections$p = {};
+  const sections$o = {};
 
   class ShareButton {
     constructor(container) {
       this.container = container;
-      this.button = this.container.querySelector(selectors$x.button);
-      this.tooltip = this.container.querySelector(selectors$x.tooltip);
+      this.button = this.container.querySelector(selectors$w.button);
+      this.tooltip = this.container.querySelector(selectors$w.tooltip);
       this.transitionSpeed = 200;
       this.hideTransitionTimeout = 0;
       this.init();
@@ -10953,19 +11449,19 @@
             targetUrl = this.button.dataset.shareLink;
           }
 
-          if (!this.tooltip.classList.contains(classes$n.visible)) {
+          if (!this.tooltip.classList.contains(classes$m.visible)) {
             navigator.clipboard.writeText(targetUrl).then(() => {
-              this.tooltip.classList.add(classes$n.visible);
+              this.tooltip.classList.add(classes$m.visible);
               setTimeout(() => {
-                this.tooltip.classList.add(classes$n.hiding);
-                this.tooltip.classList.remove(classes$n.visible);
+                this.tooltip.classList.add(classes$m.hiding);
+                this.tooltip.classList.remove(classes$m.visible);
 
                 if (this.hideTransitionTimeout) {
                   clearTimeout(this.hideTransitionTimeout);
                 }
 
                 this.hideTransitionTimeout = setTimeout(() => {
-                  this.tooltip.classList.remove(classes$n.hiding);
+                  this.tooltip.classList.remove(classes$m.hiding);
                 }, this.transitionSpeed);
               }, 1500);
             });
@@ -10977,24 +11473,24 @@
 
   const shareButton = {
     onLoad() {
-      sections$p[this.id] = new ShareButton(this.container);
+      sections$o[this.id] = new ShareButton(this.container);
     },
   };
 
   register('article', [shareButton]);
 
-  const selectors$w = {
+  const selectors$v = {
     videoPlay: '[data-video-play]',
   };
 
-  const attributes$l = {
+  const attributes$k = {
     videoPlayValue: 'data-video-play',
   };
 
   class VideoPlay {
     constructor(container) {
       this.container = container;
-      this.videoPlay = this.container.querySelectorAll(selectors$w.videoPlay);
+      this.videoPlay = this.container.querySelectorAll(selectors$v.videoPlay);
       this.a11y = a11y;
 
       this.init();
@@ -11004,12 +11500,12 @@
       if (this.videoPlay.length) {
         this.videoPlay.forEach((element) => {
           element.addEventListener('click', (e) => {
-            if (element.hasAttribute(attributes$l.videoPlayValue) && element.getAttribute(attributes$l.videoPlayValue).trim() !== '') {
+            if (element.hasAttribute(attributes$k.videoPlayValue) && element.getAttribute(attributes$k.videoPlayValue).trim() !== '') {
               e.preventDefault();
 
               const items = [
                 {
-                  html: element.getAttribute(attributes$l.videoPlayValue),
+                  html: element.getAttribute(attributes$k.videoPlayValue),
                 },
               ];
               this.a11y.state.trigger = element;
@@ -11027,17 +11523,17 @@
     },
   };
 
-  const selectors$v = {
+  const selectors$u = {
     header: '[data-site-header]',
     main: '[data-main]',
   };
 
-  let sections$o = {};
+  let sections$n = {};
 
   class ZoomAnimation {
     constructor(container) {
       this.container = container;
-      this.header = document.querySelector(selectors$v.header);
+      this.header = document.querySelector(selectors$u.header);
 
       this.init();
     }
@@ -11049,7 +11545,7 @@
 
       // Target element to be observed.
       const observedElement = this.container;
-      const firstSection = document.body.querySelector(selectors$v.main).children[0];
+      const firstSection = document.body.querySelector(selectors$u.main).children[0];
       const isFirstSection = this.container.parentNode === firstSection;
       const hasTransparentHeader = this.header?.dataset.transparent == 'true';
 
@@ -11106,55 +11602,242 @@
 
   const zoomAnimation = {
     onLoad() {
-      sections$o[this.id] = new ZoomAnimation(this.container);
+      sections$n[this.id] = new ZoomAnimation(this.container);
     },
     onUnload() {
-      sections$o[this.id].onUnload();
+      sections$n[this.id].onUnload();
     },
   };
 
   register('banner-image', [zoomAnimation, videoPlay]);
 
-  const selectors$u = {
+  function getWindowWidth() {
+    return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+  }
+
+  function isDesktop() {
+    return getWindowWidth() >= window.theme.sizes.small;
+  }
+
+  function isMobile() {
+    return getWindowWidth() < window.theme.sizes.small;
+  }
+
+  const selectors$t = {
+    scrollSpy: '[data-scroll-spy]',
+  };
+
+  const classes$l = {
+    selected: 'is-selected',
+    isFullHeight: 'is-full-height',
+  };
+
+  const attributes$j = {
+    scrollSpy: 'data-scroll-spy',
+    scrollSpyPrevent: 'data-scroll-spy-prevent',
+    mobile: 'data-scroll-spy-mobile',
+    desktop: 'data-scroll-spy-desktop',
+  };
+
+  const sections$m = {};
+
+  class ScrollSpy {
+    constructor(section, element) {
+      this.container = section;
+      this.element = element;
+
+      if (!this.element) return;
+
+      this.anchorSelector = `[${attributes$j.scrollSpy}="#${this.element.id}"]`;
+      this.anchor = this.container.querySelector(this.anchorSelector);
+      this.anchors = this.container.querySelectorAll(`[${attributes$j.scrollSpy}]`);
+
+      if (!this.anchor) return;
+
+      this.scrollCallback = () => this.onScroll();
+      this.init();
+    }
+
+    init() {
+      this.onScroll();
+      document.addEventListener('theme:scroll', this.scrollCallback);
+      document.addEventListener('theme:resize:width', this.scrollCallback);
+    }
+
+    isEligible() {
+      if (this.container.hasAttribute(attributes$j.scrollSpyPrevent)) return false;
+
+      return (
+        (isMobile() && this.anchor.hasAttribute(attributes$j.mobile)) ||
+        (isDesktop() && this.anchor.hasAttribute(attributes$j.desktop)) ||
+        (!this.anchor.hasAttribute(attributes$j.desktop) && !this.anchor.hasAttribute(attributes$j.mobile))
+      );
+    }
+
+    onScroll() {
+      // Check eligibility of whether to run `onScroll()` handler
+      if (!this.isEligible()) return;
+
+      // Check element's visibility in the viewport
+      this.top = this.element.getBoundingClientRect().top;
+      this.bottom = this.element.getBoundingClientRect().bottom;
+      const windowHeight = Math.round(window.innerHeight);
+      const scrollTop = Math.round(window.scrollY);
+      const scrollBottom = scrollTop + windowHeight;
+      const elementOffsetTopPoint = Math.round(this.top + scrollTop);
+      const elementHeight = this.element.offsetHeight;
+      const elementOffsetBottomPoint = elementOffsetTopPoint + elementHeight;
+      const isBottomOfElementPassed = elementOffsetBottomPoint < scrollTop;
+      const isTopOfElementReached = elementOffsetTopPoint < scrollBottom;
+      const isInView = isTopOfElementReached && !isBottomOfElementPassed;
+
+      if (!isInView) return;
+
+      // Set container classes or inline styles to help with proper sticky positon of the anchor elements parent container
+      if (this.anchor.parentNode.offsetHeight <= elementHeight) {
+        this.container.style.setProperty('--sticky-position', `${window.innerHeight / 2 - elementHeight / 2}px`);
+      } else {
+        this.container.classList.add(classes$l.isFullHeight);
+      }
+
+      // Check anchor's intersection within the element
+      this.anchorTop = this.anchor.getBoundingClientRect().top;
+      this.anchorBottom = this.anchor.getBoundingClientRect().bottom;
+      const anchorTopPassedElementTop = this.top < this.anchorTop;
+      const anchorBottomPassedElementBottom = this.bottom < this.anchorBottom;
+      const shouldBeActive = anchorTopPassedElementTop && !anchorBottomPassedElementBottom;
+
+      if (!shouldBeActive) return;
+
+      // Update active classes
+      this.anchors.forEach((anchor) => {
+        if (!anchor.matches(this.anchorSelector)) {
+          anchor.classList.remove(classes$l.selected);
+        }
+      });
+
+      this.anchor.classList.add(classes$l.selected);
+    }
+
+    onUnload() {
+      document.removeEventListener('theme:scroll', this.scrollCallback);
+      document.removeEventListener('theme:resize:width', this.scrollCallback);
+    }
+  }
+
+  const scrollSpy = {
+    onLoad() {
+      sections$m[this.id] = [];
+      const elements = this.container.querySelectorAll(selectors$t.scrollSpy);
+
+      elements.forEach((element) => {
+        const scrollSpy = this.container.querySelector(element.getAttribute(attributes$j.scrollSpy));
+        sections$m[this.id].push(new ScrollSpy(this.container, scrollSpy));
+      });
+    },
+    onUnload() {
+      sections$m[this.id].forEach((element) => {
+        if (typeof element.onUnload === 'function') {
+          element.onUnload();
+        }
+      });
+    },
+  };
+
+  const selectors$s = {
     banner: '[data-banner]',
-    slider: '[data-slider]',
-    sliderMedia: '[data-banners-media]',
+    sliderContent: '[data-slider-content]',
+    sliderMedia: '[data-slider-media]',
     links: 'a, button',
   };
 
-  const attributes$k = {
+  const attributes$i = {
     index: 'data-index',
-    singleImage: 'data-slider-single-image',
     tabIndex: 'tabindex',
+    singleImage: 'data-slider-single-image',
+    scrollSpyPrevent: 'data-scroll-spy-prevent',
   };
 
-  const classes$m = {
+  const classes$k = {
     isSelected: 'is-selected',
   };
 
-  let sections$n = {};
+  const settings$1 = {
+    row: 'row',
+    columns: 'columns',
+  };
+
+  let sections$l = {};
 
   class BannerWithTextColumns {
     constructor(section) {
       this.container = section.container;
-      this.slider = this.container.querySelector(selectors$u.slider);
-      this.singleImageEnabled = this.slider?.hasAttribute(attributes$k.singleImage);
-      this.banners = this.container.querySelectorAll(selectors$u.banner);
+      this.sliderContent = this.container.querySelector(selectors$s.sliderContent);
+      this.singleImageEnabled = this.sliderContent?.hasAttribute(attributes$i.singleImage);
+      this.banners = this.container.querySelectorAll(selectors$s.banner);
       this.links = this.container.querySelectorAll('a');
-      this.sliderMedia = this.container.querySelector(selectors$u.sliderMedia);
-      this.flkty = null;
+      this.sliderMedia = this.container.querySelector(selectors$s.sliderMedia);
+      this.flktyContent = null;
       this.flktyMedia = null;
-      this.sliderResizeEvent = () => this.resizeSlider();
+      this.onResizeCallback = () => this.handleSlidersOnResize();
 
-      if (!this.slider) return;
+      // Initialise functionality based on the "Appearance > Row/Columns" section settings
+      this.appearance = this.container.dataset.appearance;
 
-      this.initSliders();
-
-      document.addEventListener('theme:resize:width', this.sliderResizeEvent);
+      if (this.appearance === settings$1.columns) {
+        this.handleColumnsLayout();
+      } else {
+        this.handleRowLayout();
+      }
     }
 
-    initSliders() {
-      if (this.slider.children.length <= 1) return;
+    /**
+     * Event listeners on hover, touch or keyboard tabbing, that sync the Content and Media items states
+     */
+    listen() {
+      document.addEventListener('theme:resize:width', this.onResizeCallback);
+
+      // A11y focusables event listener
+      this.links.forEach((link) => {
+        link.addEventListener('focus', () => {
+          const selectedIndex = Number(link.closest(selectors$s.banner).getAttribute(attributes$i.index));
+
+          if (window.innerWidth >= theme.sizes.small) {
+            this.sync(selectedIndex);
+          }
+        });
+      });
+
+      this.banners.forEach((slide) => {
+        // Listener for screens with mouse cursors
+        slide.addEventListener('mouseenter', () => {
+          const selectedIndex = Number(slide.getAttribute(attributes$i.index));
+
+          if (window.innerWidth >= theme.sizes.small && !window.theme.touch) {
+            this.sync(selectedIndex);
+          }
+        });
+
+        // Listener specifically for touch devices
+        slide.addEventListener('pointerup', () => {
+          const selectedIndex = Number(slide.getAttribute(attributes$i.index));
+
+          if (window.innerWidth >= theme.sizes.small && window.theme.touch) {
+            this.sync(selectedIndex);
+          }
+        });
+      });
+    }
+
+    /**
+     * Functionality for "Appearance -> Columns"
+     *  - grid with columns count based on section blocks count
+     *  - init two sliders, one for Content, another for Media items
+     *  - have a distinct flickity slider on mobile
+     *  - sync sliders with fade-in/scale animations
+     */
+    handleColumnsLayout() {
+      if (this.sliderContent.children.length <= 1) return;
 
       let isDraggable = window.innerWidth < window.theme.sizes.small;
 
@@ -11167,49 +11850,26 @@
           adaptiveHeight: false,
           pageDots: false,
           setGallerySize: false,
+          on: {
+            change: (index) => {
+              this.handleGroupItemsNavigation(index, this.flktyContent);
+            },
+          },
         });
 
         flickitySmoothScrolling(this.sliderMedia);
       }
 
-      this.flkty = new Flickity(this.slider, {
+      this.flktyContent = new Flickity(this.sliderContent, {
         draggable: isDraggable,
         prevNextButtons: false,
         pageDots: true,
         cellAlign: 'left',
         adaptiveHeight: false,
         imagesLoaded: true,
-        lazyLoad: true,
         on: {
           ready: () => {
-            this.links.forEach((link) => {
-              link.addEventListener('focus', () => {
-                const selectedIndex = Number(link.closest(selectors$u.banner).getAttribute(attributes$k.index));
-
-                if (window.innerWidth >= theme.sizes.small) {
-                  this.syncContent(selectedIndex);
-                }
-              });
-            });
-
-            this.banners.forEach((slide) => {
-              slide.addEventListener('mouseenter', () => {
-                const selectedIndex = Number(slide.getAttribute(attributes$k.index));
-
-                if (window.innerWidth >= theme.sizes.small && !window.theme.touch) {
-                  this.syncContent(selectedIndex);
-                }
-              });
-
-              slide.addEventListener('pointerup', () => {
-                const selectedIndex = Number(slide.getAttribute(attributes$k.index));
-
-                if (window.innerWidth >= theme.sizes.small && window.theme.touch) {
-                  this.syncContent(selectedIndex);
-                }
-              });
-            });
-
+            this.listen();
             this.slidesTabIndex();
           },
           change: (index) => {
@@ -11218,39 +11878,139 @@
             }
 
             this.slidesTabIndex();
+            this.handleGroupItemsNavigation(index, this.flktyMedia);
           },
         },
       });
 
-      flickitySmoothScrolling(this.slider);
+      flickitySmoothScrolling(this.sliderContent);
     }
 
-    slidesTabIndex() {
-      const slider = Flickity.data(this.slider);
+    /**
+     * Functionality for "Appearance -> Row"
+     *  - a row of items, spaced as much as their content allows
+     *  - init a Media slider and sync Content items with it
+     *  - listen for mouseover/touch events to update active states when "Show single image" settings are enabled
+     *  - use fade-in and scale animations on states change
+     *  - Media slider draggable events are used to change the active states on tablet
+     *  - Content items active state is automatically updated based on scroll position and visibility in the viewport
+     */
+    handleRowLayout() {
+      const isSingleMedia = this.sliderMedia.children.length <= 1;
 
+      if (isSingleMedia || isMobile()) {
+        this.updateState(0);
+        this.listen();
+
+        return;
+      }
+
+      this.initMediaSlider();
+    }
+
+    /**
+     * Initialise media slider with Flickity
+     */
+    initMediaSlider() {
+      this.flktyMedia = new Flickity(this.sliderMedia, {
+        draggable: true,
+        wrapAround: false,
+        fade: true,
+        prevNextButtons: false,
+        adaptiveHeight: false,
+        pageDots: false,
+        setGallerySize: false,
+        on: {
+          ready: () => {
+            this.updateState(0);
+            this.listen();
+          },
+          change: (index) => {
+            this.updateState(index);
+          },
+        },
+      });
+
+      flickitySmoothScrolling(this.sliderMedia);
+    }
+
+    /**
+     * Handle slider sync on navigating with tabbing or using arrow keys through flickity's items group
+     */
+    handleGroupItemsNavigation(index, sliderToSync = null) {
+      if (sliderToSync === null) return;
+
+      requestAnimationFrame(() => {
+        if (index !== sliderToSync.selectedIndex) {
+          sliderToSync.select(index);
+        }
+      });
+    }
+
+    /**
+     * Update focusables tab index on slide change
+     */
+    slidesTabIndex() {
+      if (!this.sliderContent) return;
+
+      const slider = Flickity.data(this.sliderContent);
       slider.cells.forEach((slide) => {
         let tabIndex = '-1';
-        if (slide.element.classList.contains(classes$m.isSelected)) {
+        if (slide.element.classList.contains(classes$k.isSelected)) {
           tabIndex = '0';
         }
-
-        slide.element.querySelectorAll(selectors$u.links).forEach((link) => {
-          link.setAttribute(attributes$k.tabIndex, tabIndex);
+        slide.element.querySelectorAll(selectors$s.links).forEach((link) => {
+          link.setAttribute(attributes$i.tabIndex, tabIndex);
         });
       });
     }
 
-    syncContent(index = 0) {
-      this.flkty.selectCell(index);
+    /**
+     * Synchronise the Content and Media items states
+     */
+    sync(index = 0) {
+      if (this.appearance === settings$1.columns) {
+        this.flktyContent.selectCell(index);
+      } else {
+        this.updateState(index);
+      }
 
       if (this.flktyMedia) {
         this.flktyMedia.selectCell(index);
       }
     }
 
-    resizeSlider() {
-      if (this.flkty) {
-        this.flkty.resize();
+    /**
+     * Update the active state, based on a selected item's index
+     */
+    updateState(index = 0) {
+      this.banners.forEach((element) => {
+        const elementIndex = Number(element.getAttribute(attributes$i.index));
+        element.classList.toggle(classes$k.isSelected, elementIndex === index);
+      });
+    }
+
+    /**
+     * Resize or destroy sliders
+     */
+    handleSlidersOnResize() {
+      const isLayoutRow = this.appearance === settings$1.row;
+
+      if (isLayoutRow) {
+        if (isMobile() && this.flktyMedia) {
+          this.flktyMedia.destroy();
+          this.flktyMedia = null;
+          return;
+        }
+
+        if (isDesktop() && !this.flktyMedia) {
+          this.initMediaSlider();
+          return;
+        }
+      }
+
+      if (this.flktyContent) {
+        this.flktyContent.resize();
         this.toggleDraggable();
       }
 
@@ -11259,37 +12019,54 @@
       }
     }
 
+    /**
+     * Enable or disable dragging and flicking on initialised Flickity instances, depending on screen size
+     */
     toggleDraggable() {
-      this.flkty.options.draggable = window.innerWidth < window.theme.sizes.small;
-      this.flkty.updateDraggable();
+      this.flktyContent.options.draggable = window.innerWidth < window.theme.sizes.small;
+      this.flktyContent.updateDraggable();
     }
 
-    onBlockSelect(evt) {
-      const selectedIndex = parseInt([...evt.target.parentNode.children].indexOf(evt.target));
-      if (this.flktyMedia) {
-        this.flktyMedia.selectCell(selectedIndex);
+    /**
+     * Event callback for Theme Editor `shopify:block:select` event
+     */
+    onBlockSelect(event) {
+      const selectedIndex = parseInt([...event.target.parentNode.children].indexOf(event.target));
+      this.sync(selectedIndex);
+
+      if (this.appearance === settings$1.row) {
+        const target = this.sliderMedia.children[selectedIndex];
+        const targetOffsetTop = Math.round(target.getBoundingClientRect().top);
+
+        this.container.setAttribute(attributes$i.scrollSpyPrevent, '');
+
+        setTimeout(() => scrollTo(targetOffsetTop), 400);
+        setTimeout(() => this.container.removeAttribute(attributes$i.scrollSpyPrevent), 1000);
       }
     }
 
+    /**
+     * Event callback for Theme Editor `shopify:section:unload` event
+     */
     onUnload() {
-      document.removeEventListener('theme:resize:width', this.sliderResizeEvent);
+      document.removeEventListener('theme:resize:width', this.onResizeCallback);
     }
   }
 
   const BannerWithTextColumnsSection = {
     onLoad() {
-      sections$n[this.id] = new BannerWithTextColumns(this);
+      sections$l[this.id] = new BannerWithTextColumns(this);
     },
-    onBlockSelect(e) {
-      sections$n[this.id].onBlockSelect(e);
+    onBlockSelect(event) {
+      sections$l[this.id].onBlockSelect(event);
     },
   };
 
-  register('banner-with-text-columns', BannerWithTextColumnsSection);
+  register('banner-with-text-columns', [BannerWithTextColumnsSection, scrollSpy]);
 
   register('blog-posts', ajaxify);
 
-  const selectors$t = {
+  const selectors$r = {
     slider: '[data-slider]',
     sliderItem: '[data-slider-item]',
     sliderItemImage: '[data-media-container]',
@@ -11297,20 +12074,21 @@
     flickityButton: '.flickity-button',
   };
 
-  const classes$l = {
+  const classes$j = {
     carouselInactive: 'carousel--inactive',
+    carouselResize: 'carousel--resize',
   };
 
-  const attributes$j = {
+  const attributes$h = {
     tabIndex: 'tabindex',
   };
 
-  const sections$m = {};
+  const sections$k = {};
 
   class ColumnsWithImage {
     constructor(section) {
       this.container = section.container;
-      this.slider = this.container.querySelector(selectors$t.slider);
+      this.slider = this.container.querySelector(selectors$r.slider);
       this.flkty = null;
       this.gutter = 0;
       this.checkSlidesSizeOnResize = () => this.checkSlidesSize();
@@ -11318,7 +12096,7 @@
     }
 
     initSlider() {
-      this.slider.classList.remove(classes$l.carouselInactive);
+      this.slider.classList.remove(classes$j.carouselInactive);
 
       this.flkty = new Flickity(this.slider, {
         pageDots: false,
@@ -11330,6 +12108,7 @@
             this.setSliderArrowsPosition(this.slider);
             setTimeout(() => {
               this.changeTabIndex();
+              this.flkty.resize();
             }, 0);
           },
           change: () => {
@@ -11337,10 +12116,23 @@
           },
         },
       });
+
+      Flickity.prototype._createResizeClass = function () {
+        this.element.classList.add(classes$j.carouselResize);
+      };
+
+      Flickity.createMethods.push('_createResizeClass');
+
+      const resize = Flickity.prototype.resize;
+      Flickity.prototype.resize = function () {
+        this.element.classList.remove(classes$j.carouselResize);
+        resize.call(this);
+        this.element.classList.add(classes$j.carouselResize);
+      };
     }
 
     destroySlider() {
-      this.slider.classList.add(classes$l.carouselInactive);
+      this.slider.classList.add(classes$j.carouselInactive);
 
       if (this.flkty !== null) {
         this.flkty.destroy();
@@ -11349,7 +12141,7 @@
     }
 
     checkSlidesSize() {
-      const sliderItemStyle = this.container.querySelector(selectors$t.sliderItem).currentStyle || window.getComputedStyle(this.container.querySelector(selectors$t.sliderItem));
+      const sliderItemStyle = this.container.querySelector(selectors$r.sliderItem).currentStyle || window.getComputedStyle(this.container.querySelector(selectors$r.sliderItem));
       this.gutter = parseInt(sliderItemStyle.marginRight);
       const containerWidth = this.slider.offsetWidth;
       const itemsWidth = this.getItemsWidth();
@@ -11367,8 +12159,8 @@
 
       this.flkty.slides.forEach((slide, index) => {
         slide.cells.forEach((cell) => {
-          cell.element.querySelectorAll(selectors$t.links).forEach((link) => {
-            link.setAttribute(attributes$j.tabIndex, selectedElementsIndex === index ? '0' : '-1');
+          cell.element.querySelectorAll(selectors$r.links).forEach((link) => {
+            link.setAttribute(attributes$h.tabIndex, selectedElementsIndex === index ? '0' : '-1');
           });
         });
       });
@@ -11376,7 +12168,7 @@
 
     getItemsWidth() {
       let itemsWidth = 0;
-      const slides = this.slider.querySelectorAll(selectors$t.sliderItem);
+      const slides = this.slider.querySelectorAll(selectors$r.sliderItem);
       if (slides.length) {
         slides.forEach((item) => {
           itemsWidth += item.offsetWidth + this.gutter;
@@ -11394,8 +12186,8 @@
     }
 
     setSliderArrowsPosition(slider) {
-      const arrows = slider.querySelectorAll(selectors$t.flickityButton);
-      const image = slider.querySelector(selectors$t.sliderItemImage);
+      const arrows = slider.querySelectorAll(selectors$r.flickityButton);
+      const image = slider.querySelector(selectors$r.sliderItemImage);
 
       if (arrows.length && image) {
         arrows.forEach((arrow) => {
@@ -11432,35 +12224,35 @@
 
   const ColumnsWithImageSection = {
     onLoad() {
-      sections$m[this.id] = new ColumnsWithImage(this);
+      sections$k[this.id] = new ColumnsWithImage(this);
     },
     onUnload(e) {
-      sections$m[this.id].onUnload(e);
+      sections$k[this.id].onUnload(e);
     },
     onBlockSelect(e) {
-      sections$m[this.id].onBlockSelect(e);
+      sections$k[this.id].onBlockSelect(e);
     },
   };
 
   register('columns-with-image', [ColumnsWithImageSection, videoPlay]);
 
-  const selectors$s = {
+  const selectors$q = {
     formMessageClose: '[data-form-message-close]',
     formMessageWrapper: '[data-form-message]',
   };
 
-  const classes$k = {
+  const classes$i = {
     hideDown: 'hide-down',
     notificationVisible: 'notification-visible',
   };
 
-  let sections$l = {};
+  let sections$j = {};
 
   class ContactForm {
     constructor(section) {
       this.container = section.container;
-      this.closeButton = this.container.querySelector(selectors$s.formMessageClose);
-      this.messageWrapper = this.container.querySelector(selectors$s.formMessageWrapper);
+      this.closeButton = this.container.querySelector(selectors$q.formMessageClose);
+      this.messageWrapper = this.container.querySelector(selectors$q.formMessageWrapper);
 
       if (this.messageWrapper) {
         this.hidePopups();
@@ -11470,11 +12262,11 @@
     }
 
     hidePopups() {
-      document.body.classList.add(classes$k.notificationVisible);
+      document.body.classList.add(classes$i.notificationVisible);
     }
 
     showPopups() {
-      document.body.classList.remove(classes$k.notificationVisible);
+      document.body.classList.remove(classes$i.notificationVisible);
     }
 
     closeFormMessage() {
@@ -11483,13 +12275,13 @@
 
     closeMessage(e) {
       e.preventDefault();
-      this.messageWrapper.classList.add(classes$k.hideDown);
+      this.messageWrapper.classList.add(classes$i.hideDown);
       this.showPopups();
     }
 
     autoHideMessage() {
       setTimeout(() => {
-        this.messageWrapper.classList.add(classes$k.hideDown);
+        this.messageWrapper.classList.add(classes$i.hideDown);
         this.showPopups();
       }, 10000);
     }
@@ -11497,13 +12289,13 @@
 
   const contactFormSection = {
     onLoad() {
-      sections$l[this.id] = new ContactForm(this);
+      sections$j[this.id] = new ContactForm(this);
     },
   };
 
   register('contact-form', contactFormSection);
 
-  const selectors$r = {
+  const selectors$p = {
     time: 'time',
     days: '[data-days]',
     hours: '[data-hours]',
@@ -11513,14 +12305,14 @@
     shopifySection: '.shopify-section',
   };
 
-  const classes$j = {
+  const classes$h = {
     countdownLoading: 'countdown--loading',
     countdownLoaded: 'countdown--loaded',
     countdownTimerShowMessage: 'countdown-timer--show-message',
     hideCountdown: 'hide-countdown',
   };
 
-  const attributes$i = {
+  const attributes$g = {
     expirationBehavior: 'data-expiration-behavior',
   };
 
@@ -11533,19 +12325,19 @@
     constructor() {
       super();
 
-      this.section = this.closest(selectors$r.sectionType);
-      this.shopifySection = this.closest(selectors$r.shopifySection);
-      this.expirationBehavior = this.getAttribute(attributes$i.expirationBehavior);
+      this.section = this.closest(selectors$p.sectionType);
+      this.shopifySection = this.closest(selectors$p.shopifySection);
+      this.expirationBehavior = this.getAttribute(attributes$g.expirationBehavior);
 
-      this.time = this.querySelector(selectors$r.time);
+      this.time = this.querySelector(selectors$p.time);
       // The string we're passing should be ISO 8601 compliant
       // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#date_time_string_format
       this.endDate = Date.parse(this.time.dateTime);
 
-      this.days = this.querySelector(selectors$r.days);
-      this.hours = this.querySelector(selectors$r.hours);
-      this.minutes = this.querySelector(selectors$r.minutes);
-      this.seconds = this.querySelector(selectors$r.seconds);
+      this.days = this.querySelector(selectors$p.days);
+      this.hours = this.querySelector(selectors$p.hours);
+      this.minutes = this.querySelector(selectors$p.minutes);
+      this.seconds = this.querySelector(selectors$p.seconds);
 
       this.daysInMs = 1000 * 60 * 60 * 24;
       this.hoursInMs = this.daysInMs / 24;
@@ -11623,20 +12415,20 @@
       });
 
       if (this.shouldHideOnComplete) {
-        this.shopifySection.classList.add(classes$j.hideCountdown);
+        this.shopifySection.classList.add(classes$h.hideCountdown);
       }
 
       if (this.shouldShowMessage) {
-        this.classList.add(classes$j.countdownTimerShowMessage);
+        this.classList.add(classes$h.countdownTimerShowMessage);
       }
     }
 
     onLoad(init) {
       if (init) {
-        this.section.classList.add(classes$j.countdownLoading);
+        this.section.classList.add(classes$h.countdownLoading);
         return;
       }
-      this.section.classList.add(classes$j.countdownLoaded);
+      this.section.classList.add(classes$h.countdownLoaded);
       this.isLoading = false;
     }
 
@@ -11664,7 +12456,7 @@
     customElements.define('countdown-timer', CountdownTimer);
   }
 
-  const selectors$q = {
+  const selectors$o = {
     videoId: '[data-video-id]',
     videoPlayer: '[data-video-player]',
     videoTemplate: '[data-video-template]',
@@ -11673,20 +12465,20 @@
     videoPlayButton: '[data-video-bg-play]',
   };
 
-  const classes$i = {
+  const classes$g = {
     loading: 'is-loading',
     paused: 'is-paused',
   };
 
-  const sections$k = {};
+  const sections$i = {};
 
   class VideoBackground {
     constructor(container) {
       this.container = container;
-      this.videoId = this.container.querySelector(selectors$q.videoId);
-      this.videoPlayer = this.container.querySelector(selectors$q.videoPlayer);
-      this.videoTemplate = this.container.querySelector(selectors$q.videoTemplate);
-      this.videoPlayButton = this.container.querySelector(selectors$q.videoPlayButton);
+      this.videoId = this.container.querySelector(selectors$o.videoId);
+      this.videoPlayer = this.container.querySelector(selectors$o.videoPlayer);
+      this.videoTemplate = this.container.querySelector(selectors$o.videoTemplate);
+      this.videoPlayButton = this.container.querySelector(selectors$o.videoPlayButton);
       this.init();
     }
 
@@ -11702,9 +12494,9 @@
             if (entry.isIntersecting) {
               const videoMarkup = this.videoTemplate.innerHTML;
               this.videoPlayer.innerHTML = videoMarkup;
-              this.video = this.container.querySelector(selectors$q.videoAutoplay);
-              this.videoPlayer.classList.remove(classes$i.loading);
-              this.container.classList.add(classes$i.paused);
+              this.video = this.container.querySelector(selectors$o.videoAutoplay);
+              this.videoPlayer.classList.remove(classes$g.loading);
+              this.container.classList.add(classes$g.paused);
 
               this.listen();
 
@@ -11731,7 +12523,7 @@
 
     listen() {
       this.video.addEventListener('play', () => {
-        this.container.classList.remove(classes$i.paused);
+        this.container.classList.remove(classes$g.paused);
       });
 
       // Force video autoplay on iOS when Low Power Mode is On
@@ -11747,10 +12539,10 @@
 
   const videoBackground = {
     onLoad() {
-      sections$k[this.id] = [];
-      const videoWrappers = this.container.querySelectorAll(selectors$q.videoWrapper);
+      sections$i[this.id] = [];
+      const videoWrappers = this.container.querySelectorAll(selectors$o.videoWrapper);
       videoWrappers.forEach((videoWrapper) => {
-        sections$k[this.id].push(new VideoBackground(videoWrapper));
+        sections$i[this.id].push(new VideoBackground(videoWrapper));
       });
     },
   };
@@ -11795,27 +12587,27 @@
     }
   }
 
-  const selectors$p = {
+  const selectors$n = {
     newsletterForm: '[data-newsletter-form]',
     popup: '[data-popup]',
   };
 
-  const classes$h = {
+  const classes$f = {
     success: 'has-success',
     error: 'has-error',
   };
 
-  const attributes$h = {
+  const attributes$f = {
     storageNewsletterFormId: 'newsletter_form_id',
   };
 
-  const sections$j = {};
+  const sections$h = {};
 
   class Newsletter {
     constructor(newsletter) {
       this.newsletter = newsletter;
       this.sessionStorage = window.sessionStorage;
-      this.popup = this.newsletter.closest(selectors$p.popup);
+      this.popup = this.newsletter.closest(selectors$n.popup);
       this.stopSubmit = true;
       this.isChallengePage = false;
       this.formID = null;
@@ -11853,16 +12645,16 @@
 
     writeStorage() {
       if (this.sessionStorage !== undefined) {
-        this.sessionStorage.setItem(attributes$h.storageNewsletterFormId, this.newsletter.id);
+        this.sessionStorage.setItem(attributes$f.storageNewsletterFormId, this.newsletter.id);
       }
     }
 
     readStorage() {
-      this.formID = this.sessionStorage.getItem(attributes$h.storageNewsletterFormId);
+      this.formID = this.sessionStorage.getItem(attributes$f.storageNewsletterFormId);
     }
 
     removeStorage() {
-      this.sessionStorage.removeItem(attributes$h.storageNewsletterFormId);
+      this.sessionStorage.removeItem(attributes$f.storageNewsletterFormId);
     }
 
     showMessage() {
@@ -11874,16 +12666,16 @@
         const submissionFailure = window.location.search.indexOf('accepts_marketing') !== -1;
 
         if (submissionSuccess) {
-          newsletter.classList.remove(classes$h.error);
-          newsletter.classList.add(classes$h.success);
+          newsletter.classList.remove(classes$f.error);
+          newsletter.classList.add(classes$f.success);
 
           if (this.popup) {
             this.cookie = new PopupCookie(this.popup.dataset.cookieName, 'user_has_closed');
             this.cookie.write();
           }
         } else if (submissionFailure) {
-          newsletter.classList.remove(classes$h.success);
-          newsletter.classList.add(classes$h.error);
+          newsletter.classList.remove(classes$f.success);
+          newsletter.classList.add(classes$f.error);
         }
 
         if (submissionSuccess || submissionFailure) {
@@ -11920,14 +12712,14 @@
 
   const newsletterSection = {
     onLoad() {
-      sections$j[this.id] = [];
-      const newsletters = this.container.querySelectorAll(selectors$p.newsletterForm);
+      sections$h[this.id] = [];
+      const newsletters = this.container.querySelectorAll(selectors$n.newsletterForm);
       newsletters.forEach((form) => {
-        sections$j[this.id].push(new Newsletter(form));
+        sections$h[this.id].push(new Newsletter(form));
       });
     },
     onUnload() {
-      sections$j[this.id].forEach((form) => {
+      sections$h[this.id].forEach((form) => {
         if (typeof form.onUnload === 'function') {
           form.onUnload();
         }
@@ -11935,7 +12727,7 @@
     },
   };
 
-  const selectors$o = {
+  const selectors$m = {
     product: '[data-product]',
     productSlider: '[data-slider]',
     productSlide: '[data-slide]',
@@ -11945,17 +12737,17 @@
     links: 'a, button',
   };
 
-  const attributes$g = {
+  const attributes$e = {
     tabIndex: 'tabindex',
   };
 
-  const sections$i = {};
+  const sections$g = {};
 
   class CustomContent {
     constructor(container) {
       this.container = container;
-      this.product = this.container.querySelectorAll(selectors$o.product);
-      this.productSlider = this.container.querySelectorAll(selectors$o.productSlider);
+      this.product = this.container.querySelectorAll(selectors$m.product);
+      this.productSlider = this.container.querySelectorAll(selectors$m.productSlider);
       this.checkSliderOnResize = () => this.checkSlider();
       this.resizeSliderEvent = (event) => this.resizeSlider(event);
       this.flkty = [];
@@ -11978,7 +12770,7 @@
     }
 
     initProductSlider(slider) {
-      const slidesCount = slider.querySelectorAll(selectors$o.productSlide).length;
+      const slidesCount = slider.querySelectorAll(selectors$m.productSlide).length;
       const sliderId = slider.dataset.slider;
 
       if (slidesCount > 1) {
@@ -11994,8 +12786,8 @@
               },
               change: (index) => {
                 this.flkty[sliderId].cells.forEach((slide, i) => {
-                  slide.element.querySelectorAll(selectors$o.links).forEach((link) => {
-                    link.setAttribute(attributes$g.tabIndex, i === index ? '0' : '-1');
+                  slide.element.querySelectorAll(selectors$m.links).forEach((link) => {
+                    link.setAttribute(attributes$e.tabIndex, i === index ? '0' : '-1');
                   });
                 });
               },
@@ -12016,8 +12808,8 @@
     }
 
     setSliderArrowsPosition(slider) {
-      const arrows = slider.querySelectorAll(selectors$o.flickityButton);
-      const image = slider.querySelector(selectors$o.productGridItemImage);
+      const arrows = slider.querySelectorAll(selectors$m.flickityButton);
+      const image = slider.querySelector(selectors$m.productGridItemImage);
 
       if (arrows.length && image) {
         arrows.forEach((arrow) => {
@@ -12062,16 +12854,16 @@
 
   const CustomContentSection = {
     onLoad() {
-      sections$i[this.id] = new CustomContent(this.container);
+      sections$g[this.id] = new CustomContent(this.container);
     },
     onUnload(e) {
-      sections$i[this.id].onUnload(e);
+      sections$g[this.id].onUnload(e);
     },
   };
 
   register('custom-content', [CustomContentSection, newsletterSection, videoPlay, videoBackground, productGrid]);
 
-  const selectors$n = {
+  const selectors$l = {
     slider: '[data-slider]',
     sliderItem: '[data-slide]',
     productGridItemImage: '[data-product-media-container]',
@@ -12080,7 +12872,7 @@
     promo: '[data-promo]',
   };
 
-  const classes$g = {
+  const classes$e = {
     carousel: 'carousel',
     carouselInactive: 'carousel--inactive',
     isLastSlideVisible: 'is-last-slide-visible',
@@ -12089,19 +12881,19 @@
     promoTwoItemsWidth: 'collection-promo--two-columns',
   };
 
-  const attributes$f = {
+  const attributes$d = {
     sliderId: 'data-slider-id',
     showImage: 'data-slider-show-image',
     tabIndex: 'tabindex',
   };
 
-  const sections$h = {};
+  const sections$f = {};
 
   class GridSlider {
     constructor(container) {
       this.container = container;
       this.columns = parseInt(this.container.dataset.columns);
-      this.sliders = this.container.querySelectorAll(selectors$n.slider);
+      this.sliders = this.container.querySelectorAll(selectors$l.slider);
       this.checkSlidesSizeOnResize = () => this.checkSlidesSize();
       this.resetSliderEvent = (e) => this.resetSlider(e);
       this.resizeSliderEvent = (event) => this.resizeSlider(event);
@@ -12112,13 +12904,13 @@
     }
 
     initSlider(slider) {
-      const sliderId = slider.getAttribute(attributes$f.sliderId);
-      slider.classList.remove(classes$g.carouselInactive);
+      const sliderId = slider.getAttribute(attributes$d.sliderId);
+      slider.classList.remove(classes$e.carouselInactive);
 
       if (this.flkty[sliderId] === undefined || !this.flkty[sliderId].isActive) {
         this.flkty[sliderId] = new Flickity(slider, {
           pageDots: false,
-          cellSelector: selectors$n.sliderItem,
+          cellSelector: selectors$l.sliderItem,
           cellAlign: 'left',
           groupCells: true,
           contain: true,
@@ -12144,10 +12936,10 @@
     }
 
     destroySlider(slider) {
-      const sliderId = slider.getAttribute(attributes$f.sliderId);
+      const sliderId = slider.getAttribute(attributes$d.sliderId);
 
-      if (slider.classList.contains(classes$g.carousel)) {
-        slider.classList.add(classes$g.carouselInactive);
+      if (slider.classList.contains(classes$e.carousel)) {
+        slider.classList.add(classes$e.carouselInactive);
       }
 
       if (typeof this.flkty[sliderId] === 'object') {
@@ -12158,7 +12950,7 @@
     // Move slides to their initial position
     resetSlider(e) {
       const slider = e.target;
-      const sliderId = slider.getAttribute(attributes$f.sliderId);
+      const sliderId = slider.getAttribute(attributes$d.sliderId);
 
       if (typeof this.flkty[sliderId] === 'object') {
         this.flkty[sliderId].select(0, false, true);
@@ -12184,23 +12976,23 @@
           const columns = this.columns;
           const isDesktop = window.innerWidth >= theme.sizes.large;
           const isTablet = window.innerWidth >= theme.sizes.small && window.innerWidth < theme.sizes.large;
-          const slides = slider.querySelectorAll(selectors$n.sliderItem);
+          const slides = slider.querySelectorAll(selectors$l.sliderItem);
           let itemsCount = slides.length;
-          const promos = slider.querySelectorAll(selectors$n.promo);
+          const promos = slider.querySelectorAll(selectors$l.promo);
 
           // If there are promos in the grid with different width
           if (promos.length && isDesktop) {
             promos.forEach((promo) => {
-              if (promo.classList.contains(classes$g.promoFullWidth)) {
+              if (promo.classList.contains(classes$e.promoFullWidth)) {
                 itemsCount += columns - 1;
-              } else if (promo.classList.contains(classes$g.promoTwoItemsWidth)) {
+              } else if (promo.classList.contains(classes$e.promoTwoItemsWidth)) {
                 itemsCount += 1;
               }
             });
           }
 
           // If tab collection has show image enabled
-          if (slider.hasAttribute(attributes$f.showImage)) {
+          if (slider.hasAttribute(attributes$d.showImage)) {
             itemsCount += 1;
           }
 
@@ -12214,21 +13006,21 @@
     }
 
     changeTabIndex(slider) {
-      const sliderId = slider.getAttribute(attributes$f.sliderId);
+      const sliderId = slider.getAttribute(attributes$d.sliderId);
       const selectedElementsIndex = this.flkty[sliderId].selectedIndex;
 
       this.flkty[sliderId].slides.forEach((slide, index) => {
         slide.cells.forEach((cell) => {
-          cell.element.querySelectorAll(selectors$n.links).forEach((link) => {
-            link.setAttribute(attributes$f.tabIndex, selectedElementsIndex === index ? '0' : '-1');
+          cell.element.querySelectorAll(selectors$l.links).forEach((link) => {
+            link.setAttribute(attributes$d.tabIndex, selectedElementsIndex === index ? '0' : '-1');
           });
         });
       });
     }
 
     setSliderArrowsPosition(slider) {
-      const arrows = slider.querySelectorAll(selectors$n.flickityButton);
-      const image = slider.querySelector(selectors$n.productGridItemImage);
+      const arrows = slider.querySelectorAll(selectors$l.flickityButton);
+      const image = slider.querySelector(selectors$l.productGridItemImage);
 
       if (arrows.length && image) {
         arrows.forEach((arrow) => {
@@ -12238,7 +13030,7 @@
     }
 
     handleLastSlideOverlayOnTablet(slider) {
-      const sliderId = slider.getAttribute(attributes$f.sliderId);
+      const sliderId = slider.getAttribute(attributes$d.sliderId);
 
       this.flkty[sliderId].on('select', () => {
         const isTablet = window.innerWidth >= theme.sizes.small && window.innerWidth < theme.sizes.large;
@@ -12249,7 +13041,7 @@
         const sliderGroups = this.flkty[sliderId].slides.length - 1;
         const isLastSliderGroup = sliderGroups === selectedIndex;
 
-        slider.parentNode.classList.toggle(classes$g.isLastSlideVisible, isLastSliderGroup);
+        slider.parentNode.classList.toggle(classes$e.isLastSlideVisible, isLastSliderGroup);
       });
     }
 
@@ -12265,7 +13057,7 @@
           const rect = lastSlide.getBoundingClientRect();
           const isLastSlideVisible = rect.left + 80 < offsetWidth; // 80px is enough to negate the small visible part of the slide on the right
 
-          slider.parentNode.classList.toggle(classes$g.isLastSlideVisible, isLastSlideVisible);
+          slider.parentNode.classList.toggle(classes$e.isLastSlideVisible, isLastSlideVisible);
         });
       });
     }
@@ -12286,7 +13078,7 @@
      * Event callback for Theme Editor `section:block:select` event
      */
     onBlockSelect(evt) {
-      const slider = evt.target.closest(selectors$n.slider);
+      const slider = evt.target.closest(selectors$l.slider);
       const flkty = Flickity.data(slider) || null;
 
       if (!slider) {
@@ -12296,7 +13088,7 @@
       let parent = evt.target.parentNode;
       let target = evt.target;
 
-      if (this.container.classList.contains(classes$g.featuredCollection)) {
+      if (this.container.classList.contains(classes$e.featuredCollection)) {
         // In Featured collection section the shopify block attributes are on inner element
         parent = parent.parentNode;
         target = target.parentNode;
@@ -12347,21 +13139,21 @@
 
   const gridSlider = {
     onLoad() {
-      sections$h[this.id] = [];
-      const els = this.container.querySelectorAll(selectors$n.slider);
+      sections$f[this.id] = [];
+      const els = this.container.querySelectorAll(selectors$l.slider);
       els.forEach((el) => {
-        sections$h[this.id].push(new GridSlider(this.container));
+        sections$f[this.id].push(new GridSlider(this.container));
       });
     },
     onUnload() {
-      sections$h[this.id].forEach((el) => {
+      sections$f[this.id].forEach((el) => {
         if (typeof el.onUnload === 'function') {
           el.onUnload();
         }
       });
     },
     onBlockSelect(e) {
-      sections$h[this.id].forEach((el) => {
+      sections$f[this.id].forEach((el) => {
         if (typeof el.onBlockSelect === 'function') {
           el.onBlockSelect(e);
         }
@@ -12373,7 +13165,7 @@
 
   register('featured-video', [videoPlay, videoBackground]);
 
-  const selectors$m = {
+  const selectors$k = {
     shopPayWrapper: '[data-shop-pay-wrapper]',
     shopLoginButton: 'shop-login-button',
     shopFollowButton: 'shop-follow-button',
@@ -12382,13 +13174,13 @@
     shopLogo: 'shop-logo',
   };
 
-  const sections$g = {};
+  const sections$e = {};
 
   class ShopPayLink {
     constructor(container) {
       this.container = container;
-      this.shopPayWrapper = document.querySelector(selectors$m.shopPayWrapper);
-      this.shopLoginButton = document.querySelector(selectors$m.shopLoginButton);
+      this.shopPayWrapper = document.querySelector(selectors$k.shopPayWrapper);
+      this.shopLoginButton = document.querySelector(selectors$k.shopLoginButton);
 
       this.init();
     }
@@ -12446,19 +13238,19 @@
       }
     `;
 
-      customElements.whenDefined(selectors$m.shopLoginButton).then((res) => {
+      customElements.whenDefined(selectors$k.shopLoginButton).then((res) => {
         requestAnimationFrame(() => {
           const shadowRoot1 = this.shopLoginButton.shadowRoot;
-          const shopFollowButton = shadowRoot1?.querySelector(selectors$m.shopFollowButton);
+          const shopFollowButton = shadowRoot1?.querySelector(selectors$k.shopFollowButton);
           const shadowRoot2 = shopFollowButton?.shadowRoot;
-          const followOnShopButton = shadowRoot2?.querySelector(selectors$m.followOnShopButton);
+          const followOnShopButton = shadowRoot2?.querySelector(selectors$k.followOnShopButton);
           const shadowRoot3 = followOnShopButton?.shadowRoot;
 
           if (shadowRoot3) this.overwriteStyles(shadowRoot3.host.shadowRoot, this.mainButtonStyles);
 
-          const heartIcon = shadowRoot3.querySelector(selectors$m.heartIcon);
+          const heartIcon = shadowRoot3.querySelector(selectors$k.heartIcon);
           const shadowRoot4 = heartIcon?.shadowRoot;
-          const shopLogo = shadowRoot3.querySelector(selectors$m.shopLogo);
+          const shopLogo = shadowRoot3.querySelector(selectors$k.shopLogo);
           const shadowRoot5 = shopLogo?.shadowRoot;
 
           if (shadowRoot4) this.overwriteStyles(shadowRoot4.host.shadowRoot, this.svgIconsStyles);
@@ -12476,31 +13268,31 @@
 
   const shopPayLink = {
     onLoad() {
-      sections$g[this.id] = new ShopPayLink(this.container);
+      sections$e[this.id] = new ShopPayLink(this.container);
     },
   };
 
-  const selectors$l = {
+  const selectors$j = {
     trigger: '[data-collapsible-trigger-mobile]',
   };
 
-  const classes$f = {
+  const classes$d = {
     isExpanded: 'is-expanded',
   };
 
   const footerAccordionSection = {
     onBlockSelect(e) {
-      const trigger = e.target.querySelector(selectors$l.trigger);
+      const trigger = e.target.querySelector(selectors$j.trigger);
       requestAnimationFrame(() => {
-        if (trigger && !trigger.classList.contains(classes$f.isExpanded)) {
+        if (trigger && !trigger.classList.contains(classes$d.isExpanded)) {
           trigger.dispatchEvent(new Event('click'));
         }
       });
     },
     onBlockDeselect(e) {
-      const trigger = e.target.querySelector(selectors$l.trigger);
+      const trigger = e.target.querySelector(selectors$j.trigger);
       requestAnimationFrame(() => {
-        if (trigger && trigger.classList.contains(classes$f.isExpanded)) {
+        if (trigger && trigger.classList.contains(classes$d.isExpanded)) {
           trigger.dispatchEvent(new Event('click'));
         }
       });
@@ -12508,554 +13300,6 @@
   };
 
   register('footer', [popoutSection, newsletterSection, collapsible, footerAccordionSection, shopPayLink]);
-
-  const selectors$k = {
-    disclosureWrappper: '[data-hover-disclosure]',
-    header: '[data-site-header]',
-    link: '[data-top-link]',
-    headerBackground: '[data-header-background]',
-    navItem: '[data-nav-item]',
-  };
-
-  const classes$e = {
-    isVisible: 'is-visible',
-    grandparent: 'grandparent',
-    headerMenuOpened: 'site-header--menu-opened',
-    hasScrolled: 'has-scrolled',
-    headerHovered: 'site-header--hovered',
-    searchOpened: 'search-opened',
-  };
-
-  const attributes$e = {
-    disclosureToggle: 'data-hover-disclosure-toggle',
-    ariaHasPopup: 'aria-haspopup',
-    ariaExpanded: 'aria-expanded',
-    ariaControls: 'aria-controls',
-  };
-
-  let sections$f = {};
-
-  class HoverDisclosure {
-    constructor(el) {
-      this.disclosure = el;
-      this.header = el.closest(selectors$k.header);
-      this.key = this.disclosure.id;
-      this.trigger = document.querySelector(`[${attributes$e.disclosureToggle}='${this.key}']`);
-      this.link = this.trigger.querySelector(selectors$k.link);
-      this.grandparent = this.trigger.classList.contains(classes$e.grandparent);
-      this.background = document.querySelector(selectors$k.headerBackground);
-      this.trigger.setAttribute(attributes$e.ariaHasPopup, true);
-      this.trigger.setAttribute(attributes$e.ariaExpanded, false);
-      this.trigger.setAttribute(attributes$e.ariaControls, this.key);
-      this.dropdown = this.trigger.querySelector(selectors$k.disclosureWrappper);
-
-      this.connectHoverToggle();
-      this.handleTablets();
-    }
-
-    showDisclosure() {
-      this.hasScrolled = document.body.classList.contains(classes$e.hasScrolled);
-      this.headerHeight = this.hasScrolled ? window.stickyHeaderHeight : this.header.offsetHeight;
-
-      if (this.grandparent) {
-        this.dropdown.style.height = 'auto';
-        this.dropdownHeight = this.dropdown.offsetHeight + this.headerHeight;
-      } else {
-        this.dropdownHeight = this.headerHeight;
-      }
-
-      this.background.style.setProperty('--header-background-height', `${this.dropdownHeight}px`);
-
-      // Set accessibility and classes
-      this.trigger.setAttribute(attributes$e.ariaExpanded, true);
-      this.trigger.classList.add(classes$e.isVisible);
-      this.header.classList.add(classes$e.headerMenuOpened);
-      if (this.trigger.classList.contains(classes$e.grandparent)) {
-        document.dispatchEvent(new CustomEvent('theme:scroll:lock', {bubbles: true, detail: this.header}));
-      }
-      this.updateHeaderHover();
-    }
-
-    hideDisclosure() {
-      this.background.style.removeProperty('--header-background-height');
-
-      this.trigger.classList.remove(classes$e.isVisible);
-      this.trigger.setAttribute(attributes$e.ariaExpanded, false);
-      this.header.classList.remove(classes$e.headerMenuOpened);
-      if (!document.body.classList.contains(classes$e.searchOpened)) {
-        document.dispatchEvent(new CustomEvent('theme:scroll:unlock', {bubbles: true}));
-      }
-    }
-
-    updateHeaderHover() {
-      requestAnimationFrame(() => {
-        const isHovered = this.header.matches(':hover');
-        const hasHoveredClass = this.header.classList.contains(classes$e.headerHovered);
-
-        if (isHovered && !hasHoveredClass) this.header.classList.add(classes$e.headerHovered);
-      });
-    }
-
-    handleTablets() {
-      // first click opens the popup, second click opens the link
-      this.trigger.addEventListener('touchstart', (e) => {
-        const isOpen = this.trigger.classList.contains(classes$e.isVisible);
-        if (!isOpen) {
-          e.preventDefault();
-
-          // Hide the rest of the active nav items
-          const activeNavItems = this.header.querySelectorAll(`.${classes$e.isVisible}${selectors$k.navItem}`);
-
-          if (activeNavItems.length > 0) {
-            activeNavItems.forEach((item) => {
-              if (item !== this.trigger) {
-                item.dispatchEvent(new Event('mouseleave', {bubbles: true}));
-
-                const onTransitionEnd = () => {
-                  requestAnimationFrame(() => {
-                    this.showDisclosure();
-                  });
-
-                  item.removeEventListener('transitionend', onTransitionEnd);
-                };
-
-                item.addEventListener('transitionend', onTransitionEnd);
-              }
-            });
-
-            return;
-          }
-
-          this.showDisclosure();
-        }
-      });
-    }
-
-    connectHoverToggle() {
-      this.trigger.addEventListener('mouseenter', () => this.showDisclosure());
-      this.link.addEventListener('focus', () => this.showDisclosure());
-
-      this.trigger.addEventListener('mouseleave', () => this.hideDisclosure());
-      this.trigger.addEventListener('focusout', (event) => {
-        const inMenu = this.trigger.contains(event.relatedTarget);
-
-        if (!inMenu) {
-          this.hideDisclosure();
-        }
-      });
-      this.disclosure.addEventListener('keyup', (event) => {
-        if (event.code !== theme.keyboardKeys.ESCAPE) {
-          return;
-        }
-        this.hideDisclosure();
-      });
-    }
-
-    onBlockSelect(event) {
-      if (this.disclosure.contains(event.target)) {
-        this.showDisclosure(event);
-      }
-    }
-
-    onBlockDeselect(event) {
-      if (this.disclosure.contains(event.target)) {
-        this.hideDisclosure();
-      }
-    }
-  }
-
-  const hoverDisclosure = {
-    onLoad() {
-      sections$f[this.id] = [];
-      const disclosures = this.container.querySelectorAll(selectors$k.disclosureWrappper);
-
-      disclosures.forEach((el) => {
-        sections$f[this.id].push(new HoverDisclosure(el));
-      });
-    },
-    onBlockSelect(evt) {
-      sections$f[this.id].forEach((el) => {
-        if (typeof el.onBlockSelect === 'function') {
-          el.onBlockSelect(evt);
-        }
-      });
-    },
-    onBlockDeselect(evt) {
-      sections$f[this.id].forEach((el) => {
-        if (typeof el.onBlockDeselect === 'function') {
-          el.onBlockDeselect(evt);
-        }
-      });
-    },
-  };
-
-  const selectors$j = {
-    header: '[data-site-header]',
-    announcementBar: '[data-announcement-wrapper]',
-    collectionFilters: '[data-collection-filters]',
-    logo: '[data-logo]',
-    logoTextLink: '[data-logo-text-link]',
-    mobileNavDropdownTrigger: '[data-collapsible-trigger]',
-    navDrawer: '#nav-drawer',
-    drawer: '[data-drawer]',
-    drawerToggle: '[data-drawer-toggle]',
-    popdownToggle: '[data-popdown-toggle]',
-    mobileMenu: '[data-mobile-menu]',
-    nav: '[data-nav]',
-    navIcons: '[data-nav-icons]',
-    navItem: '[data-nav-item]',
-    navLinkMobile: '[data-nav-link-mobile]',
-    navSearchOpen: '[data-nav-search-open]',
-    wrapper: '[data-wrapper]',
-    headerBackground: '[data-header-background]',
-    cartPage: '[data-cart-page]',
-    widthContent: '[data-takes-space]',
-  };
-
-  const classes$d = {
-    jsDrawerOpenAll: ['js-drawer-open', 'js-drawer-open-cart', 'js-quick-view-visible', 'js-quick-view-from-cart'],
-    headerTransparent: 'site-header--transparent',
-    headerLoading: 'site-header--loading',
-    headerHovered: 'site-header--hovered',
-    headerMenuOpened: 'site-header--menu-opened',
-    hasScrolled: 'has-scrolled',
-    hideHeader: 'hide-header',
-    navCompress: 'nav--compress',
-    logoCompress: 'logo--compress',
-    isVisible: 'is-visible',
-    isOpen: 'is-open',
-    searchOpened: 'search-opened',
-    noOutline: 'no-outline',
-    cloneClass: 'js__header__clone',
-  };
-
-  const attributes$d = {
-    navAlignment: 'data-nav-alignment',
-  };
-
-  const sections$e = {};
-
-  class Header {
-    constructor(container) {
-      this.container = container;
-      this.background = document.querySelector(selectors$j.headerBackground);
-      this.header = container;
-      this.headerSection = container.parentNode;
-      this.headerWrapper = container.querySelector(selectors$j.wrapper);
-      this.logo = container.querySelector(selectors$j.logo);
-      this.logoTextLink = container.querySelector(selectors$j.logoTextLink);
-      this.nav = container.querySelector(selectors$j.nav);
-      this.navIcons = container.querySelector(selectors$j.navIcons);
-      this.headerStateEvent = (event) => this.headerState(event);
-      this.handleTouchstartEvent = (event) => this.handleTouchstart(event);
-      this.updateBackgroundHeightEvent = (event) => this.updateBackgroundHeight(event);
-
-      initTransparentHeader();
-
-      this.minWidth = this.getMinWidth();
-      this.checkWidthEvent = () => this.checkWidth();
-      this.listenWidth();
-      this.initMobileNav();
-      this.handleTextLinkLogos();
-      this.initStickyHeader();
-      this.handleBackgroundEvents();
-
-      if (!document.querySelector(selectors$j.cartPage)) {
-        window.cart = new CartDrawer();
-      }
-
-      document.body.addEventListener('touchstart', this.handleTouchstartEvent, {passive: true});
-      this.updateHeaderHover();
-    }
-
-    updateHeaderHover() {
-      requestAnimationFrame(() => {
-        const isHovered = this.header.matches(':hover');
-        const hasHoveredClass = this.header.classList.contains(classes$d.headerHovered);
-
-        if (isHovered && !hasHoveredClass) this.header.classList.add(classes$d.headerHovered);
-      });
-    }
-
-    handleTouchstart(event) {
-      const isInHeader = this.header.contains(event.target);
-      const activeNavItem = this.header.querySelector(`.${classes$d.isVisible}${selectors$j.navItem}`);
-
-      if (!isInHeader && activeNavItem) {
-        activeNavItem.dispatchEvent(new Event('mouseleave', {bubbles: true}));
-      }
-    }
-
-    handleTextLinkLogos() {
-      if (this.logoTextLink === null) return;
-
-      const headerHeight = this.header.offsetHeight;
-      document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
-      document.documentElement.style.setProperty('--header-sticky-height', `${headerHeight}px`);
-    }
-
-    initStickyHeader() {
-      this.hasScrolled = false;
-      this.hasCollectionFilters = document.querySelector(selectors$j.collectionFilters);
-      this.position = this.header.dataset.position;
-
-      const shouldShowCompactHeader = this.position === 'fixed' && !this.hasCollectionFilters;
-      if (shouldShowCompactHeader) {
-        this.header.classList.remove(classes$d.headerLoading);
-        this.headerState();
-        document.addEventListener('theme:scroll', this.headerStateEvent);
-        return;
-      }
-
-      document.body.classList.remove(classes$d.hasScrolled);
-      if (window.isHeaderTransparent) {
-        this.header.classList.add(classes$d.headerTransparent);
-      }
-      this.header.classList.remove(classes$d.headerLoading);
-    }
-
-    // Switch to "compact" header on scroll
-    headerState(event) {
-      const headerHeight = parseInt(this.header.dataset.height || this.header.offsetHeight);
-      const announcementBar = document.querySelector(selectors$j.announcementBar);
-      const announcementHeight = announcementBar ? announcementBar.offsetHeight : 0;
-      const pageOffset = headerHeight + announcementHeight;
-      const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const scrollUp = event && event.detail && event.detail.up;
-
-      // Show compact header when scroll down
-      this.hasScrolled = currentScrollTop > pageOffset;
-      document.body.classList.toggle(classes$d.hasScrolled, this.hasScrolled);
-
-      // Hide compact header when scroll back to top
-      const hideHeaderThreshold = pageOffset + window.stickyHeaderHeight;
-      const bellowThreshold = currentScrollTop < hideHeaderThreshold;
-      const shouldHideHeader = bellowThreshold && scrollUp;
-      document.body.classList.toggle(classes$d.hideHeader, shouldHideHeader);
-
-      if (window.isHeaderTransparent) {
-        const shouldShowTransparentHeader = !this.hasScrolled || shouldHideHeader;
-        this.header.classList.toggle(classes$d.headerTransparent, shouldShowTransparentHeader);
-      }
-
-      // Update header background height if users scroll the page with their mouse over the header or over an opened nav menu
-      if (this.header.classList.contains(classes$d.headerHovered)) {
-        const currentHeight = this.hasScrolled ? window.stickyHeaderHeight : headerHeight;
-        this.background.style.setProperty('--header-background-height', `${currentHeight}px`);
-
-        const activeNavItem = this.header.querySelector(`.${classes$d.isVisible}${selectors$j.navItem}`);
-        if (activeNavItem) {
-          activeNavItem.dispatchEvent(new Event('mouseenter', {bubbles: true}));
-        }
-      }
-    }
-
-    handleBackgroundEvents() {
-      this.headerWrapper.addEventListener('mouseenter', this.updateBackgroundHeightEvent);
-
-      this.headerWrapper.addEventListener('mouseleave', this.updateBackgroundHeightEvent);
-
-      this.header.addEventListener('focusout', this.updateBackgroundHeightEvent);
-
-      document.addEventListener('theme:cart:close', this.updateBackgroundHeightEvent);
-
-      // Helps fixing Safari issues with background not being updated on search close and mouse over the header
-      document.addEventListener('theme:search:close', this.updateBackgroundHeightEvent);
-    }
-
-    updateBackgroundHeight(event) {
-      const isDesktop = matchMedia('(pointer:fine)').matches;
-      const isFocusEnabled = !document.body.classList.contains(classes$d.noOutline);
-      const isNotTabbingOnDesktop = isDesktop && !isFocusEnabled;
-
-      if (!event) return;
-
-      let drawersVisible = classes$d.jsDrawerOpenAll.some((popupClass) => document.body.classList.contains(popupClass));
-
-      // Update header background height on:
-      // 'mouseenter' event
-      // opened Cart drawer/Quick View/Menu drawers
-      if (event.type === 'mouseenter' || drawersVisible) {
-        this.headerHeight = this.hasScrolled ? window.stickyHeaderHeight : this.header.offsetHeight;
-
-        this.header.classList.add(classes$d.headerHovered);
-
-        if (!this.header.classList.contains(classes$d.headerMenuOpened)) {
-          this.background.style.setProperty('--header-background-height', `${this.headerHeight}px`);
-        }
-      }
-
-      if (event.type === 'mouseenter') return;
-
-      requestAnimationFrame(() => {
-        drawersVisible = classes$d.jsDrawerOpenAll.some((popupClass) => document.body.classList.contains(popupClass));
-
-        if (drawersVisible) return;
-
-        // Remove header background and handle focus on:
-        // 'mouseleave' event
-        // 'theme:cart:close' event
-        // 'theme:search:close' event
-        // 'focusout' event
-        // closed Cart drawer/Quick View/Menu drawers
-
-        if (event.type === 'focusout' && !isDesktop) return;
-        if (event.type === 'theme:search:close' && !isNotTabbingOnDesktop) return;
-        if (this.hasScrolled) return;
-
-        const focusOutOfHeader = document.activeElement.closest(selectors$j.header) === null;
-        const isSearchOpened = document.body.classList.contains(classes$d.searchOpened);
-        const headerMenuOpened = this.header.classList.contains(classes$d.headerMenuOpened);
-
-        if (isSearchOpened || headerMenuOpened) return;
-
-        if (event.type === 'focusout') {
-          if (!focusOutOfHeader) return;
-        }
-
-        this.header.classList.remove(classes$d.headerHovered);
-        this.background.style.setProperty('--header-background-height', '0px');
-
-        if (!isFocusEnabled) {
-          document.activeElement.blur();
-        }
-      });
-    }
-
-    listenWidth() {
-      document.addEventListener('theme:resize', this.checkWidthEvent);
-      this.checkWidth();
-    }
-
-    checkWidth() {
-      if (window.innerWidth < this.minWidth) {
-        this.nav.classList.add(classes$d.navCompress);
-        this.logo.classList.add(classes$d.logoCompress);
-      } else {
-        this.nav.classList.remove(classes$d.navCompress);
-        this.logo.classList.remove(classes$d.logoCompress);
-      }
-    }
-
-    getMinWidth() {
-      const headerWrapperStyles = this.headerWrapper.currentStyle || window.getComputedStyle(this.headerWrapper);
-      const headerPaddings = parseInt(headerWrapperStyles.paddingLeft) * 2;
-      const comparitor = this.header.cloneNode(true);
-      comparitor.classList.add(classes$d.cloneClass);
-      document.body.appendChild(comparitor);
-      const wideElements = comparitor.querySelectorAll(selectors$j.widthContent);
-      const navAlignment = this.header.getAttribute(attributes$d.navAlignment);
-      const minWidth = _sumSplitWidths(wideElements, navAlignment);
-
-      document.body.removeChild(comparitor);
-
-      return minWidth + wideElements.length * 20 + headerPaddings;
-    }
-
-    initMobileNav() {
-      // Search popdown link
-      this.mobileMenu = this.headerSection.querySelector(selectors$j.mobileMenu);
-      this.navDrawer = this.headerSection.querySelector(selectors$j.navDrawer);
-      this.drawerToggle = this.navDrawer.querySelector(selectors$j.drawerToggle);
-      this.navSearchOpen = this.navDrawer.querySelectorAll(selectors$j.navSearchOpen);
-
-      this.navSearchOpen?.forEach((element) => {
-        element.addEventListener('click', (event) => {
-          event.preventDefault();
-
-          const drawer = this.drawerToggle.closest(`${selectors$j.drawer}.${classes$d.isOpen}`);
-          const isMobile = matchMedia('(pointer:coarse)').matches;
-          const popdownToggle = isMobile ? this.mobileMenu.querySelector(selectors$j.popdownToggle) : this.nav.querySelector(selectors$j.popdownToggle);
-
-          this.drawerToggle.dispatchEvent(new Event('click', {bubbles: true}));
-
-          const onDrawerTransitionEnd = (e) => {
-            if (e.target !== drawer) return;
-            requestAnimationFrame(() => popdownToggle.dispatchEvent(new Event('click', {bubbles: true})));
-            drawer.removeEventListener('transitionend', onDrawerTransitionEnd);
-          };
-
-          drawer.addEventListener('transitionend', onDrawerTransitionEnd);
-        });
-      });
-
-      // First item in dropdown menu
-      if (theme.settings.mobileMenuBehaviour === 'link') {
-        return;
-      }
-
-      const navMobileLinks = this.headerSection.querySelectorAll(selectors$j.navLinkMobile);
-      if (navMobileLinks.length) {
-        navMobileLinks.forEach((link) => {
-          link.addEventListener('click', (e) => {
-            const hasDropdown = link.parentNode.querySelectorAll(selectors$j.mobileNavDropdownTrigger).length;
-            const dropdownTrigger = link.nextElementSibling;
-
-            if (hasDropdown) {
-              e.preventDefault();
-              dropdownTrigger.dispatchEvent(new Event('click'), {bubbles: true});
-            }
-          });
-        });
-      }
-    }
-
-    onUnload() {
-      // Reset variables so that the proper ones are applied before saving in the Theme editor
-      // Necessary only when they were previously updated in `handleTextLinkLogos()` function
-      document.documentElement.style.removeProperty('--header-height');
-      document.documentElement.style.removeProperty('--header-sticky-height');
-
-      this.initStickyHeader();
-      document.body.classList.remove(...classes$d.jsDrawerOpenAll);
-      document.removeEventListener('theme:scroll', this.headerStateEvent);
-      document.removeEventListener('theme:resize', this.checkWidthEvent);
-      document.removeEventListener('theme:cart:close', this.updateBackgroundHeightEvent);
-      document.removeEventListener('theme:search:close', this.updateBackgroundHeightEvent);
-      document.body.removeEventListener('touchstart', this.handleTouchstartEvent);
-      document.dispatchEvent(new CustomEvent('theme:scroll:unlock', {bubbles: true}));
-
-      if (typeof window.cart.unload === 'function') {
-        window.cart.unload();
-      }
-    }
-  }
-
-  function _sumSplitWidths(nodes, alignment) {
-    let arr = [];
-    nodes.forEach((el) => {
-      arr.push(el.clientWidth);
-    });
-    let [logoWidth, navWidth, iconsWidth] = arr;
-
-    // Check if nav is left and set correct width
-    if (alignment === 'left') {
-      const tempWidth = logoWidth;
-      logoWidth = navWidth;
-      navWidth = tempWidth;
-    }
-
-    if (alignment !== 'right') {
-      if (logoWidth > iconsWidth) {
-        iconsWidth = logoWidth;
-      } else {
-        logoWidth = iconsWidth;
-      }
-    }
-
-    return logoWidth + navWidth + iconsWidth;
-  }
-
-  const headerSection = {
-    onLoad() {
-      sections$e[this.id] = new Header(this.container);
-    },
-    onUnload() {
-      sections$e[this.id].onUnload();
-    },
-  };
-
-  register('header', [headerSection, hoverDisclosure, drawer]);
 
   const selectors$i = {
     slider: '[data-slider]',
@@ -13202,7 +13446,6 @@
         fade: true,
         wrapAround: true,
         imagesLoaded: true,
-        lazyLoad: true,
         asNavFor: this.slider,
         prevNextButtons: true,
         pageDots: false,
@@ -14444,7 +14687,6 @@
         wrapAround: false,
         contain: true,
         imagesLoaded: true,
-        lazyLoad: true,
         asNavFor: this.slider,
         prevNextButtons: false,
         adaptiveHeight: false,
@@ -16678,16 +16920,6 @@
     // Load all registered sections on the page.
     load('*');
 
-    const showAnimations = document.body.dataset.animations === 'true';
-    if (showAnimations) {
-      AOS.init({
-        once: true,
-        offset: 50,
-        duration: 600,
-        startEvent: 'load',
-      });
-    }
-
     new Accessibility();
 
     if (!customElements.get('product-grid-item-swatch') && window.theme.settings.enableColorSwatchesCollection) {
@@ -16702,4 +16934,4 @@
     }
   });
 
-})(themeVendor.ScrollLock, themeVendor.Flickity, themeVendor.themeCurrency, themeVendor.ajaxinate, themeVendor.AOS);
+})(themeVendor.ScrollLock, themeVendor.AOS, themeVendor.Flickity, themeVendor.themeCurrency, themeVendor.ajaxinate);

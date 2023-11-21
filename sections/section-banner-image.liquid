@@ -91,25 +91,21 @@
 
     {%- if image_mobile != blank -%}
       <div class="banner-image__image-container banner-image__image-container--mobile">
-        <div class="banner-image__image-inner">
-          {%- render 'image-fill', is_background: true, img_object: image_mobile, classes: 'banner-image__image' -%}
-        </div>
+        {%- render 'image-fill', is_background: true, img_object: image_mobile, sizes: '100vw', classes: 'banner-image__image' -%}
       </div>
     {%- endif -%}
 
     <div class="banner-image__image-container banner-image__image-container--desktop{% unless image %} banner-image__image-container--placeholder{% endunless %}">
-      <div class="banner-image__image-inner">
-        {%- if image != blank -%}
-          {%- render 'image-fill', is_background: true, img_object: image, classes: 'banner-image__image' -%}
-        {%- else -%}
-          <div class="banner-image__image banner-image__image--desktop banner-image__image--placeholder background-size-cover">
-            <div class="banner-image__image-svg">
-              {%- capture index -%}{% cycle 1, 2 %}{%- endcapture -%}
-              {{- 'lifestyle-' | append: index | placeholder_svg_tag: 'placeholder-svg-filled' -}}
-            </div>
+      {%- if image != blank -%}
+        {%- render 'image-fill', is_background: true, img_object: image, sizes: '100vw', classes: 'banner-image__image' -%}
+      {%- else -%}
+        <div class="banner-image__image banner-image__image--desktop banner-image__image--placeholder background-size-cover">
+          <div class="banner-image__image-svg">
+            {%- capture index -%}{% cycle 1, 2 %}{%- endcapture -%}
+            {{- 'lifestyle-' | append: index | placeholder_svg_tag: 'placeholder-svg-filled' -}}
           </div>
-        {%- endif -%}
-      </div>
+        </div>
+      {%- endif -%}
     </div>
 
     <div class="banner-image__text-container">

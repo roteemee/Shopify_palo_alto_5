@@ -1,5 +1,6 @@
 {%- liquid
   assign section_width = section.settings.width
+  assign mobile_slider = section.settings.enable_slider_mobile
   assign bg_color_secondary = section.settings.bg_color_secondary
   assign heading_size = section.settings.heading_size | times: 0.01
   assign button_1_style = section.settings.button_1_style
@@ -25,7 +26,7 @@
     assign section_class = section_class | append: ' mosaic--no-spacing'
   endif
 
-  if section.settings.enable_slider_mobile
+  if mobile_slider
     assign section_class = section_class | append: ' mosaic--mobile-slider'
   else
     assign section_class = section_class | append: ' mosaic--mobile-grid'
@@ -54,6 +55,38 @@
       assign section_height_class = 'two-fifty-height'
     when 'auto'
       assign section_height_class = 'original-height'
+  endcase
+
+  assign wrapper_width = '100vw'
+  assign desktop_space = 120
+  assign gutter_space = 0
+  assign tablet_space = 40
+  assign mobile_space = 40
+  if mobile_slider
+    assign mobile_space = 60
+  endif
+
+  if add_gutter
+    assign gutter_space = 20
+  endif
+
+  case section_width
+    when 'wrapper--full'
+      assign desktop_space = 0
+      assign tablet_space = 0
+
+      if add_gutter
+        assign desktop_space = 40
+        assign tablet_space = 40
+      endif
+
+      unless mobile_slider
+        assign mobile_space = 0
+      endunless
+    when 'wrapper'
+      assign wrapper_width = '1440px'
+    when 'wrapper--narrow'
+      assign wrapper_width = '840px'
   endcase
 -%}
 
@@ -209,22 +242,37 @@
 
           {%- capture item_image -%}
             <div class="mosaic__item__image">
-              {%- if image != blank -%}
-                {%- render 'image-fill', is_background: true, img_object: image -%}
-              {%- else -%}
-                <div class="svg-placeholder{% if block.type == 'image' %} svg-placeholder--image{% endif %}">
-                  {%- case block.type -%}
-                    {%- when 'product' -%}
-                      {%- capture index -%}{% cycle 1, 2, 3, 4, 5, 6 %}{%- endcapture -%}
-                      {{ 'product-' | append: index | placeholder_svg_tag: 'placeholder-svg-filled' }}
-                    {%- when 'collection' -%}
-                      {%- capture index -%}{% cycle 1, 2 %}{%- endcapture -%}
-                      {{ 'collection-' | append: index | placeholder_svg_tag: 'placeholder-svg-filled' }}
-                    {%- when 'image' -%}
-                      {{ 'image' | placeholder_svg_tag: 'placeholder-svg-filled' }}
-                  {%- endcase -%}
-                </div>
-              {%- endif -%}
+              {%- liquid
+                capture placeholder_svg
+                  case block.type
+                    when 'product'
+                      capture index
+                        cycle 1, 2, 3, 4, 5, 6
+                      endcapture
+                      echo 'product-' | append: index
+                    when 'collection'
+                      capture index
+                        cycle 1, 2, 3, 5, 6
+                      endcapture
+                      echo 'collection-' | append: index
+                    when 'image'
+                      capture index
+                        cycle 1, 2
+                      endcapture
+                      echo 'lifestyle-' | append: index
+                  endcase
+                endcapture
+
+                assign block_width_percent = block.settings.width | divided_by: 100.0
+
+                assign img_width_lg = 'calc(((' | append: wrapper_width | append: ' - ' | append: desktop_space | append: 'px) * ' | append: block_width_percent | append: ') - ' | append: gutter_space | append: 'px)'
+                assign img_width_md = 'calc(((100vw - ' | append: tablet_space | append: 'px) * ' | append: block_width_percent | append: ') - ' | append: gutter_space | append: 'px)'
+                assign img_width_sm = 'calc(100vw - ' | append: mobile_space | append: 'px)'
+
+                assign sizes = '(min-width: 1024px) ' | append: img_width_lg | append: ', (min-width: 768px) ' | append: img_width_md | append: ', ' | append: img_width_sm
+
+                render 'image-fill', is_background: true, img_object: image, sizes: sizes, placeholder_svg: placeholder_svg, cover: true
+              -%}
             </div>
           {%- endcapture -%}
 

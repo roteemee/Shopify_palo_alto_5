@@ -4,6 +4,7 @@
   assign section_width = section.settings.width
   assign section_height = section.settings.height
   assign bg_color = section.settings.bg_color
+  assign enable_slider_mobile = section.settings.enable_slider_mobile
   assign block_count = section.blocks.size
   assign animations_enabled = settings.animations_enabled
   assign animation_anchor = '#SectionPromotionRow--' | append: section.id
@@ -12,9 +13,43 @@
 
   assign mobile_class = ' grid--mobile'
   assign mobile_item_class = ' grid__item'
-  if section.settings.enable_slider_mobile
+  if enable_slider_mobile
     assign mobile_class = ' carousel--mobile'
     assign mobile_item_class = ' carousel__item'
+  endif
+
+  comment
+    Images sizes
+  endcomment
+  assign blocks_count = section.blocks.size
+  assign blocks_gaps = blocks_count | minus: 1
+  assign gaps_calc = 20 | times: blocks_gaps | append: 'px'
+
+  # Desktop widths
+  if section_width == 'wrapper--full-padded'
+    assign wrapper_width_lg = '(100vw - 120px)'
+  endif
+  if section_width == 'wrapper'
+    assign wrapper_width_lg = '(1440px - 120px)'
+  endif
+  assign img_width_lg = 'calc((' | append: wrapper_width_lg | append: ' - ' | append: gaps_calc | append: ') / ' | append: blocks_count | append: ')'
+
+  # Tablet widths
+  assign wrapper_width_md = '(100vw - 2 * 20px)'
+  unless blocks_count == 4
+    assign img_width_md = 'calc((' | append: wrapper_width_md | append: ' - ' | append: gaps_calc | append: ') / ' | append: blocks_count | append: ')'
+  else
+    if enable_slider_mobile
+      assign img_width_md = 'calc((' | append: wrapper_width_md | append: ') / 2.2' | append: ')'
+    else
+      assign img_width_md = 'calc((' | append: wrapper_width_md | append: ' - 20px) / 2' | append: ')'
+    endif
+  endunless
+
+  # Mobile widths
+  assign img_width_sm = 'calc(' | append: wrapper_width_md | append: ')'
+  if enable_slider_mobile
+    assign img_width_sm = 'calc(' | append: wrapper_width_md | append: ' - 20px)'
   endif
 -%}
 
@@ -73,6 +108,39 @@
               if bg_color != 'rgba(0,0,0,0)' and bg_color != ''
                 assign empty_bg_color = false
               endif
+
+              assign enlarge_block = layout | times: 1
+              case blocks_count
+                when 1
+                  # 100%
+                when 2
+                  # 66.66% / 33.33%
+                  assign img_width_lg = 'calc((' | append: wrapper_width_lg | append: ' - ' | append: gaps_calc | append: ') / 1.5)'
+                  unless forloop.index == enlarge_block
+                    assign img_width_lg = 'calc((' | append: wrapper_width_lg | append: ' - ' | append: gaps_calc | append: ') / 3)'
+                  endunless
+                when 3
+                  # 50% / 25% / 25%
+                  assign img_width_lg = 'calc((' | append: wrapper_width_lg | append: ' - ' | append: gaps_calc | append: ') / 2)'
+                  unless forloop.index == enlarge_block
+                    assign img_width_lg = 'calc((' | append: wrapper_width_lg | append: ' - ' | append: gaps_calc | append: ') / 4)'
+                  endunless
+                when 4
+                  # 100% / 33.33% / 33.33% / 33.33%
+                  assign img_width_lg = 'calc(' | append: wrapper_width_lg | append: ')'
+                  unless forloop.index == enlarge_block
+                    assign img_width_lg = 'calc((' | append: wrapper_width_lg | append: ' - ' | append: gaps_calc | append: ') / 3)'
+                  endunless
+
+                  if enable_slider_mobile == false
+                    assign img_width_md = 'calc(' | append: wrapper_width_md | append: ')'
+                    unless forloop.index == enlarge_block
+                      assign img_width_md = 'calc((' | append: wrapper_width_md | append: ' - ' | append: gaps_calc | append: ') / 3)'
+                    endunless
+                  endif
+              endcase
+
+              assign sizes = '(min-width: 1024px) ' | append: img_width_lg | append: ', (min-width: 768px) ' | append: img_width_md | append: ', ' | append: img_width_sm
             -%}
 
             {%- style -%}
@@ -254,11 +322,7 @@
 
                 <div class="overlay"></div>
 
-                {%- if image != blank -%}
-                  {%- render 'image-fill', is_background: true, img_object: image, classes: 'promotion-row__item__image-bg' -%}
-                {%- else -%}
-                  {%- render 'image-fill', is_background: true, img_object: '', classes: 'promotion-row__item__image-bg' -%}
-                {%- endif -%}
+                {%- render 'image-fill', is_background: true, img_object: image, sizes: sizes, classes: 'promotion-row__item__image-bg' -%}
 
                 <div class="promotion-row__item__content">
                   {%- if subheading != blank -%}
@@ -510,7 +574,7 @@
             "type": "color",
             "id": "highlight_text_color",
             "label": "Text color",
-            "default": "#000"
+            "default": "#FFFFFF"
           },
           {
             "type": "range",

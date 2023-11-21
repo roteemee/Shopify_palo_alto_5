@@ -46,6 +46,36 @@
     when 'default'
       assign default_color = 'blog__post-image--default'
   endcase
+
+  comment
+    Images sizes
+  endcomment
+  assign blocks_gaps = columns | minus: 1
+  assign gaps_calc = 20 | times: blocks_gaps | append: 'px'
+
+  # Desktop widths
+  if section_width == 'wrapper--full-padded'
+    assign wrapper_width_lg = '(100vw - 120px)'
+  endif
+  if section_width == 'wrapper'
+    assign wrapper_width_lg = '(1440px - 120px)'
+  endif
+  assign img_width_lg = 'calc((' | append: wrapper_width_lg | append: ' - ' | append: gaps_calc | append: ') / ' | append: columns | append: ')'
+
+  # Tablet widths
+  assign wrapper_width_md = '(100vw - 2 * 20px)'
+  assign img_width_md = 'calc((' | append: wrapper_width_md | append: ' - 2 * 20px) / 3)'
+  if columns == 2
+    assign img_width_md = 'calc((' | append: wrapper_width_md | append: ' - 20px) / 2)'
+  endif
+
+  # Mobile widths
+  assign img_width_sm = 'calc(' | append: wrapper_width_md | append: ')'
+  if section.blocks.size > 1
+    assign img_width_sm = 'calc(' | append: wrapper_width_md | append: ' - 20px)'
+  endif
+
+  assign sizes = '(min-width: 1024px) ' | append: img_width_lg | append: ', (min-width: 768px) ' | append: img_width_md | append: ', ' | append: img_width_sm
 -%}
 
 {%- style -%}
@@ -58,6 +88,10 @@
       --grid: repeat({{ columns }}, minmax(0, 1fr));
     {%- else -%}
       --grid: repeat({{ articles_count }}, calc(100% / {{ columns }}));
+    {%- endif -%}
+
+    {%- if columns == 2 -%}
+      --grid-tablet: repeat({{ columns }}, minmax(0, 1fr));
     {%- endif -%}
   }
 
@@ -102,6 +136,7 @@
             {%- assign animation_delay = 150 | times: forloop.index -%}
             {%- render 'blog-post-grid-item',
               article: article,
+              img_sizes: sizes,
               animation_anchor: animation_anchor,
               animation_delay: animation_delay,
               default_color: default_color,
@@ -117,6 +152,7 @@
             {%- assign animation_delay = 150 | times: forloop.index -%}
             {%- render 'blog-post-grid-item',
               article: article,
+              img_sizes: sizes,
               animation_anchor: animation_anchor,
               animation_delay: animation_delay,
               default_color: default_color,

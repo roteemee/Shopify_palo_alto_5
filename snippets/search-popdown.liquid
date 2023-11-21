@@ -134,7 +134,11 @@
   {%- if has_details -%}
     <details>
       <summary class="search-popdown__toggle{{ summary_classes }}" aria-haspopup="dialog" data-popdown-toggle title="{{ 'general.accessibility.open_search_bar' | t }}">
-        {%- render 'icon-search' -%}
+        {%- if header_icons_as_text -%}
+          <span class="icon-search{% if settings.nav_caps_toplevel %} caps{% endif %}">{{ 'layout.navigation.search' | t }}</span>
+        {%- else -%}
+          {%- render 'icon-search' -%}
+        {%- endif -%}
         {%- render 'icon-close' -%}
         <span class="visually-hidden">{{ 'general.accessibility.open_search_bar' | t }}</span>
       </summary>

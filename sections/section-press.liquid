@@ -137,25 +137,21 @@
 
             unless image == blank
               assign image_height = image_width | divided_by: image.aspect_ratio
-              assign widths = image_width | append: ', ' | append: retina_size
+              assign image_widths = image_width | append: ', ' | append: retina_size
               assign sizes = image_width | append: 'px'
             endunless
           -%}
 
           <div class="press__logos-slide{% if text != blank %} has-text{% endif %}" data-logo-slide data-logo-index="{{ forloop.index0 }}">
             <div class="press__logo" style="--image-width: {{ image_width }}px; --image-height: {{ image_height }}px;">
-              {%- unless image == blank -%}
-                {%- render 'image',
-                  image: image,
-                  width: retina_size,
-                  widths: widths,
-                  sizes: sizes,
-                  classes: 'press__logo-image' -%}
-              {%- else -%}
-                <div class="press__logo-image press__logo-image--placeholder" style="width: {{ image_width | append: 'px' }}" data-thumbnail-id="{{ section.id }}-{{ media.id }}">
-                  {{- 'logo' | placeholder_svg_tag: 'placeholder-svg' -}}
-                </div>
-              {%- endunless -%}
+              {%- liquid
+                assign image_class = 'press__logo-image'
+                unless image != blank
+                  assign image_class = image_class | append: ' press__logo-image--placeholder'
+                endunless
+
+                render 'image', image: image, width: retina_size, widths: image_widths, sizes: sizes, classes: image_class, placeholder_svg: 'logo', placeholder_svg_tag: 'placeholder-svg', cover: false
+              -%}
             </div>
           </div>
         {%- endfor -%}
@@ -329,7 +325,7 @@
           "label": "Custom logo width (in pixels)",
           "min": 40,
           "max": 180,
-          "default": 100,
+          "default": 70,
           "step": 10,
           "unit":"px"
         }

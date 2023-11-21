@@ -167,10 +167,13 @@
       when 1
         echo 'one-whole'
       when 2
+        assign columns_tablet = 2
         echo 'one-half'
       when 3
+        assign columns_tablet = 3
         echo 'one-third'
       when 4
+        assign columns_tablet = 3
         echo 'one-quarter'
     endcase
   endcapture
@@ -217,6 +220,55 @@
     when 'default'
       assign articles_default_color = 'blog__post-image--default'
   endcase
+
+  comment
+    Blog posts images sizes
+  endcomment
+
+  # Grid
+  assign gutter_space_grid = products_per_row_on_desktop | minus: 1 | times: 20 | append: 'px'
+  assign gutter_space_tablet_grid = columns_tablet | minus: 1 | times: 20 | append: 'px'
+  assign gutter_space_mobile_grid = 20 | append: 'px'
+  if products_per_row_on_mobile == 1
+    assign gutter_space_mobile_grid = 0 | append: 'px'
+  endif
+
+  assign wrapper_width_xlg_grid = '100vw - 120px'
+  assign wrapper_width_lg_grid = '100vw - 120px'
+  assign wrapper_width_md_grid = '100vw - 40px'
+  assign wrapper_width_sm_grid = '100vw - 40px'
+  if enable_filters
+    assign wrapper_width_xlg_grid = wrapper_width_xlg_grid | append: ' - 330px'
+    assign wrapper_width_lg_grid = wrapper_width_lg_grid | append: ' - 270px'
+    assign wrapper_width_md_grid = wrapper_width_md_grid | append: ' - 240px'
+  endif
+
+  assign img_width_xlg_grid = 'calc((' | append: wrapper_width_xlg_grid | append: ' - ' | append: gutter_space_grid | append: ') / ' | append: products_per_row_on_desktop | append: ')'
+  assign img_width_lg_grid = 'calc((' | append: wrapper_width_lg_grid | append: ' - ' | append: gutter_space_grid | append: ') / ' | append: products_per_row_on_desktop | append: ')'
+  assign img_width_md_grid = 'calc((' | append: wrapper_width_md_grid | append: ' - ' | append: gutter_space_tablet_grid | append: ') / ' | append: columns_tablet | append: ')'
+  assign img_width_sm_grid = 'calc((' | append: wrapper_width_sm_grid | append: ' - ' | append: gutter_space_mobile_grid | append: ') / ' | append: products_per_row_on_mobile | append: ')'
+
+  assign articles_sizes_grid = '(min-width: 1440px) ' | append: img_width_xlg_grid | append: ', (min-width: 1024px) ' | append: img_width_lg_grid | append: ', (min-width: 768px) ' | append: img_width_md_grid | append: ', ' | append: img_width_sm_grid
+
+  # Blogs tab
+  assign blocks_gaps_blog = articles_columns | minus: 1
+  assign gaps_calc_blog = 20 | times: blocks_gaps_blog | append: 'px'
+  if articles_columns > 1
+    assign wrapper_width_lg_blog = '(1440px - 120px)'
+  else
+    assign wrapper_width_lg_blog = '(840px - 120px)'
+  endif
+  assign img_width_lg_blog = 'calc((' | append: wrapper_width_lg_blog | append: ' - ' | append: gaps_calc_blog | append: ') / ' | append: articles_columns | append: ')'
+  assign wrapper_width_md_blog = '(100vw - 2 * 20px)'
+  assign img_width_md_blog = 'calc((' | append: wrapper_width_md_blog | append: ' - 2 * 20px) / 3)'
+  if articles_columns == 1
+    assign img_width_md_blog = 'min(800px, (' | append: wrapper_width_md_blog | append: ' - 20px)'
+  elsif articles_columns == 2
+    assign img_width_md_blog = 'calc((' | append: wrapper_width_md_blog | append: ' - 20px) / 2)'
+  endif
+  assign img_width_sm_blog = 'calc(' | append: wrapper_width_md_blog | append: ')'
+
+  assign articles_sizes_blog = '(min-width: 1024px) ' | append: img_width_lg_blog | append: ', (min-width: 768px) ' | append: img_width_md_blog | append: ', ' | append: img_width_sm_blog
 -%}
 
 {%- style -%}
@@ -620,7 +672,7 @@
                                   echo animation_anchor | append: '--searchResultArticle' | append: '-' | append: forloop.index0
                                 endcapture
                                 assign id = anchor | replace: '#', ''
-                                render 'blog-post-grid-item', article: item, id: id, classes: grid_item_classes, animation_anchor: anchor, animation_delay: item_delay, type: 'all-types', article_style: articles_style, default_color: articles_default_color, default_image: articles_default_image, show_author: articles_show_author, show_date: articles_show_date, show_tags: articles_show_tags, show_comments_count: articles_show_comments_count
+                                render 'blog-post-grid-item', article: item, id: id, classes: grid_item_classes, animation_anchor: anchor, animation_delay: item_delay, type: 'all-types', article_style: articles_style, default_color: articles_default_color, default_image: articles_default_image, show_author: articles_show_author, show_date: articles_show_date, show_tags: articles_show_tags, show_comments_count: articles_show_comments_count, img_sizes: articles_sizes_grid
                               endif
 
                               if item.object_type == 'page'
@@ -979,7 +1031,7 @@
                               echo animation_anchor | append: '--searchResultArticle' | append: '-' | append: forloop.index0
                             endcapture
                             assign id = anchor | replace: '#', ''
-                            render 'blog-post-grid-item', article: item, id: id, classes: grid_item_classes, animation_anchor: anchor, animation_delay: item_delay, article_style: articles_style, default_color: articles_default_color, default_image: articles_default_image, show_author: articles_show_author, show_date: articles_show_date, show_tags: articles_show_tags, show_comments_count: articles_show_comments_count
+                            render 'blog-post-grid-item', article: item, id: id, classes: grid_item_classes, animation_anchor: anchor, animation_delay: item_delay, article_style: articles_style, default_color: articles_default_color, default_image: articles_default_image, show_author: articles_show_author, show_date: articles_show_date, show_tags: articles_show_tags, show_comments_count: articles_show_comments_count, img_sizes: articles_sizes_blog
                           endif
                         endfor
                       -%}

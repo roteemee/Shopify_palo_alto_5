@@ -82,6 +82,34 @@
     endcase
   endcapture
 
+  comment
+    Upsells and Complementary products image sizes
+  endcomment
+  assign upsells_image_width = settings.upsells_image_width | divided_by: 100.0
+  assign full_width = '100vw'
+  assign wrapper_width = '1440px'
+  if section_width == 'wrapper--full-padded'
+    assign wrapper_width = full_width
+  endif
+  assign wrapper_width_lg = '(' | append: wrapper_width | append: ' - 120px)'
+  assign wrapper_width_md = '(' | append: full_width | append: ' - 40px)'
+
+  assign content_basis = 0.5
+  if image_width == 'large'
+    assign content_basis = 0.4
+  endif
+
+  assign content_width_lg = wrapper_width_lg | append: ' * ' | append: content_basis | append: ' - 30px'
+  assign content_width_md = wrapper_width_md | append: ' * ' | append: content_basis | append: ' - 30px'
+  assign content_width_sm = wrapper_width_md
+  assign upsells_inner_padding = '2 * 12px'
+
+  assign img_width_lg = 'calc((' | append: content_width_lg | append: ' - ' | append: upsells_inner_padding | append: ') * ' | append: upsells_image_width | append: ')'
+  assign img_width_md = 'calc((' | append: content_width_md | append: ' - ' | append: upsells_inner_padding | append: ') * ' | append: upsells_image_width | append: ')'
+  assign img_width_sm = 'calc((' | append: content_width_sm | append: ' - ' | append: upsells_inner_padding | append: ') * ' | append: upsells_image_width | append: ')'
+
+  assign upsells_sizes = '(min-width: 1024px) ' | append: img_width_lg | append: ', (min-width: 768px) ' | append: img_width_md | append: ', ' | append: img_width_sm
+
   assign product_gallery_class = 'product-single__gallery'
   assign product_gallery_modifiers = ''
   if image_layout == 'grid' and product_image_aspect_ratio
@@ -107,7 +135,7 @@
 
   assign animations_enabled = settings.animations_enabled
   assign animation_anchor = '#FeaturedProduct--' | append: unique
-  assign animation_delay = 150
+  assign animation_order = 0
 
   comment
     Quick View related settings
@@ -158,8 +186,6 @@
         {%- else -%}
           {%- assign media_aspect_ratio = 1 -%}
           {%- assign media_padding_top = 1 | divided_by: media_aspect_ratio | times: 100 | round: 1 -%}
-          {%- assign image_url_pattern = product.featured_image | img_url: '1000x' | replace: '_1000x.', '_{width}x.' -%}
-          {%- assign image_widths = "[180, 360, 540, 720, 900, 1080, 1296, 1512, 1728, 2048, 2450, 2700, 3000, 3350, 3750, 4100]" -%}
 
           <div
             id="FeaturedMedia-{{ unique }}"
@@ -170,17 +196,7 @@
             data-product-single-media-wrapper>
             <div class="product-single__media product-single__media--image">
               <div class="product-single__media--image-height" style="padding-top: {{ media_padding_top }}%;"></div>
-              <img class="lazyload"
-                src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
-                data-src="{{ image_url_pattern }}"
-                data-widths= "{{ image_widths }}"
-                data-aspectratio="{{ media_aspect_ratio }}"
-                data-sizes="auto"
-                data-object-fit="contain"
-                alt="{{ product.title | strip_html | escape }}">
-              <noscript>
-                <img src="{{ product.featured_image | img_url: '1024x' }}" alt="{{ product.title | strip_html | escape }}">
-              </noscript>
+              {%- render 'image-fill', aspect_ratio: 1, is_background: true, img_object: '', alt: product_title, placeholder_svg: 'image' -%}
             </div>
           </div>
         {%- endif -%}
@@ -222,8 +238,8 @@
       {% if animations_enabled %}
         data-aos="fade"
         data-aos-anchor="{{ animation_anchor }}"
-        data-aos-delay="{{ animation_delay }}"
-        {%- assign animation_delay = animation_delay | plus: 150 -%}
+        data-aos-order="{{ animation_order }}"
+        {%- assign animation_order = animation_order | plus: 1 -%}
       {% endif %}>
       <div class="featured-product__gallery__slider product-single__media-slider" data-product-single-media-slider>
         <div class="product-single__media-slide">
@@ -263,10 +279,10 @@
 
               {% capture animations_attributes %}
                 {% if animations_enabled %}
-                  data-aos="fade-up"
+                  data-aos="hero"
                   data-aos-anchor="{{ animation_anchor }}"
-                  data-aos-delay="{{ animation_delay }}"
-                  {%- assign animation_delay = animation_delay | plus: 150 -%}
+                  data-aos-order="{{ animation_order }}"
+                  {%- assign animation_order = animation_order | plus: 1 -%}
                 {% endif %}
               {% endcapture %}
 
@@ -283,6 +299,8 @@
                     assign next_block = section.blocks[next_block_index]
                   endunless
 
+                  assign heading_style = prev_block.settings.heading_style | default: next_block.settings.heading_style | default: 'font-body'
+
                   if prev_block.type == 'product_accordion'
                     assign block_style = 'style="--PBB:' | append: prev_block.settings.padding_bottom | append: 'px;"'
                   elsif next_block.type == 'product_accordion'
@@ -293,8 +311,8 @@
                 -%}
 
                 <div class="product__block product__accordions" {{ block_style }} {{ animations_attributes }} {{ block.shopify_attributes }}>
-                  <div class="product__accordion" id="ProductAccordion--reviews-container">
-                    <button class="product__accordion__title" aria-controls="ProductAccordion--{{ section.id }}-{{ block.id }}" data-collapsible-trigger>
+                  <div class="product__accordion" id="ProductAccordion--reviews-container--{{ block.id }}">
+                    <button class="product__accordion__title {{ heading_style }}" aria-controls="ProductAccordion--{{ section.id }}-{{ block.id }}" data-collapsible-trigger>
                       {{- 'products.general.reviews' | t -}}
                       {%- render 'icon-toggle-plus' -%}
                       {%- render 'icon-toggle-minus' -%}
@@ -317,10 +335,10 @@
             {%- when 'title' -%}
               <div class="product__block product__title-and-price"
                 {% if animations_enabled %}
-                  data-aos="fade-up"
+                  data-aos="hero"
                   data-aos-anchor="{{ animation_anchor }}"
-                  data-aos-delay="{{ animation_delay }}"
-                  {%- assign animation_delay = animation_delay | plus: 150 -%}
+                  data-aos-order="{{ animation_order }}"
+                  {%- assign animation_order = animation_order | plus: 1 -%}
                 {% endif %}
                 {{ block.shopify_attributes }}>
                 {%- case block.settings.subheading -%}
@@ -357,10 +375,10 @@
 
 <div class="product__block product__price-and-badge"
   {% if animations_enabled %}
-    data-aos="fade-up"
+    data-aos="hero"
     data-aos-anchor="{{ animation_anchor }}"
-    data-aos-delay="{{ animation_delay }}"
-    {%- assign animation_delay = animation_delay | plus: 150 -%}
+    data-aos-order="{{ animation_order }}"
+    {%- assign animation_order = animation_order | plus: 1 -%}
   {% endif %}
   {{ block_style }}>
   <div class="product__price-and-rating">
@@ -734,10 +752,10 @@
   {%- unless size_chart_button_as_label or size_chart_button == blank -%}
     <div class="product__form__size-chart"
       {% if animations_enabled %}
-        data-aos="fade-up"
+        data-aos="hero"
         data-aos-anchor="{{ animation_anchor }}"
-        data-aos-delay="{{ animation_delay }}"
-        {%- assign animation_delay = animation_delay | plus: 100 -%}
+        data-aos-order="{{ animation_order }}"
+        {%- assign animation_order = animation_order | plus: 1 -%}
       {% endif %}>
       {{- size_chart_button -}}
     </div>
@@ -746,10 +764,10 @@
   {% comment %} Shop pay split payment terms {% endcomment %}
   <div class="shop-pay-terms"
     {% if animations_enabled %}
-      data-aos="fade-up"
+      data-aos="hero"
       data-aos-anchor="{{ animation_anchor }}"
-      data-aos-delay="{{ animation_delay }}"
-      {%- assign animation_delay = animation_delay | plus: 100 -%}
+      data-aos-order="{{ animation_order }}"
+      {%- assign animation_order = animation_order | plus: 1 -%}
     {% endif %}>{{ form | payment_terms }}</div>
 
   {%- assign quantity_position_bottom = true -%}
@@ -922,10 +940,10 @@
           <div class="{{ selector_wrapper_class }}"
             data-option-position="{{ option.position }}"
             {% if animations_enabled %}
-              data-aos="fade-up"
+              data-aos="hero"
               data-aos-anchor="{{ animation_anchor }}"
-              data-aos-delay="{{ animation_delay }}"
-              {%- assign animation_delay = animation_delay | plus: 100 -%}
+              data-aos-order="{{ animation_order }}"
+              {%- assign animation_order = animation_order | plus: 1 -%}
             {% endif %}>
             {%- if enable_variant_boxes or is_swatch_option -%}
               {%- assign current_value = current_variant.options[forloop.index0] -%}
@@ -1044,7 +1062,7 @@
       product: product,
       form: form,
       section: section,
-      animation_delay: animation_delay,
+      animation_order: animation_order,
       animation_anchor: animation_anchor -%}
   {%- endif -%}
 
@@ -1054,10 +1072,10 @@
         product: product,
         animations_enabled: animations_enabled,
         animation_anchor: animation_anchor,
-        animation_delay: animation_delay
+        animation_order: animation_order
       -%}
     {%- endif -%}
-    {%- assign animation_delay = animation_delay | plus: 100 -%}
+    {%- assign animation_order = animation_order | plus: 1 -%}
     {%- comment -%} Delete the following line to block the theme from updating subscription prices {%- endcomment -%}
     <span data-subscription-watch-price></span>
   {%- endif -%}
@@ -1065,10 +1083,10 @@
   {%- if quantity_position_bottom and show_quantity -%}
     <div class="selector-wrapper selector-wrapper--qty"
       {% if animations_enabled %}
-        data-aos="fade-up"
+        data-aos="hero"
         data-aos-anchor="{{ animation_anchor }}"
-        data-aos-delay="{{ animation_delay }}"
-        {%- assign animation_delay = animation_delay | plus: 100 -%}
+        data-aos-order="{{ animation_order }}"
+        {%- assign animation_order = animation_order | plus: 1 -%}
       {% endif %}>
       {{ quantity_selector }}
     </div>
@@ -1084,10 +1102,10 @@
     <div class="product__submit__buttons">
       <div class="product__submit__item"
         {% if animations_enabled %}
-          data-aos="fade-up"
+          data-aos="hero"
           data-aos-anchor="{{ animation_anchor }}"
-          data-aos-delay="{{ animation_delay }}"
-          {%- assign animation_delay = animation_delay | plus: 150 -%}
+          data-aos-order="{{ animation_order }}"
+          {%- assign animation_order = animation_order | plus: 1 -%}
         {% endif %}>
         <button
           type="submit"
@@ -1116,10 +1134,10 @@
         <div class="product__submit__item{% if sold_out %} hidden{% endif %} {{ buynow_btn_color }} {{ buynow_btn_style }}"
           data-buy-it-now
           {% if animations_enabled %}
-            data-aos="fade-up"
+            data-aos="hero"
             data-aos-anchor="{{ animation_anchor }}"
-            data-aos-delay="{{ animation_delay }}"
-            {%- assign animation_delay = animation_delay | plus: 100 -%}
+            data-aos-order="{{ animation_order }}"
+            {%- assign animation_order = animation_order | plus: 1 -%}
           {% endif %}>
           {{ form | payment_button }}
         </div>
@@ -1205,10 +1223,10 @@
     <div class="{{ selector_wrapper_class }}"
       data-option-position="1"
       {% if animations_enabled %}
-        data-aos="fade-up"
+        data-aos="hero"
         data-aos-anchor="{{ animation_anchor }}"
-        data-aos-delay="{{ animation_delay }}"
-        {%- assign animation_delay = animation_delay | plus: 150 -%}
+        data-aos-order="{{ animation_order }}"
+        {%- assign animation_order = animation_order | plus: 1 -%}
       {% endif %}>
       {%- if enable_variant_boxes or enable_color_swatches -%}
         <fieldset class="radio__fieldset">
@@ -1277,10 +1295,10 @@
     <div class="selector-wrapper{% if enable_variant_boxes %} selector-wrapper--boxes{% endif %}"
       data-option-position="2"
       {% if animations_enabled %}
-        data-aos="fade-up"
+        data-aos="hero"
         data-aos-anchor="{{ animation_anchor }}"
-        data-aos-delay="{{ animation_delay }}"
-        {%- assign animation_delay = animation_delay | plus: 150 -%}
+        data-aos-order="{{ animation_order }}"
+        {%- assign animation_order = animation_order | plus: 1 -%}
       {% endif %}>
       {%- if enable_variant_boxes -%}
         <fieldset class="radio__fieldset">
@@ -1342,10 +1360,10 @@
       {%- unless quantity_position_bottom -%}
         <div class="selector-wrapper"
           {% if animations_enabled %}
-            data-aos="fade-up"
+            data-aos="hero"
             data-aos-anchor="{{ animation_anchor }}"
-            data-aos-delay="{{ animation_delay }}"
-            {%- assign animation_delay = animation_delay | plus: 150 -%}
+            data-aos-order="{{ animation_order }}"
+            {%- assign animation_order = animation_order | plus: 1 -%}
           {% endif %}>
           {{ quantity_selector }}
         </div>
@@ -1356,10 +1374,10 @@
   {%- if show_quantity and quantity_position_bottom -%}
     <div class="selector-wrapper{% if variants_style == 'boxes' %} selector-wrapper--qty{% endif %}"
       {% if animations_enabled %}
-        data-aos="fade-up"
+        data-aos="hero"
         data-aos-anchor="{{ animation_anchor }}"
-        data-aos-delay="{{ animation_delay }}"
-        {%- assign animation_delay = animation_delay | plus: 150 -%}
+        data-aos-order="{{ animation_order }}"
+        {%- assign animation_order = animation_order | plus: 1 -%}
       {% endif %}>
       {{ quantity_selector }}
     </div>
@@ -1369,10 +1387,10 @@
     <div class="product__submit__buttons">
       <div class="product__submit__item"
         {% if animations_enabled %}
-          data-aos="fade-up"
+          data-aos="hero"
           data-aos-anchor="{{ animation_anchor }}"
-          data-aos-delay="{{ animation_delay }}"
-          {%- assign animation_delay = animation_delay | plus: 150 -%}
+          data-aos-order="{{ animation_order }}"
+          {%- assign animation_order = animation_order | plus: 1 -%}
         {% endif %}>
         <button type="button" class="btn {{ atc_button_color }} {{ atc_button_style }} btn--large btn--submit product__submit__add">
           <span>{{ 'products.product.add_to_cart' | t }}</span>
@@ -1381,10 +1399,10 @@
       {% if show_payment_button %}
         <div class="product__submit__item"
           {% if animations_enabled %}
-            data-aos="fade-up"
+            data-aos="hero"
             data-aos-anchor="{{ animation_anchor }}"
-            data-aos-delay="{{ animation_delay }}"
-            {%- assign animation_delay = animation_delay | plus: 150 -%}
+            data-aos-order="{{ animation_order }}"
+            {%- assign animation_order = animation_order | plus: 1 -%}
           {% endif %}>
           <div class="shopify-payment-button">
             <button class="{{ buynow_btn_color }} {{ buynow_btn_style }} shopify-payment-button__button shopify-payment-button__button--unbranded">Buy it now</button>
@@ -1401,10 +1419,10 @@
               <div class="product__block product-single__store-availability-container"
                 data-store-availability-container
                 {% if animations_enabled %}
-                  data-aos="fade-up"
+                  data-aos="hero"
                   data-aos-anchor="{{ animation_anchor }}"
-                  data-aos-delay="{{ animation_delay }}"
-                  {%- assign animation_delay = animation_delay | plus: 150 -%}
+                  data-aos-order="{{ animation_order }}"
+                  {%- assign animation_order = animation_order | plus: 1 -%}
                 {% endif %}
                 {{ block_style }}
                 {{ block.shopify_attributes }}></div>
@@ -1412,10 +1430,10 @@
             {%- when 'description' -%}
               <div class="product__block product__description rte"
                 {% if animations_enabled %}
-                  data-aos="fade-up"
+                  data-aos="hero"
                   data-aos-anchor="{{ animation_anchor }}"
-                  data-aos-delay="{{ animation_delay }}"
-                  {%- assign animation_delay = animation_delay | plus: 150 -%}
+                  data-aos-order="{{ animation_order }}"
+                  {%- assign animation_order = animation_order | plus: 1 -%}
                 {% endif %}
                 {{ block_style }}
                 {{ block.shopify_attributes }}>
@@ -1431,10 +1449,10 @@
 
               <div class="product__block product__cutline"
                 {% if animations_enabled %}
-                  data-aos="fade-up"
+                  data-aos="hero"
                   data-aos-anchor="{{ animation_anchor }}"
-                  data-aos-delay="{{ animation_delay }}"
-                  {%- assign animation_delay = animation_delay | plus: 150 -%}
+                  data-aos-order="{{ animation_order }}"
+                  {%- assign animation_order = animation_order | plus: 1 -%}
                 {% endif %}
                 {{ block_style }}
                 {{ block.shopify_attributes }}>{%- if product.metafields.theme.cutline != blank and product.metafields.theme.cutline.type == 'single_line_text_field' -%}
@@ -1457,14 +1475,16 @@
             {%- when 'product_accordion' -%}
               {%- comment -%} Accordions {%- endcomment -%}
               <div class="product__block product__accordions"
+                id="Block--{{ block.id }}"
                 {% if animations_enabled %}
-                  data-aos="fade-up"
+                  data-aos="hero"
                   data-aos-anchor="{{ animation_anchor }}"
-                  data-aos-delay="{{ animation_delay }}"
-                  {%- assign animation_delay = animation_delay | plus: 150 -%}
+                  data-aos-order="{{ animation_order }}"
+                  {%- assign animation_order = animation_order | plus: 1 -%}
                 {% endif %}
                 {{ block_style }}
                 {{ block.shopify_attributes }}>
+
                 {%- render 'product-accordions', block_settings: block.settings, block_id: block.id -%}
               </div>
 
@@ -1477,12 +1497,12 @@
 
                 capture upsell_items
                   for upsell_product in upsell_products
-                    render 'upsell-product', upsell_product: upsell_product, index: forloop.index, unique: upsell_unique
+                    render 'upsell-product', upsell_product: upsell_product, index: forloop.index, unique: upsell_unique, img_sizes: upsells_sizes
                   endfor
 
                   if legacy_upsell_product
                     assign upsell_product_list_count = upsell_product_list_count | plus: 1
-                    render 'upsell-product', upsell_product: legacy_upsell_product, index: upsell_product_list_count, unique: upsell_unique
+                    render 'upsell-product', upsell_product: legacy_upsell_product, index: upsell_product_list_count, unique: upsell_unique, img_sizes: upsells_sizes
                   endif
 
                   if upsell_product_list_count == 0
@@ -1502,10 +1522,10 @@
                 <div id="Block--{{ block.id }}"
                   class="product__block upsell__products{% if upsell_slider %} upsell__products--slider{% endif %}"
                   {% if animations_enabled and upsell_items != blank %}
-                    data-aos="fade-up"
+                    data-aos="hero"
                     data-aos-anchor="{{ animation_anchor }}"
-                    data-aos-delay="{{ animation_delay }}"
-                    {%- assign animation_delay = animation_delay | plus: 150 -%}
+                    data-aos-order="{{ animation_order }}"
+                    {%- assign animation_order = animation_order | plus: 1 -%}
                   {% endif %}
                   {{ block_style }}
                   {{ block.shopify_attributes }}>
@@ -1513,7 +1533,7 @@
                     <div class="upsell__products__slider" data-upsell-slider>
                       {{- upsell_items -}}
                     </div>
-                    {%- else -%}
+                  {%- else -%}
                     {{- upsell_items -}}
                   {%- endif -%}
                 </div>
@@ -1532,10 +1552,10 @@
                     {%- if complementary_products_title != blank -%}
                       <p class="complementary-products__title"
                         {% if animations_enabled %}
-                          data-aos="fade-up"
+                          data-aos="hero"
                           data-aos-anchor="{{ animation_anchor }}"
-                          data-aos-delay="{{ animation_delay }}"
-                          {%- assign animation_delay = animation_delay | plus: 150 -%}
+                          data-aos-order="{{ animation_order }}"
+                          {%- assign animation_order = animation_order | plus: 1 -%}
                         {% endif %}>
                         {{- complementary_products_title -}}
                       </p>
@@ -1544,14 +1564,14 @@
                     {%- for product in recommendations.products -%}
                       <div class="complementary-products__item"
                         {% if animations_enabled %}
-                          data-aos="fade-up"
+                          data-aos="hero"
                           data-aos-anchor="{{ animation_anchor }}"
-                          data-aos-delay="{{ animation_delay }}"
-                          {%- assign animation_delay = animation_delay | plus: 150 -%}
+                          data-aos-order="{{ animation_order }}"
+                          {%- assign animation_order = animation_order | plus: 1 -%}
                         {% endif %}>
                         {%- liquid
                           assign upsell_unique = block.id | append: '--' | append: forloop.index
-                          render 'upsell-product', upsell_product: product, is_complementary: true, unique: upsell_unique
+                          render 'upsell-product', upsell_product: product, is_complementary: true, unique: upsell_unique, img_sizes: upsells_sizes
                         -%}
                       </div>
                     {%- endfor -%}
@@ -1571,18 +1591,18 @@
                     assign link = ''
                   endif
 
-                  render 'share-button', text: text, link: link, animation_anchor: animation_anchor, animation_delay: animation_delay
-                  assign animation_delay = animation_delay | plus: 150
+                  render 'share-button', text: text, link: link, animation_anchor: animation_anchor, animation_order: animation_order
+                  assign animation_order = animation_order | plus: 1
                 -%}
               </div>
 
             {%- when 'custom_code' -%}
               <div class="product__block"
                 {% if animations_enabled %}
-                  data-aos="fade-up"
+                  data-aos="hero"
                   data-aos-anchor="{{ animation_anchor }}"
-                  data-aos-delay="{{ animation_delay }}"
-                  {%- assign animation_delay = animation_delay | plus: 150 -%}
+                  data-aos-order="{{ animation_order }}"
+                  {%- assign animation_order = animation_order | plus: 1 -%}
                 {% endif %}
                 {{ block_style }}
                 {{ block.shopify_attributes }}>
@@ -1593,10 +1613,10 @@
               {%- assign text_alignment = block.settings.text_alignment -%}
               <div class="product__block"
                 {% if animations_enabled %}
-                  data-aos="fade-up"
+                  data-aos="hero"
                   data-aos-anchor="{{ animation_anchor }}"
-                  data-aos-delay="{{ animation_delay }}"
-                  {%- assign animation_delay = animation_delay | plus: 150 -%}
+                  data-aos-order="{{ animation_order }}"
+                  {%- assign animation_order = animation_order | plus: 1 -%}
                 {% endif %}
                 {{ block_style }}
                 {{ block.shopify_attributes }}>
@@ -1620,7 +1640,8 @@
 
                 if icon_image != blank
                   assign retina_size = icon_width | times: 2
-                  assign image_widths = '50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150'
+                  assign image_widths = icon_width | append: ', ' | append: retina_size
+                  assign sizes = icon_width | append: 'px'
                 endif
               -%}
 
@@ -1650,10 +1671,10 @@
 
               <div class="product__block{% if width == 'half' %} product__block--half{% endif %}"
                 {% if animations_enabled %}
-                  data-aos="fade-up"
+                  data-aos="hero"
                   data-aos-anchor="{{ animation_anchor }}"
-                  data-aos-delay="{{ animation_delay }}"
-                  {%- assign animation_delay = animation_delay | plus: 150 -%}
+                  data-aos-order="{{ animation_order }}"
+                  {%- assign animation_order = animation_order | plus: 1 -%}
                 {% endif %}
                 {{ block_style }}
                 {{ block.shopify_attributes }}>
@@ -1666,7 +1687,7 @@
                             image: icon_image,
                             width: retina_size,
                             widths: image_widths,
-                            sizes: 'auto',
+                            sizes: sizes,
                             classes: 'product__icon__img' -%}
                         </div>
                       {%- else -%}
@@ -1695,10 +1716,10 @@
 
               <div class="product__block text-{{ alignment }}"
                 {% if animations_enabled %}
-                  data-aos="fade-up"
+                  data-aos="hero"
                   data-aos-anchor="{{ animation_anchor }}"
-                  data-aos-delay="{{ animation_delay }}"
-                  {%- assign animation_delay = animation_delay | plus: 150 -%}
+                  data-aos-order="{{ animation_order }}"
+                  {%- assign animation_order = animation_order | plus: 1 -%}
                 {% endif %}
                 {{ block_style }}
                 {{ block.shopify_attributes }}>
@@ -1710,10 +1731,10 @@
             {% when 'siblings' %}
               {% capture animation_attributes %}
                 {% if animations_enabled %}
-                  data-aos="fade-up"
+                  data-aos="hero"
                   data-aos-anchor="{{ animation_anchor }}"
-                  data-aos-delay="{{ animation_delay }}"
-                  {%- assign animation_delay = animation_delay | plus: 150 -%}
+                  data-aos-order="{{ animation_order }}"
+                  {%- assign animation_order = animation_order | plus: 1 -%}
                 {% endif %}
               {% endcapture %}
 
@@ -1722,10 +1743,10 @@
             {%- when 'inventory_countdown' -%}
               <div class="product__block"
                 {% if animations_enabled %}
-                  data-aos="fade-up"
+                  data-aos="hero"
                   data-aos-anchor="{{ animation_anchor }}"
-                  data-aos-delay="{{ animation_delay }}"
-                  {%- assign animation_delay = animation_delay | plus: 150 -%}
+                  data-aos-order="{{ animation_order }}"
+                  {%- assign animation_order = animation_order | plus: 1 -%}
                 {% endif %}
                 {{ block_style }}
                 {{ block.shopify_attributes }}>
@@ -1746,10 +1767,10 @@
 
               <div class="product__block product__popup__wrapper"
                 {% if animations_enabled %}
-                  data-aos="fade-up"
+                  data-aos="hero"
                   data-aos-anchor="{{ animation_anchor }}"
-                  data-aos-delay="{{ animation_delay }}"
-                  {%- assign animation_delay = animation_delay | plus: 150 -%}
+                  data-aos-order="{{ animation_order }}"
+                  {%- assign animation_order = animation_order | plus: 1 -%}
                 {% endif %}
                 {{ block_style }}
                 {{ block.shopify_attributes }}>
@@ -1800,10 +1821,10 @@
 
                 <div class="product__block"
                   {% if animations_enabled %}
-                    data-aos="fade-up"
+                    data-aos="hero"
                     data-aos-anchor="{{ animation_anchor }}"
-                    data-aos-delay="{{ animation_delay }}"
-                    {%- assign animation_delay = animation_delay | plus: 150 -%}
+                    data-aos-order="{{ animation_order }}"
+                    {%- assign animation_order = animation_order | plus: 1 -%}
                   {% endif %}
                   {{ block_style }}
                   {{ block.shopify_attributes }}>
@@ -1858,10 +1879,10 @@
                 {%- if block.settings.show_line -%}
                   <hr class="hr--full"
                     {% if animations_enabled %}
-                      data-aos="fade-up"
+                      data-aos="hero"
                       data-aos-anchor="{{ animation_anchor }}"
-                      data-aos-delay="{{ animation_delay }}"
-                      {%- assign animation_delay = animation_delay | plus: 150 -%}
+                      data-aos-order="{{ animation_order }}"
+                      {%- assign animation_order = animation_order | plus: 1 -%}
                     {% endif %}>
                 {%- endif -%}
               </div>
@@ -1909,10 +1930,10 @@
 {%- if forloop.index0 == 0 or prev_block.type != 'feature' -%}
   <div class="product__block product__features"
     {% if animations_enabled %}
-      data-aos="fade-up"
+      data-aos="hero"
       data-aos-anchor="{{ animation_anchor }}"
-      data-aos-delay="{{ animation_delay }}"
-      {%- assign animation_delay = animation_delay | plus: 150 -%}
+      data-aos-order="{{ animation_order }}"
+      {%- assign animation_order = animation_order | plus: 1 -%}
     {% endif %}
     data-slider
     {{ block_style }}>
@@ -1929,12 +1950,17 @@
         {%- unless icon_image == blank and icon_name == 'none' -%}
           <div class="product__icon icon-stroke" style="{{ icon_style }}">
             {%- if icon_image != blank -%}
+              {%- liquid
+                assign retina_size = icon_width | times: 2
+                assign image_widths = icon_width | append: ', ' | append: retina_size
+                assign sizes = icon_width | append: 'px'
+              -%}
               <div class="product__icon__holder">
                 {%- render 'image',
                   image: icon_image,
                   width: retina_size,
+                  sizes: sizes,
                   widths: image_widths,
-                  sizes: 'auto',
                   classes: 'product__icon__img' -%}
               </div>
             {%- else -%}
@@ -2017,10 +2043,10 @@
 
 <div class="product__block product__price-and-badge"
   {% if animations_enabled %}
-    data-aos="fade-up"
+    data-aos="hero"
     data-aos-anchor="{{ animation_anchor }}"
-    data-aos-delay="{{ animation_delay }}"
-    {%- assign animation_delay = animation_delay | plus: 150 -%}
+    data-aos-order="{{ animation_order }}"
+    {%- assign animation_order = animation_order | plus: 1 -%}
   {% endif %}
   {{ block_style }}>
   <div class="product__price-and-rating">
@@ -2777,7 +2803,7 @@
         quick_view_nav: quick_view_nav,
         hide_labels_class: hide_labels_class,
         animation_anchor: animation_anchor,
-        animation_delay: animation_delay -%}
+        animation_order: animation_order -%}
     {%- endif -%}
 
     {{- size_chart_drawer -}}

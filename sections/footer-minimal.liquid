@@ -1,11 +1,12 @@
-<!-- /sections/footer.liquid -->
+<!-- /sections/footer-minimal.liquid -->
 
-{%- render 'footer' -%}
+{%- render 'footer', section_id: 'FooterMinimal' -%}
 
 {% schema %}
 {
-  "name": "Footer",
-  "max_blocks": 5,
+  "name": "Footer minimal",
+  "max_blocks": 4,
+  "limit": 1,
   "settings": [
     {
       "type": "header",
@@ -15,7 +16,7 @@
       "type": "checkbox",
       "id": "show_footer_wave",
       "label": "Show footer wave",
-      "default": true
+      "default": false
     },
     {
       "type": "header",
@@ -129,7 +130,7 @@
       "step": 2,
       "unit": "px",
       "label": "Padding top",
-      "default": 60
+      "default": 50
     },
     {
       "type": "range",
@@ -139,7 +140,7 @@
       "step": 2,
       "unit": "px",
       "label": "Padding bottom",
-      "default": 60
+      "default": 50
     }
   ],
   "blocks": [
@@ -252,107 +253,6 @@
       ]
     },
     {
-      "type": "text",
-      "name": "Text",
-      "settings": [
-        {
-          "type": "select",
-          "id": "alignment",
-          "label": "Alignment",
-          "default": "text-left",
-          "options": [
-            { "value": "text-left", "label": "Left" },
-            { "value": "text-center", "label": "Center" }
-          ]
-        },
-        {
-          "type": "text",
-          "id": "title",
-          "label": "Heading",
-          "default": "Our Mission"
-        },
-        {
-          "type": "richtext",
-          "id": "footer_text",
-          "label": "Text",
-          "default": "<p>Leave your customers with a final message about your brand in this rich text block.</p>"
-        },
-        {
-          "type": "select",
-          "id": "column_width",
-          "label": "Column width",
-          "default": "30",
-          "options": [
-            { "value": "20", "label": "20%"},
-            { "value": "25", "label": "25%"},
-            { "value": "30", "label": "30%"},
-            { "value": "33.33", "label": "33%"},
-            { "value": "50", "label": "50%"},
-            { "value": "66.66", "label": "66%"},
-            { "value": "75", "label": "75%"},
-            { "value": "80", "label": "80%"},
-            { "value": "100", "label": "100%"}
-          ],
-          "info": "Desktop only"
-        }
-      ]
-    },
-    {
-      "type": "blog",
-      "name": "Blog",
-      "settings": [
-        {
-          "type": "select",
-          "id": "alignment",
-          "label": "Alignment",
-          "default": "text-left",
-          "options": [
-            { "value": "text-left", "label": "Left" },
-            { "value": "text-center", "label": "Center" }
-          ]
-        },
-        {
-          "type": "text",
-          "id": "title",
-          "label": "Heading",
-          "default": "Our Blog"
-        },
-        {
-          "type": "blog",
-          "id": "blog",
-          "label": "Choose blog to show recent article excerpts."
-        },
-        {
-          "type": "select",
-          "id": "layout",
-          "label": "Layout",
-          "default": "articles",
-          "options": [
-            { "label": "Show recent articles", "value": "articles" },
-            { "label": "Show article tags", "value": "tags" }
-          ]
-        },
-        {
-          "type": "select",
-          "id": "column_width",
-          "label": "Column width",
-          "default": "20",
-          "options": [
-            { "value": "20", "label": "20%"},
-            { "value": "25", "label": "25%"},
-            { "value": "30", "label": "30%"},
-            { "value": "33.33", "label": "33%"},
-            { "value": "50", "label": "50%"},
-            { "value": "66.66", "label": "66%"},
-            { "value": "75", "label": "75%"},
-            { "value": "80", "label": "80%"},
-            { "value": "100", "label": "100%"}
-          ],
-          "info": "Desktop only"
-        }
-      ]
-    },
-    {
       "type": "newsletter",
       "name": "Newsletter",
       "limit": 1,
@@ -415,13 +315,13 @@
           "type": "checkbox",
           "id": "show_border_line",
           "label": "Show border line",
-          "default": true
+          "default": false
         },
         {
           "type": "select",
           "id": "column_width",
           "label": "Column width",
-          "default": "100",
+          "default": "25",
           "options": [
             { "value": "20", "label": "20%" },
             { "value": "25", "label": "25%" },
@@ -433,6 +333,26 @@
             { "value": "80", "label": "80%" },
             { "value": "100", "label": "100%" }
           ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Footer Minimal",
+      "category": "Text",
+      "blocks": [
+        {
+          "type": "logo"
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "link"
+        },
+        {
+          "type": "newsletter"
         }
       ]
     }

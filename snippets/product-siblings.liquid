@@ -92,7 +92,7 @@
                 endif
                 assign placeholder_svg = 'product-' | append: forloop.index
 
-                render 'image', image: image, widths: image_widths, sizes: sizes, classes: 'lazypreload img-object-cover', placeholder_svg: placeholder_svg
+                render 'image', image: image, widths: image_widths, sizes: sizes, cover: true, placeholder_svg: placeholder_svg, preload: true
               -%}
             {%- else -%}
               {%- if settings.color_swatches_product_style == 'circle' and is_current_product and sib_product.available -%}
@@ -117,7 +117,7 @@
           <a href="#!" class="{{ swatch_class }}" {% if forloop.first %}aria-current="true"{%- endif -%}>
             <div class="siblings__button" data-tooltip="{{ value }}" data-swatch="{{ value }}">
               {%- if show_siblings_images -%}
-                {%- render 'image', placeholder_svg: placeholder_svg -%}
+                {%- render 'image', placeholder_svg: placeholder_svg, cover: true -%}
               {%- else -%}
                 {%- if settings.color_swatches_product_style == 'circle' and forloop.first -%}
                   <span class="icon icon-check"></span>

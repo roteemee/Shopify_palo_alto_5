@@ -14,6 +14,31 @@
   assign bg_color_secondary = section.settings.bg_color_secondary
   assign animations_enabled = settings.animations_enabled
   assign animation_anchor = '#Look--' | append: section.id
+
+  comment
+    Images sizes
+  endcomment
+
+  # Desktop widths
+  if section_width == 'wrapper--full-padded'
+    assign wrapper_width_lg = '100vw - 120px'
+  endif
+  if section_width == 'wrapper'
+    assign wrapper_width_lg = '1440px - 120px'
+  endif
+  assign img_width_lg = 'calc((' | append: wrapper_width_lg | append: ' - 60px) / 2' | append: ')'
+  assign img_width_xlg_pgi = 'calc(((' | append: wrapper_width_lg | append: ' - 60px) / 2 - 60px) / 2)'
+  assign img_width_lg_pgi = img_width_xlg_pgi
+  # Tablet widths
+  assign wrapper_width_md = '100vw - 2 * 20px'
+  assign img_width_md = 'calc((' | append: wrapper_width_md | append: ' - 20px) / 2' | append: ')'
+  assign img_width_md_pgi = 'calc(((' | append: wrapper_width_md | append: ' - 20px) / 2 - 20px) / 2)'
+  # Mobile widths
+  assign img_width_sm = 'calc(' | append: wrapper_width_md | append: ')'
+  assign img_width_sm_pgi = 'calc((100vw - 50px) / 2 - 17px)'
+
+  assign sizes = '(min-width: 1024px) ' | append: img_width_lg | append: ', (min-width: 768px) ' | append: img_width_md | append: ', ' | append: img_width_sm
+  assign sizes_pgi = '(min-width: 1440px) ' | append: img_width_xlg_pgi | append: ', (min-width: 1024px) ' | append: img_width_lg_pgi | append: ', (min-width: 768px) ' | append: img_width_md_pgi | append: ', ' | append: img_width_sm_pgi
 -%}
 
 {%- style -%}
@@ -75,6 +100,7 @@
                   tabindex_hidden: true,
                   image_animation: 'fade-up',
                   text_animation: 'fade-up',
+                  sizes: sizes_pgi,
                   animation_anchor: animation_anchor %}
               {%- else -%}
                 {%- render 'product-grid-item--onboarding',
@@ -147,9 +173,6 @@
                         assign product_block_unique = unique | append: '-' | append: current_product.id
                         assign current_variant = current_product.selected_or_first_available_variant
                         assign featured_media = current_variant.featured_media | default: current_product.featured_media
-                        assign product_image = current_product.featured_image
-                        assign image_url_pattern = product_image | img_url: '540x' | replace: '_540x.', '_{width}x.'
-                        assign image_widths = '[180, 360, 540, 720, 900, 1080, 1296, 1512, 1728, 2048]'
                       -%}
 
                       {%- if current_product.media.size > 0 -%}
@@ -161,17 +184,7 @@
                           product_title: product_title -%}
                       {%- else -%}
                         <div class="popup-quick-view__thumbnail">
-                          <img
-                            class="no-image-placeholder lazyload"
-                            src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
-                            data-src="{{ image_url_pattern }}"
-                            data-widths= "{{ image_widths }}"
-                            data-aspectratio="1"
-                            data-sizes="auto"
-                            data-product-image
-                            width="540"
-                            height="540"
-                            alt="{{ product_title }}">
+                          {%- render 'image-fill', is_background: true, aspect_ratio: 1, img_object: '', alt: product_title, placeholder_svg: 'image' -%}
                         </div>
                       {%- endif -%}
 
@@ -233,10 +246,11 @@
           data-aos-duration="500"
           data-aos-anchor="{{ animation_anchor }}"
         {% endif %}>
-
         {%- render 'image-fill',
           is_background: true,
           img_object: image,
+          sizes: sizes,
+          widths: '294, 336, 385, 422, 588, 654, 672, 770, 844, 900, 1236, 1308, 1540, 1688, 1800, 2472',
           classes: 'look__image',
           placeholder_svg: 'collection-1' -%}
 

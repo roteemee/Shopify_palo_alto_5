@@ -7,7 +7,7 @@
     assign mobile_section_height = ' ' | append: section.settings.mobile_section_height
   endif
   assign animations_enabled = settings.animations_enabled
-  assign animation_anchor = "#ImageAccordions--" | append: section.id
+  assign animation_anchor = '#ImageAccordions--' | append: section.id
   assign animation_delay = 150
   assign show_text_shadow = settings.show_text_shadow
   assign blocks_size = section.blocks.size
@@ -18,6 +18,28 @@
   if section_width == 'wrapper--full'
     assign cover = true
   endif
+
+  comment
+    Images sizes
+  endcomment
+  capture container_width_percentage
+    case blocks_size
+      when 1
+        echo 1
+      when 2
+        echo 0.833
+      when 3
+        echo 0.714
+      when 4
+        echo 0.625
+    endcase
+  endcapture
+  # Desktop widths
+  assign img_width_lg = 'calc(100vw * ' | append: container_width_percentage | append: ')'
+  # Mobile widths
+  assign img_width_sm = 'calc(100vw - 20px)'
+
+  assign sizes = '(min-width: 768px) ' | append: img_width_lg | append: ', ' | append: img_width_sm
 -%}
 
 {%- style -%}
@@ -84,26 +106,13 @@
 
               <div class="overlay"></div>
 
-              <div class="image-accordion__image__wrapper">
-                {%- if image_mobile -%}
-                  <div class="image-accordion__image__container image-accordion__image__container--mobile lazy-image" style="background: url({{ image_mobile | img_url: '1x1' }});">
-                    {%- render 'image-fill', is_background: true, img_object: image_mobile, classes: 'image-accordion__image__bg' -%}
-                  </div>
-                {%- endif -%}
+              {%- if image_mobile -%}
+                {%- render 'image-fill', is_background: true, img_object: image_mobile, sizes: sizes, classes: 'image-accordion__image__container image-accordion__image__container--mobile' -%}
+              {%- endif -%}
 
-                <div class="image-accordion__image__container image-accordion__image__container--desktop lazy-image" style="background: url({{ image | img_url: '1x1' }});">
-                  {%- if image -%}
-                    {%- render 'image-fill', is_background: true, img_object: image, classes: 'image-accordion__image__bg' -%}
-                  {%- else -%}
-                    <div class="image-accordion__image__bg background-size-cover">
-                      <div class="image-accordion__image__svg">
-                        {%- capture index -%}{% cycle 1, 2 %}{%- endcapture -%}
-                        {{- 'lifestyle-' | append: index | placeholder_svg_tag: 'placeholder-svg-filled' -}}
-                      </div>
-                    </div>
-                  {%- endif -%}
-                </div>
-              </div>
+              {%- capture index -%}{% cycle 1, 2 %}{%- endcapture -%}
+              {%- assign placeholder_svg = 'lifestyle-' | append: index -%}
+              {%- render 'image-fill', is_background: true, img_object: image, sizes: sizes, classes: 'image-accordion__image__container image-accordion__image__container--desktop', placeholder_svg: placeholder_svg -%}
 
               {%- unless title == blank and text == blank -%}
                 <div class="image-accordion__text {% if show_text_shadow %} backdrop--radial{% endif %}"
@@ -218,7 +227,7 @@
     "settings": [
       {
         "type": "header",
-        "content": "layout"
+        "content": "Layout"
       },
       {
         "type": "select",

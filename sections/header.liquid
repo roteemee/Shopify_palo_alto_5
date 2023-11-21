@@ -45,7 +45,7 @@
     assign header_height_sticky = 60
   endif
 
-  render 'nav-drawer'
+  render 'nav-drawer', image: logo_not_home, image_width: logo_width
 
   if settings.cart_type == 'drawer' and template.name != 'cart'
     render 'cart-drawer' cart: cart
@@ -92,7 +92,8 @@
       .is-first-section-transparent .site-header { position: absolute; }
 
       .is-first-section-transparent .main-content > .supports-transparent-header:first-child .banner-content,
-      .is-first-section-transparent .main-content > .supports-transparent-header:first-child .banners__content,
+      .is-first-section-transparent .main-content > .supports-transparent-header:first-child .banners--cols .banner,
+      .is-first-section-transparent .main-content > .supports-transparent-header:first-child .banners--row .banners__content,
       .is-first-section-transparent .main-content > .supports-transparent-header:first-child .banner-image__text-wrapper,
       .is-first-section-transparent .main-content > .supports-transparent-header:first-child .slide__text__wrapper,
       .is-first-section-transparent .main-content > .supports-transparent-header:first-child .split-images__content,
@@ -107,12 +108,19 @@
       .is-first-section-transparent .main-content > .supports-transparent-header:first-child .countdown__aside {
         padding-top: 0;
       }
+
+      @media only screen and (max-width: 767px) {
+        .is-first-section-transparent .main-content > .supports-transparent-header:first-child .banners--row .banners__content {
+          padding-top: calc(var(--header-height) + var(--gutter-mobile));
+          padding-bottom: calc(var(--header-height) + var(--gutter-mobile));
+        }
+      }
     }
   {% endif %}
 {%- endstyle -%}
 
 <header id="{{ header_id }}"
-  class="site-header site-header--{{ header_position }} site-header--nav-{{ nav_alignment }}{% if header_transparent %} site-header--transparent{% endif %}{% if header_gradient %} site-header--has-gradient{% endif %}{% if logo or logo_not_home %} site-header--has-logo{% endif %}{% if section.settings.header_border %} site-header--has-border{% endif %} site-header--loading"
+  class="site-header site-header--{{ header_position }} site-header--nav-{{ nav_alignment }}{% if header_transparent %} site-header--transparent{% endif %}{% if header_gradient %} site-header--has-gradient{% endif %}{% if logo or logo_not_home %} site-header--has-logo{% endif %}{% if section.settings.header_border %} site-header--has-border{% endif %}"
   role="banner"
   data-site-header
   data-section-id="{{ section.id }}"
@@ -123,6 +131,7 @@
   data-position="{{ header_position }}"
   data-nav-alignment="{{ nav_alignment }}"
   {% if sticky_header %}data-header-sticky{% endif %}
+  {% if request.design_mode %}data-header-in-editor{% endif %}
   data-header-height>
   <div class="site-header__background" data-header-background></div>
 
@@ -133,16 +142,14 @@
       data-aos-delay="{{ animation_delay }}"
     {% endif %}
     data-wrapper>{%- if logo or logo_not_home -%}
-  {%- liquid
-    assign retina_size = logo_width | times: 2
-    assign image_widths = '50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 200, 220, 240, 260, 280, 300, 320, 340, 360, 380, 400, 420, 440, 460, 480, 500'
-  -%}
+  {%- capture sizes -%}(max-width: {{ logo_width | times: 2 }}px) 50vw, {{ logo_width }}px{%- endcapture -%}
+  {%- capture widths -%}{{ logo_width }}, {{ logo_width | times: 1.5 | round }}, {{ logo_width | times: 2 }}{%- endcapture -%}
 
   {%- style -%}
-    .logo__image-link { height: {{ logo_height | round | append: 'px' }}; }
-
-    .logo__image-link,
-    .drawer__logo-image { width: {{ logo_width | append: 'px' }}; }
+    .logo__image-link {
+      width: {{ logo_width | append: 'px' }};
+      height: {{ logo_height | round | append: 'px' }};
+    }
 
     .has-scrolled .logo__image-link {
       width: {{ logo_height_scrolled | times: logo_aspect_ratio | round | append: 'px' }};
@@ -159,13 +166,19 @@
     -%}
 
     <a href="{{ routes.root_url }}" aria-label="{{ shop.name }}" class="logo__image-link logo__image-link--other{% unless logo %} logo__image-link--single{% endunless %}">
-      {%- render 'image',
-        image: logo_not_home,
-        width: retina_size,
-        widths: image_widths,
+      {%- assign logo_height = logo_width | divided_by: logo_not_home.aspect_ratio -%}
+
+      {{ logo_not_home | image_url: width: 500 | image_tag:
+        widths: widths,
+        height: logo_height,
+        width: logo_width,
         alt: image_alt,
-        sizes: 'auto',
-        classes: 'logo__image' -%}
+        sizes: sizes,
+        class: 'logo__image',
+        loading: 'eager',
+        fetchpriority: 'high',
+        preload: true
+      }}
 
       <span class="logo__image-push" style="padding-top: {{ logo_padding_top }}%"></span>
     </a>
@@ -180,13 +193,18 @@
     -%}
 
     <a href="{{ routes.root_url }}" aria-label="{{ shop.name }}" class="logo__image-link logo__image-link--home{% unless logo_not_home %} logo__image-link--single{% endunless %}">
-      {%- render 'image',
-        image: logo,
-        width: retina_size,
-        widths: image_widths,
+      {%- assign logo_height = logo_width | divided_by: logo.aspect_ratio -%}
+      {{ logo | image_url: width: 500 | image_tag:
+        widths: widths,
+        height: logo_height,
+        width: logo_width,
         alt: image_alt,
-        sizes: 'auto',
-        classes: 'logo__image' -%}
+        sizes: sizes,
+        class: 'logo__image',
+        loading: 'eager',
+        fetchpriority: 'high',
+        preload: true
+      }}
 
       <span class="logo__image-push" style="padding-top: {{ logo_padding_top }}%"></span>
     </a>
@@ -201,11 +219,39 @@
     <a href="{{ routes.root_url }}" class="logo__text-link" data-logo-text-link>{{ shop.name }}</a>
   {%- endif -%}
 </h1><!-- /partials/site-nav.liquid -->
-{%- assign highlight_item_color = section.settings.highlight_item_color -%}
+{%- liquid
+  assign header_icons_as_text = section.settings.header_icons_as_text
+  assign highlight_item_color = section.settings.highlight_item_color
+
+  assign link_hover_dot = false
+  if section.settings.link_hover_effect == 'dot'
+    assign link_hover_dot = true
+
+    assign nav_font_size_adjustment = settings.nav_top_level_links_size | divided_by: 100.0
+    assign nav_font_weight_factor = 1
+    if settings.nav_font_weight == 'bold'
+      assign nav_font_weight_factor = 1.5
+    endif
+
+    assign line_weight_factor = 1
+    if settings.line_thickness == 'bold'
+      assign line_weight_factor = 1.5
+    endif
+
+    assign dot_size = nav_font_size_adjustment | plus: line_weight_factor | plus: nav_font_weight_factor | floor
+  endif
+-%}
+
 {%- capture style -%}
-  {%- if highlight_item_color != 'rgba(0,0,0,0)' and highlight_item_color != '' -%}
-    style="--highlight: {{ highlight_item_color }};"
-  {%- endif -%}
+  style="
+    {%- if highlight_item_color != 'rgba(0,0,0,0)' and highlight_item_color != '' -%}
+      --highlight: {{ highlight_item_color }};
+    {%- endif -%}
+
+    {%- if link_hover_dot -%}
+      --dot-size: {{ dot_size }}px;
+    {%- endif -%}
+  "
 {%- endcapture -%}
 
 {%- capture cart_icon -%}
@@ -218,46 +264,62 @@
 {%- endcapture -%}
 
 <nav id="NavStandard" class="nav nav--default nav--weight-{{ settings.nav_font_weight }}{% if settings.nav_caps_letter_spacing %} caps-letter-spacing-nav{% else %} letter-spacing-nav{% endif %}" data-nav {{ style }}>
-  <div class="menu__item menu__item--compress" data-nav-items-compress>
+  <div class="menu__item menu__item--compress{% if header_icons_as_text %} menu__item--texts{% endif %}" data-nav-items-compress>
     {%- if settings.show_header_search -%}
-      {%- render 'search-popdown', unique: 'desktop-compress', in_header: true, summary_classes: 'navlink navlink--icon' -%}
+      {%- render 'search-popdown', unique: 'desktop-compress', in_header: true, summary_classes: 'navlink navlink--icon', header_icons_as_text: header_icons_as_text -%}
     {%- endif -%}
 
-    <a href="{{ routes.cart_url }}" class="navlink navlink--icon cart__toggle cart__toggle{% if cart.item_count > 0 %} cart__toggle--has-items{% endif %}{% if cart_animation %} cart__toggle--animation{% endif %}" aria-controls="cart-drawer" aria-expanded="false"{% unless template.name == 'cart' or settings.cart_type == 'page' %} data-cart-drawer-toggle{% endunless %}>
+    <a href="{{ routes.cart_url }}" class="navlink navlink--icon cart__toggle cart__toggle{% if cart.item_count > 0 %} cart__toggle--has-items{% endif %}{% if cart_animation %} cart__toggle--animation{% endif %}{% if settings.nav_caps_toplevel %} caps{% endif %}" aria-controls="cart-drawer" aria-expanded="false"{% unless template.name == 'cart' or settings.cart_type == 'page' %} data-cart-drawer-toggle{% endunless %}>
       <span class="visually-hidden">{{ 'general.accessibility.open_cart' | t }}</span>
-      {{ cart_icon }}
+      {%- if header_icons_as_text -%}
+        {{ 'layout.cart.title' | t }}
+      {%- else -%}
+        {{ cart_icon }}
+      {%- endif -%}
     </a>
 
-    <button type="button" class="icon-fallback-text navlink navlink--icon js-drawer-open" aria-controls="nav-drawer" data-drawer-toggle>
+    <button type="button" class="navlink navlink--icon js-drawer-open{% if settings.nav_caps_toplevel %} caps{% endif %}" aria-controls="nav-drawer" data-drawer-toggle>
       <span class="visually-hidden">{{ 'general.accessibility.mobile_menu_toggle' | t }}</span>
-      {%- render 'icon-hamburger' -%}
+      {%- if header_icons_as_text -%}
+        {{ 'layout.navigation.menu' | t }}
+      {%- else -%}
+        {%- render 'icon-hamburger' -%}
+      {%- endif -%}
     </button>
   </div>
 
   <div class="menu__items" data-takes-space>
     {%- for link in linklists[section.settings.main-menu].links -%}
-      {%- render 'nav-item', link: link, section: section, index: forloop.index -%}
+      {%- render 'nav-item', link: link, index: forloop.index, link_hover_dot: link_hover_dot -%}
     {%- endfor -%}
   </div>
 
-  <div class="menu__item menu__item--icons" data-nav-icons data-takes-space>
+  <div class="menu__item menu__item--icons{% if header_icons_as_text %} menu__item--texts{% endif %}" data-nav-icons data-takes-space>
     {%- if settings.show_header_search -%}
-      {%- render 'search-popdown', unique: 'desktop', in_header: true, classes: 'menu__item menu__item--icon', summary_classes: 'navlink navlink--icon' -%}
+      {%- render 'search-popdown', unique: 'desktop', in_header: true, classes: 'menu__item menu__item--icon', summary_classes: 'navlink navlink--icon', header_icons_as_text: header_icons_as_text -%}
     {%- endif -%}
 
     {%- if shop.customer_accounts_enabled -%}
       <div class="menu__item menu__item--icon">
-        <a href="{{ routes.account_url }}" class="navlink navlink--icon">
+        <a href="{{ routes.account_url }}" class="navlink navlink--icon{% if settings.nav_caps_toplevel %} caps{% endif %}">
           <span class="visually-hidden">{{ 'general.accessibility.my_account' | t }}</span>
-          {%- render 'icon-user' -%}
+          {%- if header_icons_as_text -%}
+            {{ 'layout.customer.account' | t }}
+          {%- else -%}
+            {%- render 'icon-user' -%}
+          {%- endif -%}
         </a>
       </div>
     {%- endif -%}
 
     <div class="menu__item menu__item--icon">
-      <a href="{{ routes.cart_url }}" class="navlink navlink--icon cart__toggle{% if cart.item_count > 0 %} cart__toggle--has-items{% endif %}{% if cart_animation %} cart__toggle--animation{% endif %}" aria-controls="cart-drawer" aria-expanded="false"{% unless template.name == 'cart' or settings.cart_type == 'page' %} data-cart-drawer-toggle{% endunless %}>
+      <a href="{{ routes.cart_url }}" class="navlink navlink--icon cart__toggle{% if cart.item_count > 0 %} cart__toggle--has-items{% endif %}{% if cart_animation %} cart__toggle--animation{% endif %}{% if settings.nav_caps_toplevel %} caps{% endif %}" aria-controls="cart-drawer" aria-expanded="false"{% unless template.name == 'cart' or settings.cart_type == 'page' %} data-cart-drawer-toggle{% endunless %}>
         <span class="visually-hidden">{{ 'general.accessibility.open_cart' | t }}</span>
-        {{ cart_icon }}
+        {%- if header_icons_as_text -%}
+          {{ 'layout.cart.title' | t }}
+        {%- else -%}
+          {{ cart_icon }}
+        {%- endif -%}
       </a>
     </div>
   </div>
@@ -352,6 +414,16 @@
       "default": false
     },
     {
+      "type": "select",
+      "label": "Link hover effect",
+      "id": "link_hover_effect",
+      "default": "dot",
+      "options": [
+        { "label": "Line", "value": "line" },
+        { "label": "Dot", "value": "dot" }
+      ]
+    },
+    {
       "type": "header",
       "content": "Logo"
     },
@@ -409,6 +481,12 @@
         { "label": "Logo | Links (center) | Icons", "value": "center" },
         { "label": "Logo | Links (right) | Icons", "value": "right" }
       ]
+    },
+    {
+      "type": "checkbox",
+      "id": "header_icons_as_text",
+      "label": "Show icons as text",
+      "default": false
     },
     {
       "type": "header",

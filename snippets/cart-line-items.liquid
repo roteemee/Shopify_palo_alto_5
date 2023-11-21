@@ -37,20 +37,19 @@
         <a href="{{ line_item.url }}">
           {%- liquid
             assign image = line_item.image
-            assign image_url_pattern = image | img_url: '1x1' | replace: '_1x1.', '_{width}x.'
-            assign image_widths = "[90,160,180,270,320]"
+            assign image_alt = line_item.title | strip_html | escape
+            assign retina_size = 200
+            assign image_widths = '100, 150, 200'
+            assign sizes = '100px'
           -%}
-          <img
-            class="lazyload"
-            src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
-            data-src="{{ image_url_pattern }}"
-            data-aspectratio="{{ image.aspect_ratio | default: 1 }}"
-            data-widths= "{{ image_widths }}"
-            data-sizes="auto"
-            alt="{{ line_item.title | strip_html | escape }}">
-          <noscript>
-            <img src="{{ image | img_url: '160x' }}" alt="{{ line_item.title | strip_html | escape }}">
-          </noscript>
+
+          {%- render 'image',
+            image: image,
+            width: retina_size,
+            widths: image_widths,
+            sizes: sizes,
+            alt: image_alt,
+            placeholder_svg: 'product-apparel-1' -%}
         </a>
       </div>
 

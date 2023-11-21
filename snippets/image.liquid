@@ -6,10 +6,15 @@
   *  height {Int} - The default image height (Optional)
   *  sizes {String} - A set of media conditions (Optional)
   *  widths {Array} - An array of the image widths for srcset (Optional)
+  *  cover {boolean} - Whether image should be cropped to "cover" it's parent or maintain it's natural aspect ratio. Default: true
+  *  simple {boolean} - Use a plain image using Shopify's image_tag filter without a wrapper. Doesn't handle aspect ratios, loading animations, placeholders, etc
   *  alt {String} - Overrides image alt value (Optional)
   *  classes {string} - Classes and modifiers that would be used for the image and image-placeholder containers (Optional)
   *  styles {string} - Additional styles that can be added to the image (Optional)
   *  placeholder_svg {string} - SVG placeholder name (https://shopify.dev/api/liquid/filters#placeholder_svg_tag) (Optional)
+  *  loading {String} - Default: "lazy" (Optional)
+  *  preload {String} - "true" or "false". Default: "false" (Optional)
+  *  fetchpriority {String} - "auto", "high" or "low". Default: "auto" (Optional)
 
   {%- render 'image', image: section.settings.image, width: section.settings.image.width, height: section.settings.image.height, placeholder_svg: 'lifestyle-1' -%}
 {% endcomment %}
@@ -19,44 +24,59 @@
   assign image = image | default: default_image
   assign classes = classes | default: ''
   assign styles = styles | default: ''
-  assign width = width | default: 3000
-  assign height = height | default: nil
+  assign image_aspect_ratio = image.aspect_ratio
+  assign aspect_ratio = aspect_ratio | default: image_aspect_ratio | default: 1
+  assign image_width = image.width | at_most: 4100 | default: 4100
+  assign width = width | default: image_width
+  assign height = height | default: width | divided_by: aspect_ratio
   assign sizes = sizes | default: '100vw'
-  assign widths = widths | default: '180, 360, 400, 540, 560, 590, 606, 670, 720, 738, 770, 814, 900, 1024, 1080, 1296, 1410, 1512, 1524, 1728, 1950, 2100, 2260, 2450, 2700, 2870, 3000, 3350, 3750, 4100'
+  assign simple = simple | default: false
   assign loading = loading | default: 'lazy'
   assign fetchpriority = fetchpriority | default: nil
   assign preload = preload | default: nil
-  assign id = id | default: ''
-  assign product_media = product_media | default: false
+  assign id = id | default: nil
   assign alt = alt | default: image.alt
   assign alt = alt | escape
   assign image_classes = ''
-  assign no_js_classes = 'img-object-contain'
   assign placeholder_svg = placeholder_svg | default: ''
+  assign placeholder_svg_tag = placeholder_svg_tag | default: 'placeholder-svg-filled'
   assign has_image = true
+
+  if cover != false
+    assign cover = true
+  endif
 
   if image == blank or image contains 'blank.svg'
     assign has_image = false
-    if placeholder_svg == ''
-      assign image_classes = image_classes | append: ' ' | append: 'img-object-contain'
-    endif
   else
-    if product_media
-      assign image_classes = 'is-loading'
-    else
-      assign image_classes = image_classes | append: ' ' | append: 'lazyload'
-    endif
-
-    capture default_srcset
+    capture srcset
       render 'image-srcset', image: image, widths: widths
     endcapture
-
-    assign srcset = srcset | default: default_srcset
   endif
 
-  if classes != ''
-    assign image_classes = image_classes | append: ' ' | append: classes
-    assign no_js_classes = no_js_classes | append: ' ' | append: classes
+  capture image_classes
+    unless simple
+      echo 'is-loading'
+    endunless
+    if classes != ''
+      echo ' ' | append: classes
+    endif
+    if cover == true
+      echo ' img-object-cover'
+    else
+      echo ' img-object-contain'
+    endif
+  endcapture
+
+  capture wrapper_classes
+    echo 'lazy-image is-loading'
+    if cover == true
+      echo ' lazy-image--cover'
+    endif
+  endcapture
+
+  if id
+    assign image_data = ''
   endif
 
   capture image_styles
@@ -64,43 +84,72 @@
       echo styles
     endif
   endcapture
+
+  unless loading
+    if section.location == 'header' or section.location == 'aside' or section.location == 'template' and section.index < 3
+      unless loading == 'lazy'
+        assign loading = 'eager'
+      endunless
+    else
+      assign loading = 'lazy'
+    endif
+  endunless
 -%}
 
 {%- if has_image -%}
-  {%- if product_media -%}
-    <figure class="lazy-image {{ image_classes }}">
-      {{ image | image_url: width: width, height: height | image_tag: loading: loading, sizes: sizes, alt: alt, fetchpriority: fetchpriority, preload: preload, srcset: srcset, class: image_classes, style: image_styles, data-product-image: '', data-image-id: id }}
+  {%- unless simple -%}
+    <figure class="{{ wrapper_classes }}">
+  {%- endunless -%}
+
+    {{ image | image_url: width: width, height: height | image_tag: loading: loading, sizes: sizes, alt: alt, fetchpriority: fetchpriority, preload: preload, srcset: srcset, class: image_classes, style: image_styles, data-product-image: image_data, data-image-id: id }}
+
+  {%- unless simple -%}
     </figure>
-  {%- else -%}
-    {{ image | image_url: width: width, height: height | image_tag: sizes: sizes, alt: alt, srcset: srcset, class: image_classes, style: image_styles }}
-    <noscript>
-      {{ image | image_url: width: width, height: height
-        | image_tag:
-        sizes: sizes,
-        srcset: srcset,
-        alt: alt,
-        class: no_js_classes,
-        style: image_styles,
-        id: id
-      }}
-    </noscript>
-  {%- endif -%}
+  {%- endunless -%}
 {%- else -%}
-  {%- if placeholder_svg != '' -%}
-    <div class="{{ image_classes }}"
-      style="{{ image_styles }}"
-      role="img"
-      aria-label="{{ alt }}">
-      {{- placeholder_svg | placeholder_svg_tag: 'placeholder-svg-filled' -}}
-    </div>
-  {%- else -%}
-    <img src="{{ 'blank.svg' | asset_url }}"
-      loading="lazy"
-      width="{{ width }}"
-      height="{{ height }}"
-      sizes="{{ sizes }}"
-      alt="{{ alt }}"
-      style="{{ image_styles }}"
-      class="{{ image_classes }}">
-  {%- endif -%}
+  {%- liquid
+    capture svg_classes
+      echo placeholder_svg_tag
+      if cover == true
+        echo ' img-object-cover'
+      else
+        echo ' img-object-contain'
+      endif
+    endcapture
+  -%}
+
+  <div class="{{ image_classes }}"
+    style="{{ image_styles }}"
+    role="img"
+    aria-label="{{ alt }}">
+    {% if placeholder_svg != '' %}
+      {%- liquid
+        capture svg_tag
+          echo placeholder_svg | placeholder_svg_tag: svg_classes
+        endcapture
+
+        capture svg_aspect_ratio
+          if cover == true
+            echo 'xMidYMid slice'
+          else
+            echo 'xMidYMid meet'
+          endif
+        endcapture
+
+        capture svg_tag_open
+          echo '<svg preserveAspectRatio="' | append: svg_aspect_ratio | append: '"'
+        endcapture
+        comment
+          Manually splice in attributes neccesary for an SVG to mimic `object-fit: cover or contain`
+        endcomment
+        assign parts = svg_tag | split: '<svg'
+      -%}
+
+      {{ parts[0] | prepend: svg_tag_open }}
+      {{ parts[1] }}
+    {% else %}
+      <svg preserveAspectRatio="xMidYMid slice" class="{{ svg_classes }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 525.5 525.5">
+      </svg>
+    {% endif %}
+  </div>
 {%- endif -%}

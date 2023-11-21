@@ -14,9 +14,10 @@
     {%- liquid
       assign block_id = 'headerBlock--' | append: block.id
       assign block_selector_id = '#' | append: block_id
+      assign is_wide = block.settings.wide_image
 
       assign width_class = 'menu__block--narrow'
-      if block.settings.wide_image
+      if is_wide
         assign width_class = 'menu__block--wide'
       endif
 
@@ -31,6 +32,64 @@
       if heading_size > 2.5
         assign heading_size_medium = heading_size | times: 0.55
       endif
+
+      comment
+        Images sizes
+      endcomment
+      assign wide_images = section.blocks | map: 'settings' | where: 'wide_image'
+      assign wide_images_count = wide_images | where: 'position', index
+      assign margin_size = 30
+      assign wide_image_factor = 1
+      capture container_width_percentage
+        case child_count
+          when 0
+            assign margin_size = 60
+            if image_count == 1
+              assign wide_image_factor = 2
+              echo 0.5
+            else
+              assign wide_image_factor = 1.33
+              echo 1
+            endif
+          else
+            if image_count == 1
+              if is_wide
+                echo 0.5
+              else
+                echo 0.265
+              endif
+            elsif image_count == 2
+              if is_wide
+                echo 0.66
+              else
+                echo 0.5
+              endif
+            else
+              if is_wide
+                echo 0.74
+              else
+                echo 0.6
+              endif
+            endif
+        endcase
+      endcapture
+
+      if wide_images_count.size != image_count
+        if is_wide
+          assign wide_image_factor = 1.33
+        endif
+      endif
+
+      assign images_container_width = '100vw * ' | append: container_width_percentage | append: ' - ' | append: margin_size | append: 'px'
+      unless is_wide
+        assign wide_image_factor = 1
+      endunless
+      assign blocks_gaps = image_count | minus: 1
+      assign gaps_calc = 30 | times: blocks_gaps | append: 'px'
+
+      assign sizes = 'calc(((' | append: images_container_width | append: ' - ' | append: gaps_calc | append: ') / ' | append: image_count | append: ') * ' | append: wide_image_factor | append: ')'
+      assign aspect_ratio = block.settings.aspect_ratio | default: 1
+      assign aspect_ratio = 1 | divided_by: aspect_ratio
     -%}
 
     <div id="{{ block_id }}" class="{{ width_class }}" {{ block.shopify_attributes }}>
@@ -71,7 +130,7 @@
           </a>
         {%- endif -%}
 
-        {%- render 'image-fill', img_object: block.settings.image, aspect_ratio: block.settings.aspect_ratio -%}
+        {%- render 'image-fill', img_object: block.settings.image, aspect_ratio: aspect_ratio, sizes: sizes, loading: 'lazy', fetchpriority: 'high' -%}
       </div>
     </div>
 

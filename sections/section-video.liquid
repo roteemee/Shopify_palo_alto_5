@@ -9,7 +9,7 @@
   assign highlight_color = section.settings.highlight_color
   assign highlight_text_color = section.settings.highlight_text_color
   assign heading_size = section.settings.heading_size | times: 0.01
-  assign text = section.settings.text
+  assign text = section.settings.text | escape
   assign text_color = section.settings.text_color
   assign image = section.settings.image
   assign button_text = section.settings.button_text

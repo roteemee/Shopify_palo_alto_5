@@ -2,6 +2,7 @@
   assign show_locale = false
   assign show_country = false
   assign show_country_flag = section.settings.show_country_flag
+  assign localization_form_id = 'LocalizationForm-' | append: section.id
 
   if section.settings.show_locale_selector and localization.available_languages.size > 1
     assign show_locale = true
@@ -20,10 +21,10 @@
 -%}
 
 {%- if show_locale or show_country -%}
-  {%- form 'localization', class: form_class, id: 'LocalizationForm' -%}
+  {%- form 'localization', class: form_class, id: localization_form_id -%}
     {%- if show_country -%}
       <div>
-        <h2 class="visually-hidden" id="country-heading">{{ 'footer.country' | t }}</h2>
+        <h2 class="visually-hidden" id="country-heading-{{ section.id }}">{{ 'footer.country' | t }}</h2>
 
         <div class="select-popout select-popout--country" data-popout>
           <button type="button" class="select-popout__toggle" aria-expanded="false" aria-controls="country-list" aria-describedby="country-heading" data-popout-toggle>
@@ -35,7 +36,7 @@
             {%- render 'icon-select' -%}
           </button>
 
-          <div id="country-list" class="select-popout__list" data-popout-list>
+          <div id="country-list-{{ section.id }}" class="select-popout__list" data-popout-list>
             <ul class="select-popout__list__scroll">
               {%- for country in localization.available_countries -%}
                 <li class="select-popout__item{% if country.iso_code == localization.country.iso_code %} select-popout__item--current{% endif %}">
@@ -50,7 +51,7 @@
             </ul>
           </div>
 
-          <input type="hidden" name="country_code" id="CountrySelector" value="{{ localization.country.iso_code }}" data-popout-input>
+          <input type="hidden" name="country_code" id="CountrySelector-{{ section.id }}" value="{{ localization.country.iso_code }}" data-popout-input>
         </div>
 
         <noscript>
@@ -78,7 +79,7 @@
 
     {%- if show_locale -%}
       <div>
-        <h2 class="visually-hidden" id="lang-heading">
+        <h2 class="visually-hidden" id="lang-heading-{{ section.id }}">
           {{ 'footer.language' | t }}
         </h2>
 
@@ -88,7 +89,7 @@
             {%- render 'icon-select' -%}
           </button>
 
-          <div id="lang-list" class="select-popout__list" data-popout-list>
+          <div id="lang-list-{{ section.id }}" class="select-popout__list" data-popout-list>
             <ul class="select-popout__list__scroll">
               {%- for language in localization.available_languages -%}
                 <li class="select-popout__item{% if language.iso_code == localization.language.iso_code %} select-popout__item--current{% endif %}">
@@ -107,7 +108,7 @@
             </ul>
           </div>
 
-          <input type="hidden" name="locale_code" id="LocaleSelector" value="{{ localization.language.iso_code }}" data-popout-input>
+          <input type="hidden" name="locale_code" id="LocaleSelector-{{ section.id }}" value="{{ localization.language.iso_code }}" data-popout-input>
         </div>
 
         <noscript>
