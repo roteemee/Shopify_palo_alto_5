@@ -1,1 +1,651 @@
+<<<<<<< HEAD
 {"sections":{"image-accordions-0":{"type":"section-image-accordions","blocks":{"accordion-3":{"type":"image","settings":{"image":"shopify:\/\/shop_images\/facebook-event-cover-657bf6f00ffcaa0fa3e25020.webp","image_mobile":"shopify:\/\/shop_images\/facebook-event-cover-657bf6f00ffcaa0fa3e2501b.webp","overlay_opacity":10,"text_width":"full","text_position":"bottom-left","text_color":"text-light","title":"Welcome to GroomNoir","text":"The home of hair and beard care specially curated for black men","button_1_text":"","button_1_link":"","button_1_color":"btn--white","button_1_style":"btn--solid-border","button_1_size":"btn--small","button_2_text":"SHOP BEARDCARE PRODUCTS","button_2_link":"shopify:\/\/collections\/beard-care","button_2_color":"btn--black","button_2_style":"btn--solid","button_2_size":"btn--small"}},"accordion-0":{"type":"image","settings":{"image":"shopify:\/\/shop_images\/facebook-event-cover-657bf6f00ffcaa0fa3e25018.webp","image_mobile":"shopify:\/\/shop_images\/facebook-event-cover-657bf6f00ffcaa0fa3e25019.webp","overlay_opacity":10,"text_width":"full","text_position":"bottom-left","text_color":"text-light","title":"Welcome to GroomNoir","text":"The home of hair and beard care specially curated for black men","button_1_text":"","button_1_link":"","button_1_color":"btn--white","button_1_style":"btn--solid-border","button_1_size":"btn--small","button_2_text":"Shop Twist & Curl","button_2_link":"shopify:\/\/collections\/twist-curl","button_2_color":"btn--black","button_2_style":"btn--solid","button_2_size":"btn--small"}},"accordion-1":{"type":"image","settings":{"image":"shopify:\/\/shop_images\/facebook-event-cover-657bf6f00ffcaa0fa3e2501d.webp","image_mobile":"shopify:\/\/shop_images\/facebook-event-cover-657bf6ef0ffcaa0fa3e25010.webp","overlay_opacity":10,"text_width":"full","text_position":"bottom-left","text_color":"text-light","title":"Welcome to GroomNoir","text":"The home of hair and beard care specially curated for black men","button_1_text":"","button_1_link":"","button_1_color":"btn--white","button_1_style":"btn--solid-border","button_1_size":"btn--small","button_2_text":"SHOP WAVES","button_2_link":"shopify:\/\/collections\/waves","button_2_color":"btn--black","button_2_style":"btn--solid","button_2_size":"btn--small"}},"accordion-2":{"type":"image","settings":{"image":"shopify:\/\/shop_images\/facebook-event-cover-657bf6f00ffcaa0fa3e2501f.webp","image_mobile":"shopify:\/\/shop_images\/facebook-event-cover-657bf6f00ffcaa0fa3e2501a.webp","overlay_opacity":10,"text_width":"full","text_position":"bottom-left","text_color":"text-light","title":"Welcome to GroomNoir","text":"The home of hair and beard care specially curated for black men","button_1_text":"","button_1_link":"","button_1_color":"btn--white","button_1_style":"btn--solid-border","button_1_size":"btn--small","button_2_text":"SHOP BALD & SHAVE","button_2_link":"shopify:\/\/collections\/bald","button_2_color":"btn--black","button_2_style":"btn--solid","button_2_size":"btn--small"}}},"block_order":["accordion-3","accordion-0","accordion-1","accordion-2"],"settings":{"accordion_height":"full-height","enable_mobile_height":false,"mobile_section_height":"five-fifty-height-mobile","heading_size":100,"width":"wrapper--full","padding_top":0,"padding_bottom":0}},"2d80a7ad-cd09-4577-8fdb-0d0849a24a29":{"type":"section-grid","blocks":{"d1f58182-97bc-4ce1-881a-1374fdff5815":{"type":"text","settings":{"width":"33.33","text_position":"center","subheading":"","title":"Top Bundles","text":"Get them Quick","button_1_text":"SHOP ALL BUNDLES NOW","button_1_link":"shopify:\/\/collections\/bundles","button_2_text":"","button_2_link":"","text_color":"text-dark","bg_color":"rgba(0,0,0,0)"}},"6500e83a-be79-49e2-a589-0dbe0ce380e7":{"type":"product","settings":{"width":"33.33","product":"bald-gold-bundle","overlay_opacity":10,"text_position":"center","subheading":"","text":"","show_price":true,"button_1_text":"Buy Now","text_color":"text-light"}},"e3e65a06-f7f6-4498-a896-f48de78fde11":{"type":"product","settings":{"width":"33.33","product":"shea-moisture-beard-care-bundle","overlay_opacity":10,"text_position":"center","subheading":"","text":"","show_price":true,"button_1_text":"Buy Now","text_color":"text-light"}},"d29ba6f6-8d96-40c0-8159-0a32d268b145":{"type":"product","settings":{"width":"50","product":"scotch-porter-beard-bundle-ultimate","overlay_opacity":25,"text_position":"center","subheading":"","text":"","show_price":true,"button_1_text":"Buy Now","text_color":"text-light"}},"9e687a60-6b2d-4420-9205-45241c1d5352":{"type":"product","settings":{"width":"50","product":"wavebuilder-wave-bundle-cocoa-shea","overlay_opacity":30,"text_position":"center","subheading":"","text":"","show_price":true,"button_1_text":"Buy Now","text_color":"text-light"}}},"block_order":["d1f58182-97bc-4ce1-881a-1374fdff5815","6500e83a-be79-49e2-a589-0dbe0ce380e7","e3e65a06-f7f6-4498-a896-f48de78fde11","d29ba6f6-8d96-40c0-8159-0a32d268b145","9e687a60-6b2d-4420-9205-45241c1d5352"],"settings":{"height":"auto","heading_size":100,"button_1_color":"btn--white","button_1_style":"btn--text","button_1_size":"btn--small","button_2_color":"btn--black","button_2_style":"btn--text","button_2_size":"btn--small","bg_color_secondary":false,"enable_slider_mobile":false,"width":"wrapper","add_gutter":true,"padding_top":60,"padding_bottom":60}},"e2adf461-2c23-49f1-9c64-cc15ce28c5fe":{"type":"section-overlapping-images","settings":{"text_position":"left","text_alignment":"center","images_width":750,"images_offset":60,"image_1":"shopify:\/\/shop_images\/abdulapache_32430493_2074910772727098_9122160140387090432_n_1.png","image_link_1":"","image_2":"shopify:\/\/shop_images\/groomnoir_75256812_2836931552984315_2539727567946940752_n.png","image_link_2":"","hide_image_2":false,"title":"<p>Our Story, Our Promise<\/p>","heading_highlight_type":"circle","highlight_color":"#d43747","highlight_text_color":"#000000","description":"<p>Launched in the summer of 2018, GroomNoir is a UK based black owned hair and beard care retail company.  We specialise in products and accessories specifically curated for black men. <\/p>","heading_size":100,"button_text":"learn more","button_link":"shopify:\/\/pages\/about-us","button_color":"btn--black","button_style":"btn--primary btn--small","button_size":"btn--small","video_text":"","video_link":"","bg_color_secondary":false,"gradient":"","width":"wrapper--full-padded","padding_top":60,"padding_bottom":10}},"ac2075d3-6036-4d49-8db2-202a54a7331b":{"type":"section-custom-content","blocks":{"9f52ba83-fa7e-4f51-b4ca-b23929362065":{"type":"image","settings":{"text_position":"middle-center","image":"shopify:\/\/shop_images\/main-canvas-64117e73076de56e83ee8ea2.png","overlay_opacity":10,"text_color":"text-light","title":"Durags for all occasions","heading_size":100,"image_text":"<p>Describe in a few words your special products, collection, or brand.<\/p>","button_text":"","button_link":"","button_color":"btn--white","button_style":"btn--solid-border","button_size":"btn--small"}},"74291aa8-9ded-4ce3-8eb2-763f18644480":{"type":"collection","settings":{"collection":"durag","title":"","bg_color":"rgba(0,0,0,0)"}}},"block_order":["9f52ba83-fa7e-4f51-b4ca-b23929362065","74291aa8-9ded-4ce3-8eb2-763f18644480"],"settings":{"height":"six-fifty-height","bg_color":"","reverse_blocks":false,"width":"wrapper","add_gutter":false,"padding_top":60,"padding_bottom":60}},"tab-collections":{"type":"section-tab-collections","blocks":{"tab-0":{"type":"collection","settings":{"title":"BEARD OIL","tab_collection":"beard-oil","number_of_products":6,"show_image":false,"overlay_opacity":10,"heading":"<p><\/p>","text_color":"text-light","button_text":"View All","button_link":"","button_color":"btn--white","button_style":"btn--primary btn--small","button_size":"btn--small"}},"tab-1":{"type":"collection","settings":{"title":"BEARD WASH","tab_collection":"beard-wash-condition","number_of_products":6,"show_image":false,"overlay_opacity":10,"heading":"","text_color":"text-light","button_text":"View All","button_link":"","button_color":"btn--white","button_style":"btn--primary btn--small","button_size":"btn--small"}},"tab-2":{"type":"collection","settings":{"title":"BEARD BALM & BUTTER","tab_collection":"beard-balm-butter","number_of_products":6,"show_image":false,"overlay_opacity":10,"heading":"<p><\/p>","text_color":"text-light","button_text":"View All","button_link":"","button_color":"btn--white","button_style":"btn--primary btn--small","button_size":"btn--small"}}},"block_order":["tab-0","tab-1","tab-2"],"settings":{"image_aspect_ratio":1.3,"text_alignment":"text-center","title":"Beardcare Quick Shop","text":"Our favorite picks for the season","tab_heading_size":120,"show_buttons":true,"collection_button_text":"Shop Now","collection_button_color":"btn--black","collection_button_style":"btn--solid","collection_button_size":"btn--small","bg_color_secondary":false,"width":"wrapper","padding_top":60,"padding_bottom":60}},"bc0e8f61-7cfc-4dd2-87e5-b68323416a88":{"type":"section-look","blocks":{"template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-0":{"type":"product","settings":{"product":"frederick-benjamin-conditioner-invigorating-moisturizer-12-oz","position_x":10,"position_y":45}},"template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-1":{"type":"product","settings":{"product":"frederick-benjamin-shampoo-invigorating-cleanser-12-oz","position_x":29,"position_y":45}},"template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-2":{"type":"product","settings":{"product":"frederick-benjamin-daily-hydrator-styling-creme-5-1-oz","position_x":48,"position_y":45}},"f2a5f59c-aba0-4dc3-b49e-fab401fb94d0":{"type":"product","settings":{"product":"frederick-benjamin-crown-control-curl-and-twist-cream-4-oz","position_x":70,"position_y":60}}},"block_order":["template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-0","template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-1","template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-2","f2a5f59c-aba0-4dc3-b49e-fab401fb94d0"],"settings":{"image":"shopify:\/\/shop_images\/main-canvas-637e7bfc2cbda761dca7b74b.png","enable_aspect_ratio":true,"main_image_aspect_ratio":1,"title":"Frederick Benjamin","text":"<p>A new brand addition to the GroomNoir family<\/p>","text_alignment":"text-left","show_hotspots":true,"content_color":"text-dark","hotspot_color":"#f3812e","bg_color_secondary":false,"width":"wrapper--full-padded","padding_top":10,"padding_bottom":10}},"c0cde275-0997-4dce-a2c1-32a67b36c5a8":{"type":"section-blog","disabled":true,"settings":{"blog":"blog","blog_style":"photo","image_aspect_ratio":1,"rows":1,"columns":3,"show_tags":false,"show_author":true,"show_date":true,"show_comments_count":false,"default_color":"none","heading":"From The Blogs","button_text":"View all posts","button_color":"btn--black","button_style":"btn--primary btn--small","button_size":"btn--small","text_color":"text-dark","bg_color_secondary":false,"width":"wrapper","padding_top":0,"padding_bottom":60}},"60989128-6fe7-4b8a-b154-d4f87034f84f":{"type":"section-accordions","blocks":{"template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-0":{"type":"text","settings":{"title":"How long does it take to get my products?","text":"<p>Domestic shipping can take up to 5 business days.<br\/><br\/>Foreign shipping could take up to 10 business days.<br\/><br\/>Due to global supply chain challenges, shipping times could be longer than usual.<\/p>"}},"template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-1":{"type":"text","settings":{"title":"Do you offer warranty for your products?","text":"<p>All our products are subject to quality control.<br\/><br\/>Our warranty provides a guarantee against manufacturer defects.<br\/><br\/>The guarantee covers any manufacturing, design, or material defect. Please notify us within 2 months of noticing any defects.<br\/><br\/>It does not cover blows, improper use, or other issues that are not attributable to a manufacturer defects.<\/p>"}},"template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-2":{"type":"text","settings":{"title":"Do you offer refunds?","text":"<p>Yes, we offer full and partial refunds.<br\/><br\/>Please enquire for more information about our Refund policy.<\/p>"}},"template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-3":{"type":"text","settings":{"title":"What shipping methods do you offer?","text":"<p>We use all major carriers, and local courier partners. Use the shipping estimator in the cart to check your shipping rates.<\/p>"}}},"block_order":["template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-0","template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-1","template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-2","template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-3"],"settings":{"layout":"two-columns","show_accordion_divider":false,"title":"Frequently Asked Questions","subheading":"","text":"<p><\/p>","tabs_bg_color":"#fafafa","bg_color_secondary":false,"text_color":"text-dark","width":"wrapper","padding_top":60,"padding_bottom":60}}},"order":["image-accordions-0","2d80a7ad-cd09-4577-8fdb-0d0849a24a29","e2adf461-2c23-49f1-9c64-cc15ce28c5fe","ac2075d3-6036-4d49-8db2-202a54a7331b","tab-collections","bc0e8f61-7cfc-4dd2-87e5-b68323416a88","c0cde275-0997-4dce-a2c1-32a67b36c5a8","60989128-6fe7-4b8a-b154-d4f87034f84f"]}
+=======
+{"sections":{"image-accordions-0":{"type":"section-image-accordions","blocks":{"accordion-3":{"type":"image","settings":{"image":"shopify:\/\/shop_images\/facebook-event-cover-6375728786b4db2c87a0f17c.png","image_mobile":"shopify:\/\/shop_images\/facebook-event-cover-6375728686b4db2c87a0f17a.png","overlay_opacity":10,"text_width":"full","text_position":"bottom-left","text_color":"text-light","title":"Welcome to GroomNoir","text":"The home of hair and beard care specially curated for black men","button_1_text":"","button_1_link":"","button_1_color":"btn--white","button_1_style":"btn--solid-border","button_1_size":"btn--small","button_2_text":"SHOP BEARDCARE PRODUCTS","button_2_link":"shopify:\/\/collections\/beard-care","button_2_color":"btn--black","button_2_style":"btn--solid","button_2_size":"btn--small"}},"accordion-0":{"type":"image","settings":{"image":"shopify:\/\/shop_images\/facebook-event-cover-6375728686b4db2c87a0f176.png","image_mobile":"shopify:\/\/shop_images\/facebook-event-cover-6375728686b4db2c87a0f175.png","overlay_opacity":10,"text_width":"full","text_position":"bottom-left","text_color":"text-light","title":"Welcome to GroomNoir","text":"The home of hair and beard care specially curated for black men","button_1_text":"","button_1_link":"","button_1_color":"btn--white","button_1_style":"btn--solid-border","button_1_size":"btn--small","button_2_text":"Shop Twist & Curl","button_2_link":"shopify:\/\/collections\/twist-curl","button_2_color":"btn--black","button_2_style":"btn--solid","button_2_size":"btn--small"}},"accordion-1":{"type":"image","settings":{"image":"shopify:\/\/shop_images\/facebook-event-cover-6373807b18b19274ee05ff71.png","image_mobile":"shopify:\/\/shop_images\/main-canvas-636f8930aa6b4357d7991b59.png","overlay_opacity":10,"text_width":"full","text_position":"bottom-left","text_color":"text-light","title":"Welcome to GroomNoir","text":"The home of hair and beard care specially curated for black men","button_1_text":"","button_1_link":"","button_1_color":"btn--white","button_1_style":"btn--solid-border","button_1_size":"btn--small","button_2_text":"SHOP WAVES","button_2_link":"shopify:\/\/collections\/waves","button_2_color":"btn--black","button_2_style":"btn--solid","button_2_size":"btn--small"}},"accordion-2":{"type":"image","settings":{"image":"shopify:\/\/shop_images\/facebook-event-cover-6375728686b4db2c87a0f179.png","image_mobile":"shopify:\/\/shop_images\/facebook-event-cover-6375728786b4db2c87a0f17b.png","overlay_opacity":10,"text_width":"full","text_position":"bottom-left","text_color":"text-light","title":"Welcome to GroomNoir","text":"The home of hair and beard care specially curated for black men","button_1_text":"","button_1_link":"","button_1_color":"btn--white","button_1_style":"btn--solid-border","button_1_size":"btn--small","button_2_text":"SHOP BALD & SHAVE","button_2_link":"shopify:\/\/collections\/bald","button_2_color":"btn--black","button_2_style":"btn--solid","button_2_size":"btn--small"}}},"block_order":["accordion-3","accordion-0","accordion-1","accordion-2"],"settings":{"accordion_height":"full-height","enable_mobile_height":false,"mobile_section_height":"five-fifty-height-mobile","heading_size":100,"width":"wrapper--full","padding_top":0,"padding_bottom":0}},"2d80a7ad-cd09-4577-8fdb-0d0849a24a29":{"type":"section-grid","blocks":{"d1f58182-97bc-4ce1-881a-1374fdff5815":{"type":"text","settings":{"width":"33.33","text_position":"center","subheading":"","title":"Top Bundles","text":"Get them Quick","button_1_text":"SHOP ALL BUNDLES NOW","button_1_link":"shopify:\/\/collections\/bundles","button_2_text":"","button_2_link":"","text_color":"text-dark","bg_color":"rgba(0,0,0,0)"}},"6500e83a-be79-49e2-a589-0dbe0ce380e7":{"type":"product","settings":{"width":"33.33","product":"bald-gold-bundle","overlay_opacity":10,"text_position":"center","subheading":"","text":"","show_price":true,"button_1_text":"Buy Now","text_color":"text-light"}},"e3e65a06-f7f6-4498-a896-f48de78fde11":{"type":"product","settings":{"width":"33.33","product":"shea-moisture-beard-care-bundle","overlay_opacity":10,"text_position":"center","subheading":"","text":"","show_price":true,"button_1_text":"Buy Now","text_color":"text-light"}},"d29ba6f6-8d96-40c0-8159-0a32d268b145":{"type":"product","settings":{"width":"50","product":"scotch-porter-beard-bundle-ultimate","overlay_opacity":25,"text_position":"center","subheading":"","text":"","show_price":true,"button_1_text":"Buy Now","text_color":"text-light"}},"9e687a60-6b2d-4420-9205-45241c1d5352":{"type":"product","settings":{"width":"50","product":"wavebuilder-wave-bundle-cocoa-shea","overlay_opacity":30,"text_position":"center","subheading":"","text":"","show_price":true,"button_1_text":"Buy Now","text_color":"text-light"}}},"block_order":["d1f58182-97bc-4ce1-881a-1374fdff5815","6500e83a-be79-49e2-a589-0dbe0ce380e7","e3e65a06-f7f6-4498-a896-f48de78fde11","d29ba6f6-8d96-40c0-8159-0a32d268b145","9e687a60-6b2d-4420-9205-45241c1d5352"],"settings":{"height":"auto","heading_size":100,"button_1_color":"btn--white","button_1_style":"btn--text","button_1_size":"btn--small","button_2_color":"btn--black","button_2_style":"btn--text","button_2_size":"btn--small","bg_color_secondary":false,"enable_slider_mobile":false,"width":"wrapper","add_gutter":true,"padding_top":60,"padding_bottom":60}},"e2adf461-2c23-49f1-9c64-cc15ce28c5fe":{"type":"section-overlapping-images","settings":{"text_position":"left","text_alignment":"center","images_width":750,"images_offset":60,"image_1":"shopify:\/\/shop_images\/abdulapache_32430493_2074910772727098_9122160140387090432_n_1.png","image_link_1":"","image_2":"shopify:\/\/shop_images\/groomnoir_75256812_2836931552984315_2539727567946940752_n.png","image_link_2":"","hide_image_2":false,"title":"<p>Our Story, Our Promise<\/p>","heading_highlight_type":"circle","highlight_color":"#d43747","highlight_text_color":"#000000","description":"<p>Launched in the summer of 2018, GroomNoir is a UK based black owned hair and beard care retail company.  We specialise in products and accessories specifically curated for black men. <\/p>","heading_size":100,"button_text":"learn more","button_link":"shopify:\/\/pages\/about-us","button_color":"btn--black","button_style":"btn--primary btn--small","button_size":"btn--small","video_text":"","video_link":"","bg_color_secondary":false,"width":"wrapper--full-padded","padding_top":60,"padding_bottom":10}},"ac2075d3-6036-4d49-8db2-202a54a7331b":{"type":"section-custom-content","blocks":{"9f52ba83-fa7e-4f51-b4ca-b23929362065":{"type":"image","settings":{"text_position":"middle-center","image":"shopify:\/\/shop_images\/main-canvas-64117e73076de56e83ee8ea2.png","overlay_opacity":10,"text_color":"text-light","title":"Durags for all occasions","heading_size":100,"button_text":"","button_link":"","button_color":"btn--white","button_style":"btn--solid-border","button_size":"btn--small"}},"74291aa8-9ded-4ce3-8eb2-763f18644480":{"type":"collection","settings":{"collection":"durag","title":"","bg_color":"rgba(0,0,0,0)"}}},"block_order":["9f52ba83-fa7e-4f51-b4ca-b23929362065","74291aa8-9ded-4ce3-8eb2-763f18644480"],"settings":{"height":"six-fifty-height","bg_color":"","width":"wrapper","add_gutter":false,"padding_top":60,"padding_bottom":60}},"tab-collections":{"type":"section-tab-collections","blocks":{"tab-0":{"type":"collection","settings":{"title":"BEARD OIL","tab_collection":"beard-oil","number_of_products":6,"show_image":false,"overlay_opacity":10,"heading":"<p><\/p>","text_color":"text-light","button_text":"View All","button_link":"","button_color":"btn--white","button_style":"btn--primary btn--small","button_size":"btn--small"}},"tab-1":{"type":"collection","settings":{"title":"BEARD WASH","tab_collection":"beard-wash","number_of_products":6,"show_image":false,"overlay_opacity":10,"heading":"<p><\/p>","text_color":"text-light","button_text":"View All","button_link":"","button_color":"btn--white","button_style":"btn--primary btn--small","button_size":"btn--small"}},"tab-2":{"type":"collection","settings":{"title":"BEARD BALM & BUTTER","tab_collection":"beard-balm-butter","number_of_products":6,"show_image":false,"overlay_opacity":10,"heading":"<p><\/p>","text_color":"text-light","button_text":"View All","button_link":"","button_color":"btn--white","button_style":"btn--primary btn--small","button_size":"btn--small"}}},"block_order":["tab-0","tab-1","tab-2"],"settings":{"image_aspect_ratio":1.3,"text_alignment":"text-center","title":"Beardcare Quick Shop","text":"Our favorite picks for the season","tab_heading_size":120,"show_buttons":true,"collection_button_text":"Shop Now","collection_button_color":"btn--black","collection_button_style":"btn--solid","collection_button_size":"btn--small","bg_color_secondary":false,"width":"wrapper","padding_top":60,"padding_bottom":60}},"bc0e8f61-7cfc-4dd2-87e5-b68323416a88":{"type":"section-look","blocks":{"template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-0":{"type":"product","settings":{"product":"frederick-benjamin-conditioner-invigorating-moisturizer-12-oz","position_x":10,"position_y":45}},"template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-1":{"type":"product","settings":{"product":"frederick-benjamin-shampoo-invigorating-cleanser-12-oz","position_x":29,"position_y":45}},"template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-2":{"type":"product","settings":{"product":"frederick-benjamin-daily-hydrator-styling-creme-5-1-oz","position_x":48,"position_y":45}},"f2a5f59c-aba0-4dc3-b49e-fab401fb94d0":{"type":"product","settings":{"product":"frederick-benjamin-crown-control-curl-and-twist-cream-4-oz","position_x":70,"position_y":60}}},"block_order":["template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-0","template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-1","template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-2","f2a5f59c-aba0-4dc3-b49e-fab401fb94d0"],"settings":{"image":"shopify:\/\/shop_images\/main-canvas-637e7bfc2cbda761dca7b74b.png","enable_aspect_ratio":true,"main_image_aspect_ratio":1,"title":"Frederick Benjamin","text":"<p>A new brand addition to the GroomNoir family<\/p>","text_alignment":"text-left","show_hotspots":true,"content_color":"text-dark","hotspot_color":"#f3812e","bg_color_secondary":false,"width":"wrapper--full-padded","padding_top":10,"padding_bottom":10}},"c0cde275-0997-4dce-a2c1-32a67b36c5a8":{"type":"section-blog","settings":{"blog":"blog","blog_style":"photo","image_aspect_ratio":1,"rows":1,"columns":3,"show_tags":false,"show_author":true,"show_date":true,"show_comments_count":false,"default_color":"none","heading":"From The Blogs","button_text":"View all posts","button_color":"btn--black","button_style":"btn--primary btn--small","button_size":"btn--small","text_color":"text-dark","bg_color_secondary":false,"width":"wrapper","padding_top":0,"padding_bottom":60}},"60989128-6fe7-4b8a-b154-d4f87034f84f":{"type":"section-accordions","blocks":{"template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-0":{"type":"text","settings":{"title":"How long does it take to get my products?","text":"<p>Domestic shipping can take up to 5 business days.<br\/><br\/>Foreign shipping could take up to 10 business days.<br\/><br\/>Due to global supply chain challenges, shipping times could be longer than usual.<\/p>"}},"template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-1":{"type":"text","settings":{"title":"Do you offer warranty for your products?","text":"<p>All our products are subject to quality control.<br\/><br\/>Our warranty provides a guarantee against manufacturer defects.<br\/><br\/>The guarantee covers any manufacturing, design, or material defect. Please notify us within 2 months of noticing any defects.<br\/><br\/>It does not cover blows, improper use, or other issues that are not attributable to a manufacturer defects.<\/p>"}},"template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-2":{"type":"text","settings":{"title":"Do you offer refunds?","text":"<p>Yes, we offer full and partial refunds.<br\/><br\/>Please enquire for more information about our Refund policy.<\/p>"}},"template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-3":{"type":"text","settings":{"title":"What shipping methods do you offer?","text":"<p>We use all major carriers, and local courier partners. Use the shipping estimator in the cart to check your shipping rates.<\/p>"}}},"block_order":["template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-0","template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-1","template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-2","template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-3"],"settings":{"layout":"two-columns","show_accordion_divider":false,"title":"Frequently Asked Questions","subheading":"","text":"<p><\/p>","tabs_bg_color":"#fafafa","bg_color_secondary":false,"text_color":"text-dark","width":"wrapper","padding_top":60,"padding_bottom":60}},"1b0c19a5-2771-4781-b737-93232dca0592":{"type":"section-newsletter","settings":{"flex_align":"align--middle-center","text_color":"text-dark","title":"Newsletter","text":"<p>Sign up for exclusive deals and early access to new products.<\/p>","extra_fields":"name","button_text":"","bg_color":"","image_height":"three-fifty-height","overlay_opacity":10,"width":"wrapper--full-padded","padding_top":60,"padding_bottom":60}}},"order":["image-accordions-0","2d80a7ad-cd09-4577-8fdb-0d0849a24a29","e2adf461-2c23-49f1-9c64-cc15ce28c5fe","ac2075d3-6036-4d49-8db2-202a54a7331b","tab-collections","bc0e8f61-7cfc-4dd2-87e5-b68323416a88","c0cde275-0997-4dce-a2c1-32a67b36c5a8","60989128-6fe7-4b8a-b154-d4f87034f84f","1b0c19a5-2771-4781-b737-93232dca0592"]}
+{"sections":{"image-accordions-0":{"type":"section-image-accordions","blocks":{"accordion-3":{"type":"image","settings":{"image":"shopify:\/\/shop_images\/facebook-event-cover-6375728786b4db2c87a0f17c.png","image_mobile":"shopify:\/\/shop_images\/facebook-event-cover-6375728686b4db2c87a0f17a.png","overlay_opacity":10,"text_width":"full","text_position":"bottom-left","text_color":"text-light","title":"Welcome to GroomNoir","text":"The home of hair and beard care specially curated for black men","button_1_text":"","button_1_link":"","button_1_color":"btn--white","button_1_style":"btn--solid-border","button_1_size":"btn--small","button_2_text":"SHOP BEARDCARE PRODUCTS","button_2_link":"shopify:\/\/collections\/beard-care","button_2_color":"btn--black","button_2_style":"btn--solid","button_2_size":"btn--small"}},"accordion-0":{"type":"image","settings":{"image":"shopify:\/\/shop_images\/facebook-event-cover-6375728686b4db2c87a0f176.png","image_mobile":"shopify:\/\/shop_images\/facebook-event-cover-6375728686b4db2c87a0f175.png","overlay_opacity":10,"text_width":"full","text_position":"bottom-left","text_color":"text-light","title":"Welcome to GroomNoir","text":"The home of hair and beard care specially curated for black men","button_1_text":"","button_1_link":"","button_1_color":"btn--white","button_1_style":"btn--solid-border","button_1_size":"btn--small","button_2_text":"Shop Twist & Curl","button_2_link":"shopify:\/\/collections\/twist-curl","button_2_color":"btn--black","button_2_style":"btn--solid","button_2_size":"btn--small"}},"accordion-1":{"type":"image","settings":{"image":"shopify:\/\/shop_images\/facebook-event-cover-6373807b18b19274ee05ff71.png","image_mobile":"shopify:\/\/shop_images\/main-canvas-636f8930aa6b4357d7991b59.png","overlay_opacity":10,"text_width":"full","text_position":"bottom-left","text_color":"text-light","title":"Welcome to GroomNoir","text":"The home of hair and beard care specially curated for black men","button_1_text":"","button_1_link":"","button_1_color":"btn--white","button_1_style":"btn--solid-border","button_1_size":"btn--small","button_2_text":"SHOP WAVES","button_2_link":"shopify:\/\/collections\/waves","button_2_color":"btn--black","button_2_style":"btn--solid","button_2_size":"btn--small"}},"accordion-2":{"type":"image","settings":{"image":"shopify:\/\/shop_images\/facebook-event-cover-6375728686b4db2c87a0f179.png","image_mobile":"shopify:\/\/shop_images\/facebook-event-cover-6375728786b4db2c87a0f17b.png","overlay_opacity":10,"text_width":"full","text_position":"bottom-left","text_color":"text-light","title":"Welcome to GroomNoir","text":"The home of hair and beard care specially curated for black men","button_1_text":"","button_1_link":"","button_1_color":"btn--white","button_1_style":"btn--solid-border","button_1_size":"btn--small","button_2_text":"SHOP BALD & SHAVE","button_2_link":"shopify:\/\/collections\/bald","button_2_color":"btn--black","button_2_style":"btn--solid","button_2_size":"btn--small"}}},"block_order":["accordion-3","accordion-0","accordion-1","accordion-2"],"settings":{"accordion_height":"full-height","enable_mobile_height":false,"mobile_section_height":"five-fifty-height-mobile","heading_size":100,"width":"wrapper--full","padding_top":0,"padding_bottom":0}},"2d80a7ad-cd09-4577-8fdb-0d0849a24a29":{"type":"section-grid","blocks":{"d1f58182-97bc-4ce1-881a-1374fdff5815":{"type":"text","settings":{"width":"33.33","text_position":"center","subheading":"","title":"Top Bundles","text":"Get them Quick","button_1_text":"SHOP ALL BUNDLES NOW","button_1_link":"shopify:\/\/collections\/bundles","button_2_text":"","button_2_link":"","text_color":"text-dark","bg_color":"rgba(0,0,0,0)"}},"6500e83a-be79-49e2-a589-0dbe0ce380e7":{"type":"product","settings":{"width":"33.33","product":"bald-gold-bundle","overlay_opacity":10,"text_position":"center","subheading":"","text":"","show_price":true,"button_1_text":"Buy Now","text_color":"text-light"}},"e3e65a06-f7f6-4498-a896-f48de78fde11":{"type":"product","settings":{"width":"33.33","product":"shea-moisture-beard-care-bundle","overlay_opacity":10,"text_position":"center","subheading":"","text":"","show_price":true,"button_1_text":"Buy Now","text_color":"text-light"}},"d29ba6f6-8d96-40c0-8159-0a32d268b145":{"type":"product","settings":{"width":"50","product":"scotch-porter-beard-bundle-ultimate","overlay_opacity":25,"text_position":"center","subheading":"","text":"","show_price":true,"button_1_text":"Buy Now","text_color":"text-light"}},"9e687a60-6b2d-4420-9205-45241c1d5352":{"type":"product","settings":{"width":"50","product":"wavebuilder-wave-bundle-cocoa-shea","overlay_opacity":30,"text_position":"center","subheading":"","text":"","show_price":true,"button_1_text":"Buy Now","text_color":"text-light"}}},"block_order":["d1f58182-97bc-4ce1-881a-1374fdff5815","6500e83a-be79-49e2-a589-0dbe0ce380e7","e3e65a06-f7f6-4498-a896-f48de78fde11","d29ba6f6-8d96-40c0-8159-0a32d268b145","9e687a60-6b2d-4420-9205-45241c1d5352"],"settings":{"height":"auto","heading_size":100,"button_1_color":"btn--white","button_1_style":"btn--text","button_1_size":"btn--small","button_2_color":"btn--black","button_2_style":"btn--text","button_2_size":"btn--small","bg_color_secondary":false,"enable_slider_mobile":false,"width":"wrapper","add_gutter":true,"padding_top":60,"padding_bottom":60}},"e2adf461-2c23-49f1-9c64-cc15ce28c5fe":{"type":"section-overlapping-images","settings":{"text_position":"left","text_alignment":"center","images_width":750,"images_offset":60,"image_1":"shopify:\/\/shop_images\/abdulapache_32430493_2074910772727098_9122160140387090432_n_1.png","image_link_1":"","image_2":"shopify:\/\/shop_images\/groomnoir_75256812_2836931552984315_2539727567946940752_n.png","image_link_2":"","hide_image_2":false,"title":"<p>Our Story, Our Promise<\/p>","heading_highlight_type":"circle","highlight_color":"#d43747","highlight_text_color":"#000000","description":"<p>Launched in the summer of 2018, GroomNoir is a UK based black owned hair and beard care retail company.  We specialise in products and accessories specifically curated for black men. <\/p>","heading_size":100,"button_text":"learn more","button_link":"shopify:\/\/pages\/about-us","button_color":"btn--black","button_style":"btn--primary btn--small","button_size":"btn--small","video_text":"","video_link":"","bg_color_secondary":false,"width":"wrapper--full-padded","padding_top":60,"padding_bottom":10}},"ac2075d3-6036-4d49-8db2-202a54a7331b":{"type":"section-custom-content","blocks":{"9f52ba83-fa7e-4f51-b4ca-b23929362065":{"type":"image","settings":{"text_position":"middle-center","image":"shopify:\/\/shop_images\/main-canvas-64117e73076de56e83ee8ea2.png","overlay_opacity":10,"text_color":"text-light","title":"Durags for all occasions","heading_size":100,"text":"","button_text":"","button_link":"","button_color":"btn--white","button_style":"btn--solid-border","button_size":"btn--small"}},"74291aa8-9ded-4ce3-8eb2-763f18644480":{"type":"collection","settings":{"collection":"durag","title":"","bg_color":"rgba(0,0,0,0)"}}},"block_order":["9f52ba83-fa7e-4f51-b4ca-b23929362065","74291aa8-9ded-4ce3-8eb2-763f18644480"],"settings":{"height":"six-fifty-height","bg_color":"","width":"wrapper","add_gutter":false,"padding_top":60,"padding_bottom":60}},"tab-collections":{"type":"section-tab-collections","blocks":{"tab-0":{"type":"collection","settings":{"title":"BEARD OIL","tab_collection":"beard-oil","number_of_products":6,"show_image":false,"overlay_opacity":10,"heading":"<p><\/p>","text_color":"text-light","button_text":"View All","button_link":"","button_color":"btn--white","button_style":"btn--primary btn--small","button_size":"btn--small"}},"tab-1":{"type":"collection","settings":{"title":"BEARD WASH","tab_collection":"beard-wash","number_of_products":6,"show_image":false,"overlay_opacity":10,"heading":"<p><\/p>","text_color":"text-light","button_text":"View All","button_link":"","button_color":"btn--white","button_style":"btn--primary btn--small","button_size":"btn--small"}},"tab-2":{"type":"collection","settings":{"title":"BEARD BALM & BUTTER","tab_collection":"beard-balm-butter","number_of_products":6,"show_image":false,"overlay_opacity":10,"heading":"<p><\/p>","text_color":"text-light","button_text":"View All","button_link":"","button_color":"btn--white","button_style":"btn--primary btn--small","button_size":"btn--small"}}},"block_order":["tab-0","tab-1","tab-2"],"settings":{"image_aspect_ratio":1.3,"text_alignment":"text-center","title":"Beardcare Quick Shop","text":"Our favorite picks for the season","tab_heading_size":120,"show_buttons":true,"collection_button_text":"Shop Now","collection_button_color":"btn--black","collection_button_style":"btn--solid","collection_button_size":"btn--small","bg_color_secondary":false,"width":"wrapper","padding_top":60,"padding_bottom":60}},"bc0e8f61-7cfc-4dd2-87e5-b68323416a88":{"type":"section-look","blocks":{"template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-0":{"type":"product","settings":{"product":"frederick-benjamin-conditioner-invigorating-moisturizer-12-oz","position_x":10,"position_y":45}},"template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-1":{"type":"product","settings":{"product":"frederick-benjamin-shampoo-invigorating-cleanser-12-oz","position_x":29,"position_y":45}},"template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-2":{"type":"product","settings":{"product":"frederick-benjamin-daily-hydrator-styling-creme-5-1-oz","position_x":48,"position_y":45}},"f2a5f59c-aba0-4dc3-b49e-fab401fb94d0":{"type":"product","settings":{"product":"frederick-benjamin-crown-control-curl-and-twist-cream-4-oz","position_x":70,"position_y":60}}},"block_order":["template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-0","template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-1","template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-2","f2a5f59c-aba0-4dc3-b49e-fab401fb94d0"],"settings":{"image":"shopify:\/\/shop_images\/main-canvas-637e7bfc2cbda761dca7b74b.png","enable_aspect_ratio":true,"main_image_aspect_ratio":1,"title":"Frederick Benjamin","text":"<p>A new brand addition to the GroomNoir family<\/p>","text_alignment":"text-left","show_hotspots":true,"content_color":"text-dark","hotspot_color":"#f3812e","bg_color_secondary":false,"width":"wrapper--full-padded","padding_top":10,"padding_bottom":10}},"c0cde275-0997-4dce-a2c1-32a67b36c5a8":{"type":"section-blog","settings":{"blog":"blog","blog_style":"photo","image_aspect_ratio":1,"rows":1,"columns":3,"show_tags":false,"show_author":true,"show_date":true,"show_comments_count":false,"default_color":"none","heading":"From The Blogs","button_text":"View all posts","button_color":"btn--black","button_style":"btn--primary btn--small","button_size":"btn--small","text_color":"text-dark","bg_color_secondary":false,"width":"wrapper","padding_top":0,"padding_bottom":60}},"60989128-6fe7-4b8a-b154-d4f87034f84f":{"type":"section-accordions","blocks":{"template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-0":{"type":"text","settings":{"title":"How long does it take to get my products?","text":"<p>Domestic shipping can take up to 5 business days.<br\/><br\/>Foreign shipping could take up to 10 business days.<br\/><br\/>Due to global supply chain challenges, shipping times could be longer than usual.<\/p>"}},"template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-1":{"type":"text","settings":{"title":"Do you offer warranty for your products?","text":"<p>All our products are subject to quality control.<br\/><br\/>Our warranty provides a guarantee against manufacturer defects.<br\/><br\/>The guarantee covers any manufacturing, design, or material defect. Please notify us within 2 months of noticing any defects.<br\/><br\/>It does not cover blows, improper use, or other issues that are not attributable to a manufacturer defects.<\/p>"}},"template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-2":{"type":"text","settings":{"title":"Do you offer refunds?","text":"<p>Yes, we offer full and partial refunds.<br\/><br\/>Please enquire for more information about our Refund policy.<\/p>"}},"template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-3":{"type":"text","settings":{"title":"What shipping methods do you offer?","text":"<p>We use all major carriers, and local courier partners. Use the shipping estimator in the cart to check your shipping rates.<\/p>"}}},"block_order":["template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-0","template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-1","template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-2","template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-3"],"settings":{"layout":"two-columns","show_accordion_divider":false,"title":"Frequently Asked Questions","subheading":"","text":"<p><\/p>","tabs_bg_color":"#fafafa","bg_color_secondary":false,"text_color":"text-dark","width":"wrapper","padding_top":60,"padding_bottom":60}},"1b0c19a5-2771-4781-b737-93232dca0592":{"type":"section-newsletter","settings":{"flex_align":"align--middle-center","text_color":"text-dark","title":"Newsletter","text":"<p>Sign up for exclusive deals and early access to new products.<\/p>","extra_fields":"name","button_text":"","bg_color":"","image_height":"three-fifty-height","overlay_opacity":10,"width":"wrapper--full-padded","padding_top":60,"padding_bottom":60}}},"order":["image-accordions-0","2d80a7ad-cd09-4577-8fdb-0d0849a24a29","e2adf461-2c23-49f1-9c64-cc15ce28c5fe","ac2075d3-6036-4d49-8db2-202a54a7331b","tab-collections","bc0e8f61-7cfc-4dd2-87e5-b68323416a88","c0cde275-0997-4dce-a2c1-32a67b36c5a8","60989128-6fe7-4b8a-b154-d4f87034f84f","1b0c19a5-2771-4781-b737-93232dca0592"]}
+{
+  "sections": {
+    "image-accordions-0": {
+      "type": "section-image-accordions",
+      "blocks": {
+        "accordion-3": {
+          "type": "image",
+          "settings": {
+            "image": "shopify:\/\/shop_images\/facebook-event-cover-6375728786b4db2c87a0f17c.png",
+            "image_mobile": "shopify:\/\/shop_images\/facebook-event-cover-6375728686b4db2c87a0f17a.png",
+            "overlay_opacity": 10,
+            "text_width": "full",
+            "text_position": "bottom-left",
+            "text_color": "text-light",
+            "title": "Welcome to GroomNoir",
+            "text": "The home of hair and beard care specially curated for black men",
+            "button_1_text": "",
+            "button_1_link": "",
+            "button_1_color": "btn--white",
+            "button_1_style": "btn--solid-border",
+            "button_1_size": "btn--small",
+            "button_2_text": "",
+            "button_2_link": "",
+            "button_2_color": "btn--black",
+            "button_2_style": "btn--solid",
+            "button_2_size": "btn--small"
+          }
+        },
+        "accordion-0": {
+          "type": "image",
+          "settings": {
+            "image": "shopify:\/\/shop_images\/facebook-event-cover-6375728686b4db2c87a0f176.png",
+            "image_mobile": "shopify:\/\/shop_images\/facebook-event-cover-6375728686b4db2c87a0f175.png",
+            "overlay_opacity": 10,
+            "text_width": "full",
+            "text_position": "bottom-left",
+            "text_color": "text-light",
+            "title": "Welcome to GroomNoir",
+            "text": "The home of hair and beard care specially curated for black men",
+            "button_1_text": "",
+            "button_1_link": "",
+            "button_1_color": "btn--white",
+            "button_1_style": "btn--solid-border",
+            "button_1_size": "btn--small",
+            "button_2_text": "",
+            "button_2_link": "",
+            "button_2_color": "btn--black",
+            "button_2_style": "btn--solid",
+            "button_2_size": "btn--small"
+          }
+        },
+        "accordion-1": {
+          "type": "image",
+          "settings": {
+            "image": "shopify:\/\/shop_images\/facebook-event-cover-6373807b18b19274ee05ff71.png",
+            "image_mobile": "shopify:\/\/shop_images\/main-canvas-636f8930aa6b4357d7991b59.png",
+            "overlay_opacity": 10,
+            "text_width": "full",
+            "text_position": "bottom-left",
+            "text_color": "text-light",
+            "title": "Welcome to GroomNoir",
+            "text": "The home of hair and beard care specially curated for black men",
+            "button_1_text": "",
+            "button_1_link": "",
+            "button_1_color": "btn--white",
+            "button_1_style": "btn--solid-border",
+            "button_1_size": "btn--small",
+            "button_2_text": "",
+            "button_2_link": "",
+            "button_2_color": "btn--black",
+            "button_2_style": "btn--solid",
+            "button_2_size": "btn--small"
+          }
+        },
+        "accordion-2": {
+          "type": "image",
+          "settings": {
+            "image": "shopify:\/\/shop_images\/facebook-event-cover-6375728686b4db2c87a0f179.png",
+            "image_mobile": "shopify:\/\/shop_images\/facebook-event-cover-6375728786b4db2c87a0f17b.png",
+            "overlay_opacity": 10,
+            "text_width": "full",
+            "text_position": "bottom-left",
+            "text_color": "text-light",
+            "title": "Welcome to GroomNoir",
+            "text": "The home of hair and beard care specially curated for black men",
+            "button_1_text": "",
+            "button_1_link": "",
+            "button_1_color": "btn--white",
+            "button_1_style": "btn--solid-border",
+            "button_1_size": "btn--small",
+            "button_2_text": "",
+            "button_2_link": "",
+            "button_2_color": "btn--black",
+            "button_2_style": "btn--solid",
+            "button_2_size": "btn--small"
+          }
+        }
+      },
+      "block_order": [
+        "accordion-3",
+        "accordion-0",
+        "accordion-1",
+        "accordion-2"
+      ],
+      "settings": {
+        "accordion_height": "full-height",
+        "enable_mobile_height": false,
+        "mobile_section_height": "five-fifty-height-mobile",
+        "heading_size": 100,
+        "width": "wrapper--full",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "2d80a7ad-cd09-4577-8fdb-0d0849a24a29": {
+      "type": "section-grid",
+      "blocks": {
+        "d1f58182-97bc-4ce1-881a-1374fdff5815": {
+          "type": "text",
+          "settings": {
+            "width": "33.33",
+            "text_position": "center",
+            "subheading": "",
+            "title": "Top Bundles",
+            "text": "Get them Quick",
+            "button_1_text": "Shop Now",
+            "button_1_link": "",
+            "button_2_text": "",
+            "button_2_link": "",
+            "text_color": "text-dark",
+            "bg_color": "rgba(0,0,0,0)"
+          }
+        },
+        "6500e83a-be79-49e2-a589-0dbe0ce380e7": {
+          "type": "product",
+          "settings": {
+            "width": "33.33",
+            "product": "bald-gold-bundle",
+            "overlay_opacity": 10,
+            "text_position": "center",
+            "subheading": "",
+            "text": "",
+            "show_price": true,
+            "button_1_text": "Shop Now",
+            "text_color": "text-light"
+          }
+        },
+        "e3e65a06-f7f6-4498-a896-f48de78fde11": {
+          "type": "product",
+          "settings": {
+            "width": "33.33",
+            "product": "shea-moisture-beard-care-bundle",
+            "overlay_opacity": 10,
+            "text_position": "center",
+            "subheading": "",
+            "text": "",
+            "show_price": true,
+            "button_1_text": "Shop Now",
+            "text_color": "text-light"
+          }
+        },
+        "d29ba6f6-8d96-40c0-8159-0a32d268b145": {
+          "type": "product",
+          "settings": {
+            "width": "33.33",
+            "product": "scotch-porter-beard-bundle-ultimate",
+            "overlay_opacity": 25,
+            "text_position": "center",
+            "subheading": "",
+            "text": "",
+            "show_price": true,
+            "button_1_text": "Shop Now",
+            "text_color": "text-light"
+          }
+        },
+        "9e687a60-6b2d-4420-9205-45241c1d5352": {
+          "type": "product",
+          "settings": {
+            "width": "33.33",
+            "product": "wavebuilder-wave-bundle-cocoa-shea",
+            "overlay_opacity": 30,
+            "text_position": "center",
+            "subheading": "",
+            "text": "",
+            "show_price": true,
+            "button_1_text": "Shop Now",
+            "text_color": "text-light"
+          }
+        }
+      },
+      "block_order": [
+        "d1f58182-97bc-4ce1-881a-1374fdff5815",
+        "6500e83a-be79-49e2-a589-0dbe0ce380e7",
+        "e3e65a06-f7f6-4498-a896-f48de78fde11",
+        "d29ba6f6-8d96-40c0-8159-0a32d268b145",
+        "9e687a60-6b2d-4420-9205-45241c1d5352"
+      ],
+      "settings": {
+        "height": "auto",
+        "heading_size": 100,
+        "button_1_color": "btn--white",
+        "button_1_style": "btn--text",
+        "button_1_size": "btn--small",
+        "button_2_color": "btn--black",
+        "button_2_style": "btn--text",
+        "button_2_size": "btn--small",
+        "bg_color_secondary": false,
+        "enable_slider_mobile": false,
+        "width": "wrapper",
+        "add_gutter": true,
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "54683621-403d-4a3a-8b9b-e6856331f6ec": {
+      "type": "section-split-images",
+      "blocks": {
+        "template--16761573179606__54683621-403d-4a3a-8b9b-e6856331f6ec-1670494255c426e10a-0": {
+          "type": "image",
+          "settings": {
+            "image": "shopify:\/\/shop_images\/Bundle_Ad_web_dim.png"
+          }
+        }
+      },
+      "block_order": [
+        "template--16761573179606__54683621-403d-4a3a-8b9b-e6856331f6ec-1670494255c426e10a-0"
+      ],
+      "settings": {
+        "image_height": "full-height",
+        "enable_mobile_height": false,
+        "mobile_image_height": "five-fifty-height-mobile",
+        "mobile_layout": "first-block",
+        "text_position": "bottom-center",
+        "overlay_opacity": 30,
+        "width": "wrapper--full-padded",
+        "text_color": "text-light",
+        "title": "",
+        "heading_highlight_type": "italics",
+        "highlight_color": "#D43747",
+        "heading_size": 120,
+        "text": "",
+        "button_text": "SHOP ALL BUNDLES",
+        "button_link": "shopify:\/\/collections\/bundles",
+        "button_color": "btn--white",
+        "button_style": "btn--primary btn--small",
+        "button_size": "btn--small"
+      }
+    },
+    "d9792d77-19d0-4329-ab03-33e084915d6a": {
+      "type": "section-grid",
+      "disabled": true,
+      "blocks": {
+        "91ee30d5-8f0b-41d2-8349-e74b191a0d06": {
+          "type": "image",
+          "settings": {
+            "width": "33.33",
+            "image": "shopify:\/\/shop_images\/Bundle_Ad_web_dim.png",
+            "overlay_opacity": 10,
+            "text_position": "bottom-right",
+            "subheading": "",
+            "title": "",
+            "text": "",
+            "button_1_text": "Shop Now",
+            "button_1_link": "",
+            "button_2_text": "",
+            "button_2_link": "",
+            "text_color": "text-light"
+          }
+        }
+      },
+      "block_order": [
+        "91ee30d5-8f0b-41d2-8349-e74b191a0d06"
+      ],
+      "settings": {
+        "height": "450",
+        "heading_size": 150,
+        "button_1_color": "btn--white",
+        "button_1_style": "btn--text",
+        "button_1_size": "btn--small",
+        "button_2_color": "btn--black",
+        "button_2_style": "btn--text",
+        "button_2_size": "btn--small",
+        "bg_color_secondary": false,
+        "enable_slider_mobile": true,
+        "width": "wrapper",
+        "add_gutter": true,
+        "padding_top": 0,
+        "padding_bottom": 60
+      }
+    },
+    "e2adf461-2c23-49f1-9c64-cc15ce28c5fe": {
+      "type": "section-overlapping-images",
+      "settings": {
+        "text_position": "left",
+        "text_alignment": "center",
+        "images_width": 750,
+        "images_offset": 60,
+        "image_1": "shopify:\/\/shop_images\/abdulapache_32430493_2074910772727098_9122160140387090432_n_1.png",
+        "image_link_1": "",
+        "image_2": "shopify:\/\/shop_images\/groomnoir_75256812_2836931552984315_2539727567946940752_n.png",
+        "image_link_2": "",
+        "hide_image_2": false,
+        "heading": "Our Story, Our Promise",
+        "description": "<p>Launched in the summer of 2018, GroomNoir is a UK based black owned hair and beard care retail company.  We specialise in products and accessories specifically curated for black men. <\/p>",
+        "heading_size": 100,
+        "button_text": "learn more",
+        "button_link": "shopify:\/\/pages\/about-us",
+        "button_color": "btn--black",
+        "button_style": "btn--primary btn--small",
+        "button_size": "btn--small",
+        "video_text": "",
+        "video_link": "",
+        "bg_color_secondary": false,
+        "width": "wrapper--full-padded",
+        "padding_top": 60,
+        "padding_bottom": 10
+      }
+    },
+    "d2114bb4-eda6-47c3-8f01-7fc8d2fbfedd": {
+      "type": "section-custom-content",
+      "blocks": {
+        "65ac0b8a-9461-47a1-905f-1f3d9bb37585": {
+          "type": "video",
+          "settings": {
+            "text_position": "middle-center",
+            "video_link_bg": "https:\/\/cdn.shopify.com\/videos\/c\/o\/v\/efc232e0dc044931ab3949ca01a28086.mp4",
+            "video_link": "https:\/\/cdn.shopify.com\/videos\/c\/o\/v\/efc232e0dc044931ab3949ca01a28086.mp4",
+            "overlay_opacity": 10,
+            "text_color": "text-light",
+            "title": "Durags for every occasion",
+            "text": "",
+            "heading_size": 100,
+            "button_text": "",
+            "button_link": "",
+            "button_color": "btn--white",
+            "button_style": "btn--secondary btn--small",
+            "button_size": "btn--small"
+          }
+        },
+        "3c74a08e-316a-4e5b-8b04-4d0b918cfd40": {
+          "type": "collection",
+          "settings": {
+            "collection": "durag",
+            "title": "",
+            "bg_color": "rgba(0,0,0,0)"
+          }
+        }
+      },
+      "block_order": [
+        "65ac0b8a-9461-47a1-905f-1f3d9bb37585",
+        "3c74a08e-316a-4e5b-8b04-4d0b918cfd40"
+      ],
+      "settings": {
+        "height": "five-fifty-height",
+        "bg_color": "#f5f1eb",
+        "width": "wrapper--full",
+        "add_gutter": false,
+        "padding_top": 0,
+        "padding_bottom": 12
+      }
+    },
+    "tab-collections": {
+      "type": "section-tab-collections",
+      "blocks": {
+        "tab-0": {
+          "type": "collection",
+          "settings": {
+            "title": "BEARD OIL",
+            "tab_collection": "beard-oil",
+            "number_of_products": 6,
+            "show_image": false,
+            "overlay_opacity": 10,
+            "heading": "<p><\/p>",
+            "text_color": "text-light",
+            "button_text": "View All",
+            "button_link": "",
+            "button_color": "btn--white",
+            "button_style": "btn--primary btn--small",
+            "button_size": "btn--small"
+          }
+        },
+        "tab-1": {
+          "type": "collection",
+          "settings": {
+            "title": "BEARD WASH",
+            "tab_collection": "beard-wash",
+            "number_of_products": 6,
+            "show_image": false,
+            "overlay_opacity": 10,
+            "heading": "<p><\/p>",
+            "text_color": "text-light",
+            "button_text": "View All",
+            "button_link": "",
+            "button_color": "btn--white",
+            "button_style": "btn--primary btn--small",
+            "button_size": "btn--small"
+          }
+        },
+        "tab-2": {
+          "type": "collection",
+          "settings": {
+            "title": "BEARD BALM & BUTTER",
+            "tab_collection": "beard-balm-butter",
+            "number_of_products": 6,
+            "show_image": false,
+            "overlay_opacity": 10,
+            "heading": "<p><\/p>",
+            "text_color": "text-light",
+            "button_text": "View All",
+            "button_link": "",
+            "button_color": "btn--white",
+            "button_style": "btn--primary btn--small",
+            "button_size": "btn--small"
+          }
+        }
+      },
+      "block_order": [
+        "tab-0",
+        "tab-1",
+        "tab-2"
+      ],
+      "settings": {
+        "text_alignment": "text-center",
+        "title": "Beardcare Quick Shop",
+        "text": "Our favorite picks for the season",
+        "show_buttons": true,
+        "collection_button_text": "Shop Now",
+        "collection_button_color": "btn--black",
+        "collection_button_style": "btn--solid",
+        "collection_button_size": "btn--small",
+        "bg_color_secondary": false,
+        "width": "wrapper",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "bc0e8f61-7cfc-4dd2-87e5-b68323416a88": {
+      "type": "section-look",
+      "blocks": {
+        "template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-0": {
+          "type": "product",
+          "settings": {
+            "product": "frederick-benjamin-conditioner-invigorating-moisturizer-12-oz",
+            "position_x": 10,
+            "position_y": 45
+          }
+        },
+        "template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-1": {
+          "type": "product",
+          "settings": {
+            "product": "frederick-benjamin-shampoo-invigorating-cleanser-12-oz",
+            "position_x": 29,
+            "position_y": 45
+          }
+        },
+        "template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-2": {
+          "type": "product",
+          "settings": {
+            "product": "frederick-benjamin-daily-hydrator-styling-creme-5-1-oz",
+            "position_x": 48,
+            "position_y": 45
+          }
+        },
+        "f2a5f59c-aba0-4dc3-b49e-fab401fb94d0": {
+          "type": "product",
+          "settings": {
+            "product": "frederick-benjamin-crown-control-curl-and-twist-cream-4-oz",
+            "position_x": 70,
+            "position_y": 60
+          }
+        }
+      },
+      "block_order": [
+        "template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-0",
+        "template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-1",
+        "template--16761573179606__bc0e8f61-7cfc-4dd2-87e5-b68323416a88-166616099644064e5c-2",
+        "f2a5f59c-aba0-4dc3-b49e-fab401fb94d0"
+      ],
+      "settings": {
+        "image": "shopify:\/\/shop_images\/main-canvas-637e7bfc2cbda761dca7b74b.png",
+        "enable_aspect_ratio": true,
+        "main_image_aspect_ratio": 1,
+        "title": "Frederick Benjamin",
+        "text": "<p>A new brand addition to the GroomNoir family<\/p>",
+        "text_alignment": "text-left",
+        "show_hotspots": true,
+        "content_color": "text-dark",
+        "hotspot_color": "#f3812e",
+        "bg_color_secondary": false,
+        "width": "wrapper--full-padded",
+        "padding_top": 10,
+        "padding_bottom": 10
+      }
+    },
+    "5421e01c-aada-451f-b97a-b078eccc9ea4": {
+      "type": "section-tab-collections",
+      "disabled": true,
+      "blocks": {
+        "template--16761573179606__5421e01c-aada-451f-b97a-b078eccc9ea4-166864415027f5b7cb-1": {
+          "type": "collection",
+          "settings": {
+            "title": "",
+            "tab_collection": "bundles",
+            "number_of_products": 6,
+            "show_image": true,
+            "image": "shopify:\/\/shop_images\/IG_Posts_-_Giveaways_Sales.png",
+            "overlay_opacity": 10,
+            "heading": "<p><\/p>",
+            "text_color": "text-light",
+            "button_text": "View All",
+            "button_link": "",
+            "button_color": "btn--white",
+            "button_style": "btn--primary btn--small",
+            "button_size": "btn--small"
+          }
+        }
+      },
+      "block_order": [
+        "template--16761573179606__5421e01c-aada-451f-b97a-b078eccc9ea4-166864415027f5b7cb-1"
+      ],
+      "settings": {
+        "text_alignment": "text-center",
+        "title": "",
+        "text": "Our favorite picks for the season",
+        "show_buttons": true,
+        "collection_button_text": "Shop Now",
+        "collection_button_color": "btn--black",
+        "collection_button_style": "btn--solid",
+        "collection_button_size": "btn--small",
+        "bg_color_secondary": false,
+        "width": "wrapper--full-padded",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "c0cde275-0997-4dce-a2c1-32a67b36c5a8": {
+      "type": "section-blog",
+      "settings": {
+        "blog": "blog",
+        "blog_style": "photo",
+        "image_aspect_ratio": 1,
+        "rows": 1,
+        "columns": 3,
+        "show_tags": false,
+        "show_author": true,
+        "show_date": true,
+        "show_comments_count": false,
+        "default_color": "none",
+        "heading": "From The Blogs",
+        "button_text": "View all posts",
+        "button_color": "btn--black",
+        "button_style": "btn--primary btn--small",
+        "button_size": "btn--small",
+        "text_color": "text-dark",
+        "bg_color_secondary": false,
+        "width": "wrapper",
+        "padding_top": 0,
+        "padding_bottom": 60
+      }
+    },
+    "60989128-6fe7-4b8a-b154-d4f87034f84f": {
+      "type": "section-accordions",
+      "blocks": {
+        "template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-0": {
+          "type": "text",
+          "settings": {
+            "title": "How long does it take to get my products?",
+            "text": "<p>Domestic shipping can take up to 5 business days.<br\/><br\/>Foreign shipping could take up to 10 business days.<br\/><br\/>Due to global supply chain challenges, shipping times could be longer than usual.<\/p>"
+          }
+        },
+        "template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-1": {
+          "type": "text",
+          "settings": {
+            "title": "Do you offer warranty for your products?",
+            "text": "<p>All our products are subject to quality control.<br\/><br\/>Our warranty provides a guarantee against manufacturer defects.<br\/><br\/>The guarantee covers any manufacturing, design, or material defect. Please notify us within 2 months of noticing any defects.<br\/><br\/>It does not cover blows, improper use, or other issues that are not attributable to a manufacturer defects.<\/p>"
+          }
+        },
+        "template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-2": {
+          "type": "text",
+          "settings": {
+            "title": "Do you offer refunds?",
+            "text": "<p>Yes, we offer full and partial refunds.<br\/><br\/>Please enquire for more information about our Refund policy.<\/p>"
+          }
+        },
+        "template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-3": {
+          "type": "text",
+          "settings": {
+            "title": "What shipping methods do you offer?",
+            "text": "<p>We use all major carriers, and local courier partners. Use the shipping estimator in the cart to check your shipping rates.<\/p>"
+          }
+        }
+      },
+      "block_order": [
+        "template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-0",
+        "template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-1",
+        "template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-2",
+        "template--16761573179606__60989128-6fe7-4b8a-b154-d4f87034f84f-167049521539e9e40b-3"
+      ],
+      "settings": {
+        "layout": "two-columns",
+        "show_accordion_divider": false,
+        "title": "Frequently Asked Questions",
+        "subheading": "",
+        "text": "<p><\/p>",
+        "tabs_bg_color": "#fafafa",
+        "bg_color_secondary": false,
+        "text_color": "text-dark",
+        "width": "wrapper",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "1b0c19a5-2771-4781-b737-93232dca0592": {
+      "type": "section-newsletter",
+      "settings": {
+        "flex_align": "align--middle-center",
+        "text_color": "text-dark",
+        "title": "Newsletter",
+        "text": "<p>Sign up for exclusive deals and early access to new products.<\/p>",
+        "extra_fields": "name",
+        "button_text": "",
+        "bg_color": "",
+        "image_height": "three-fifty-height",
+        "overlay_opacity": 10,
+        "width": "wrapper--full-padded",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    }
+  },
+  "order": [
+    "image-accordions-0",
+    "2d80a7ad-cd09-4577-8fdb-0d0849a24a29",
+    "54683621-403d-4a3a-8b9b-e6856331f6ec",
+    "d9792d77-19d0-4329-ab03-33e084915d6a",
+    "e2adf461-2c23-49f1-9c64-cc15ce28c5fe",
+    "d2114bb4-eda6-47c3-8f01-7fc8d2fbfedd",
+    "tab-collections",
+    "bc0e8f61-7cfc-4dd2-87e5-b68323416a88",
+    "5421e01c-aada-451f-b97a-b078eccc9ea4",
+    "c0cde275-0997-4dce-a2c1-32a67b36c5a8",
+    "60989128-6fe7-4b8a-b154-d4f87034f84f",
+    "1b0c19a5-2771-4781-b737-93232dca0592"
+  ]
+}
+>>>>>>> 86003151e76cf540e9ba4aaa4132fc3bf53a2217
