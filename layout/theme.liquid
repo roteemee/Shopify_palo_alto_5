@@ -1,6 +1,9 @@
 <!doctype html>
 <html class="no-js no-touch" lang="{{ request.locale.iso_code }}">
-<head>  <meta charset="utf-8">
+<head>
+	<!-- Added by AVADA SEO Suite -->
+	{% include 'avada-seo' %}
+	<!-- /Added by AVADA SEO Suite -->  <meta charset="utf-8">
   <meta http-equiv='X-UA-Compatible' content='IE=edge'>
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0">
   <link rel="canonical" href="{{ canonical_url }}" />
@@ -216,7 +219,11 @@
   {%- endcomment -%}
 
   {{ content_for_header }}
-</head>{%- capture body_classes -%}
+
+	<!-- Added by AVADA SEO Suite -->
+	{% include 'avada-seo-social' %}
+	<!-- /Added by AVADA SEO Suite -->
+	</head>{%- capture body_classes -%}
 template-{{ template | replace: '.', ' ' | truncatewords: 1, '' | handle }}
 {% if customer %} customer-logged-in{% endif %}
 {% if settings.show_rounded_corners %} body--rounded-corners{% endif %}
